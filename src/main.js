@@ -16,15 +16,13 @@ renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 // カメラ
-const camera = new THREE.PerspectiveCamera(60, window.devicePixelRatio);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight);
 camera.position.set(30, 30, 30);
 
 // マウスコントロール
 const controls = new OrbitControls(camera, renderer.domElement);
-
 controls.autoRotate = true; // 自動回転
 controls.autoRotateSpeed = 1; // 自動回転の速度
-
 controls.enableDamping = true; // 視点の移動を滑らかにする
 controls.dampingFactor = 0.2; // 滑らか度合い
 
@@ -35,12 +33,11 @@ const cube = new THREE.Mesh(
     new THREE.MeshStandardMaterial()
   )
 );
-cube.position.set(0, 5, 0);
+cube.position.set(0, 10, 0);
 scene.add(cube);
 
 // 座表軸
-const axes = new THREE.AxesHelper();
-scene.add(axes);
+scene.add(new THREE.AxesHelper());
 
 // 床
 const meshFloor = new THREE.Mesh(
@@ -50,7 +47,7 @@ const meshFloor = new THREE.Mesh(
     new THREE.MeshStandardMaterial()
   )
 );
-meshFloor.receiveShadow = true; // 影を受け付ける
+meshFloor.receiveShadow = true;
 scene.add(meshFloor);
 
 // エントリーポイント
@@ -58,9 +55,17 @@ const main = () => {
   requestAnimationFrame(main);
 
   cube.rotation.z += 0.1;
+  cube.rotation.x += 0.1;
+  cube.rotation.y += 0.1;
 
   renderer.render(scene, camera);
   controls.update();
 };
 
 window.addEventListener("load", main);
+
+window.addEventListener("resize", () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
