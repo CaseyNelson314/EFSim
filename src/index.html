@@ -3,15 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <title>My first three.js app</title>
-    <style>
-      body {
-        margin: 0;
-      }
-    </style>
+    <link rel="stylesheet" href="style/style.css" />
+    <script type="module" src="main.js"></script>
   </head>
   <body>
-    <div>
-      <script type="module" src="main.js"></script>
+    <div class="app">
+      <div id="canvas"></div>
+      <div class="settings">
+        <div class="enable_auto_rotate">
+          <input type="checkbox" id="checkbox_auto_rotate" checked/>
+          <label for="checkbox_auto_rotate">自動回転</label>
+        </div>
+        <div class="enable_electric_field_vectors">
+          <input type="checkbox" id="checkbox_electric_field_vectors" />
+          <label for="checkbox_electric_field_vectors">電場ベクトル</label>
+        </div>
+      </div>
     </div>
   </body>
 </html>
