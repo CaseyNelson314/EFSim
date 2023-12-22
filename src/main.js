@@ -80,6 +80,22 @@ for (const charge of point_charges) {
   transControls.attach(charge.mesh);
 }
 
+/// @param origin 始点 (PointCharge)
+const CreateElectricLineGeometry = (origin, vector, point_charges, length) => {
+
+  const points = [];
+  
+  const dir = new THREE.Vector3(0, 0, 0);
+  dir.subVectors(origin, vector.normalize());
+
+  for (var i = 0; i < length; i++) {
+    points.push()
+    dir.add(vector);
+  }
+
+  return new THREE.BufferGeometry().setFromPoints( points );
+}
+
 const CreateElectricFieldVector = () => {
   var arrows = [];
   for (var x = -5; x <= 5; x++) {
