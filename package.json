@@ -5,7 +5,7 @@
   "main": "app/script/main.js",
   "scripts": {
     "dev": "cd app && vite",
-    "build": "cd app && vite build",
+    "build": "cd app && vite build --base ./",
     "serve": "cd app && vite preview"
   },
   "repository": {
