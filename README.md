@@ -4,9 +4,17 @@
 
 Electric Field Simulator
 
+## Usage
+
+### Camera View Control
+
+rotation: `Drag`
+
+position: `Shift` + `Drag`
+
 ## Local Execute
 
-### setup
+### Setup
 
 Install NodeJS
 
@@ -14,7 +22,7 @@ Install NodeJS
 winget install -e --id OpenJS.NodeJS
 ```
 
-Install apps
+Clone
 
 ```sh
 git clone https://github.com/CaseyNelson314/EFSim.git
@@ -22,7 +30,7 @@ cd EFSim
 npm install --save-dev
 ```
 
-### launch local server
+### Launch local server
 
 ```
 npm run dev
