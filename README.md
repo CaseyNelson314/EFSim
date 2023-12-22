@@ -14,14 +14,16 @@ Install NodeJS
 winget install -e --id OpenJS.NodeJS
 ```
 
-Install node modules
+Install apps
 
 ```sh
+git clone https://github.com/CaseyNelson314/EFSim.git
+cd EFSim
 npm install --save-dev
 ```
 
 ### launch local server
 
 ```
-npm dev
+npm run dev
 ```
