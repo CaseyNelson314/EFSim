@@ -1,10 +1,11 @@
-name: GitHub Pages
+name: GitHub Pages Deploy
 
 on:
   push:
     branches:
       - master
   pull_request:
+    branches:
       - master
 
 jobs:
@@ -16,22 +17,19 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true  # Fetch Hugo themes (true OR recursive)
-          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
-      - name: Setup Node
-        uses: 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+          cache: npm
 
       - name: Build
-        run: hugo --minify
+        run: |
+          npm install
+          npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        # If you're changing the branch from main,
-        # also change the `main` in `refs/heads/main`
-        # below accordingly.
-        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./app/dist
