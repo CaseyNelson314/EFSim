@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { TransformControls } from "three/addons/controls/TransformControls";
-// import PointCharge from "./script/PointCharge.js";
+import PointCharge from "./script/PointCharge.js";
 
 import {
   CreateScene,
@@ -21,15 +21,7 @@ document
     controls.autoRotate = e.target.checked;
   });
 
-class PointCharge {
-  constructor(charge, mesh) {
-    this.charge = charge;
-    this.mesh = mesh;
-    this.pos = mesh.position;
-  }
-}
-
-// 座標から電場ベクトルを計算
+// 指定座標における電場ベクトルを計算
 const PosToElectricFieldVector = (pos, point_charges) => {
   var electric_field_vector = new THREE.Vector3(0, 0, 0); // 合成ベクトル
   for (const point_charge of point_charges) {
@@ -50,72 +42,128 @@ const PosToElectricFieldVector = (pos, point_charges) => {
 
 // オブジェクトコントローラー
 const transControls = new TransformControls(camera, renderer.domElement);
-scene.add(transControls);
+// scene.add(transControls);
 
-const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const sphereMaterial = new THREE.MeshBasicMaterial(
-  { color: 0xdd5555, wireframe: false },
-  new THREE.MeshStandardMaterial()
-);
-
-const meshes = [
-  new THREE.Mesh(sphereGeometry, sphereMaterial),
-  new THREE.Mesh(sphereGeometry, sphereMaterial),
-  new THREE.Mesh(sphereGeometry, sphereMaterial),
-];
-
-meshes[0].position.set(10, -10, 10);
-meshes[1].position.set(-10, 10, -10);
-meshes[2].position.set(0, 10, 0);
-
+// 点電荷たち
 const point_charges = [
-  new PointCharge(0.00001, meshes[0]),
-  new PointCharge(0.00001, meshes[1]),
-  new PointCharge(0.00001, meshes[2]),
+  new PointCharge(-0.00001, new THREE.Vector3(60, 0, 60)),
+  new PointCharge(0.0001, new THREE.Vector3(20, 60, 0)),
+  new PointCharge(+0.00001, new THREE.Vector3(-50, 0, 20)),
+  new PointCharge(0.00005, new THREE.Vector3(20, 0, 0)),
 ];
 
 // 球
+const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+const sphereMaterialRed = new THREE.MeshBasicMaterial(
+  { color: 0xdd5555, wireframe: false },
+  new THREE.MeshStandardMaterial()
+);
+const sphereMaterialBlue = new THREE.MeshBasicMaterial(
+  { color: 0x5555dd, wireframe: false },
+  new THREE.MeshStandardMaterial()
+);
 for (const charge of point_charges) {
-  scene.add(charge.mesh);
-  transControls.attach(charge.mesh);
+  const mesh = new THREE.Mesh(
+    sphereGeometry,
+    charge.charge > 0 ? sphereMaterialRed : sphereMaterialBlue
+  );
+  mesh.position.copy(charge.pos);
+  scene.add(mesh);
+  // transControls.attach(mesh);
 }
 
 /// @param origin 始点 (PointCharge)
-const CreateElectricLineGeometry = (origin, vector, point_charges, length) => {
-
-  const points = [];
-  
-  const dir = new THREE.Vector3(0, 0, 0);
-  dir.subVectors(origin, vector.normalize());
-
+const CreateElectricLineGeometry = (origin_charge, vector, point_charges, length) => {
+  const points = [origin_charge.pos.clone()];
+  const _origin = origin_charge.pos.clone();
+  _origin.add(vector);
   for (var i = 0; i < length; i++) {
-    points.push()
-    dir.add(vector);
+    const d_vector = PosToElectricFieldVector(_origin, point_charges);
+    d_vector.normalize();
+    if (origin_charge.charge < 0) d_vector.multiplyScalar(-1);
+    // 点電荷との衝突判定
+    for (const point_charge of point_charges) {
+      const diff = new THREE.Vector3(0, 0, 0);
+      diff.subVectors(_origin, point_charge.pos);
+      if (diff.length() < 1) {
+        console.log("hit");
+        return new THREE.BufferGeometry().setFromPoints(points);
+      }
+    }
+    _origin.add(d_vector);
+    points.push(_origin.clone());
   }
+  return new THREE.BufferGeometry().setFromPoints(points);
+};
 
-  return new THREE.BufferGeometry().setFromPoints( points );
+const line_material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+for (const point_charge of point_charges) {
+  for (var i = 0; i < 100; i++) {
+    // 球面上に点を打つ
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI * 2;
+    const x = 5 * Math.sin(theta) * Math.cos(phi);
+    const y = 5 * Math.sin(theta) * Math.sin(phi);
+    const z = 5 * Math.cos(theta);
+
+    const line = new THREE.Line(
+      CreateElectricLineGeometry(
+        point_charge,
+        new THREE.Vector3(x, y, z),
+        point_charges,
+        500
+      ),
+      line_material
+    );
+    scene.add(line);
+  }
+  // for (var x = -5; x <= 5; x++) {
+  //   for (var y = -5; y <= 5; y++) {
+  //     for (var z = -5; z <= 5; z++) {
+  //       if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2) continue;
+  //       if (x === 0 && y === 0 && z === 0) continue;
+  //       const line = new THREE.Line(
+  //         CreateElectricLineGeometry(
+  //           point_charge.pos,
+  //           new THREE.Vector3(x * 5, y * 5, z * 5),
+  //           point_charges,
+  //           1000
+  //         ),
+  //         line_material
+  //       );
+  //       scene.add(line);
+  //     }
+  //   }
+  // }
 }
 
 const CreateElectricFieldVector = () => {
   var arrows = [];
-  for (var x = -5; x <= 5; x++) {
-    for (var y = -5; y <= 5; y++) {
-      for (var z = -5; z <= 5; z++) {
-        const origin = new THREE.Vector3(x * 4, y * 4, z * 4);
-        const electric_field_vector = PosToElectricFieldVector(
-          origin,
-          point_charges
-        ).normalize();
-        arrows.push(
-          new THREE.ArrowHelper(
-            electric_field_vector.normalize(),
+  for (var point_charge of point_charges) {
+    for (var x = -5; x <= 5; x++) {
+      for (var y = -5; y <= 5; y++) {
+        for (var z = -5; z <= 5; z++) {
+          if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2) continue;
+          if (x === 0 && y === 0 && z === 0) continue;
+          const origin = new THREE.Vector3(x * 5, y * 5, z * 5);
+          origin.add(point_charge.pos);
+          const electric_field_vector = PosToElectricFieldVector(
             origin,
-            1,
-            0xffffff,
-            1,
-            0.3
-          )
-        );
+            point_charges
+          );
+
+          const len = electric_field_vector.length();
+          arrows.push(
+            new THREE.ArrowHelper(
+              electric_field_vector.normalize(),
+              origin,
+              1,
+              0xffffff,
+              2,
+              0.5
+            )
+          );
+        }
       }
     }
   }
@@ -148,14 +196,18 @@ transControls.addEventListener("mouseUp", () => {
   // オブジェクト操作解除時、OrbitControls有効化
   controls.enablePan = true;
   controls.enableRotate = true;
+});
+
+transControls.addEventListener("change", () => {
+  // オブジェクト操作解除時、OrbitControls有効化
   if (document.getElementById("checkbox_electric_field_vectors").checked) {
-    for (const arrow of arrows) {
-      scene.remove(arrow);
-    }
-    arrows = CreateElectricFieldVector();
-    for (const arrow of arrows) {
-      scene.add(arrow);
-    }
+    // for (const arrow of arrows) {
+    //   scene.remove(arrow);
+    // }
+    // arrows = CreateElectricFieldVector();
+    // for (const arrow of arrows) {
+    //   scene.add(arrow);
+    // }
   }
 });
 

@@ -34,7 +34,7 @@ export const CreateCamera = () => {
     50,
     window.innerWidth / window.innerHeight
   );
-  camera.position.set(30, 30, 30);
+  camera.position.set(150, 150, 150);
 
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
