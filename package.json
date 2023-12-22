@@ -2,10 +2,10 @@
   "name": "efsim",
   "version": "1.0.0",
   "description": "電界シミュレータ",
-  "main": "src/main.js",
+  "main": "app/script/main.js",
   "scripts": {
-    "dev": "cd src && vite",
-    "build": "cd src && vite build"
+    "dev": "cd app && vite",
+    "build": "cd app && vite build"
   },
   "repository": {
     "type": "git",

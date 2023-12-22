@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { TransformControls } from "three/addons/controls/TransformControls";
-import PointCharge from "./script/PointCharge.js";
+import PointCharge from "./PointCharge.js";
 
 import {
   CreateScene,
   CreateRenderer,
   CreateCamera,
   CreateControls,
-} from "./script/Init.js";
+} from "./Init.js";
 
 const scene = CreateScene();
 const renderer = CreateRenderer(document.getElementById("canvas"));
