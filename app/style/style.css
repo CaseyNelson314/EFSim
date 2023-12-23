@@ -13,8 +13,7 @@
   height: 100%;
 }
 
-.enable_auto_rotate,
-.enable_electric_field_vectors {
+.checkbox {
   display: flex;
   margin: 10px;
   padding: 10px;
