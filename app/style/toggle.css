@@ -1,0 +1,37 @@
+/* トグルボタン */
+
+.dimension_toggle {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: auto;
+  height: 40px;
+  margin: 20px;
+  border-radius: 10px;
+  border: 2px solid #515862;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+}
+
+.dimension_toggle input {
+  display: none;
+}
+
+#dimension_toggle_slider {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-radius: 8px 0 0 8px;
+  background-color: #64696f;
+  transition: 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.dimension_toggle:has(:checked) #dimension_toggle_slider {
+  border-radius: 0 8px 8px 0;
+  transform: translateX(100%);
+}

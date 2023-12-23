@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { TransformControls } from "three/addons/controls/TransformControls";
 
 // シーンを作成
 export const CreateScene = () => {
@@ -45,13 +46,26 @@ export const CreateCamera = () => {
 };
 
 // マウスコントロールを作成
-export const CreateControls = (camera, renderer) => {
-  const controls = new OrbitControls(camera, renderer.domElement);
+export const CreateControls = (camera, dom) => {
+  const controls = new OrbitControls(camera, dom);
 
   controls.autoRotate = true; // 自動回転
   controls.autoRotateSpeed = 1; // 自動回転の速度
   controls.enableDamping = true; // 視点の移動を滑らかにする
-  controls.dampingFactor = 0.5; // 滑らか度合い
+  controls.dampingFactor = 0.2; // 滑らか度合い
 
   return controls;
+};
+
+export const CreateTransformControls = (camera, dom, controls, scene) => {
+  const transControls = new TransformControls(camera, dom);
+
+  transControls.addEventListener("dragging-changed", (event) => {
+    controls.enablePan = !event.value;
+    controls.enableRotate = !event.value;
+  });
+  
+  scene.add(transControls);
+
+  return transControls;
 };
