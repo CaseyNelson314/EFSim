@@ -119,24 +119,6 @@ for (const point_charge of point_charges) {
       scene.add(line);
     }
   }
-  // for (var x = -5; x <= 5; x++) {
-  //   for (var y = -5; y <= 5; y++) {
-  //     for (var z = -5; z <= 5; z++) {
-  //       if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2) continue;
-  //       if (x === 0 && y === 0 && z === 0) continue;
-  //       const line = new THREE.Line(
-  //         CreateElectricLineGeometry(
-  //           point_charge.pos,
-  //           new THREE.Vector3(x * 5, y * 5, z * 5),
-  //           point_charges,
-  //           1000
-  //         ),
-  //         line_material
-  //       );
-  //       scene.add(line);
-  //     }
-  //   }
-  // }
 }
 
 const CreateElectricFieldVector = () => {
