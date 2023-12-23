@@ -1,30 +1,22 @@
 import * as THREE from "three";
-import { TransformControls } from "three/addons/controls/TransformControls";
+import * as EFSim from "./Init.js";
 import PointCharge from "./PointCharge.js";
 import { Field3D } from "./Field3D.js";
 
-import {
-  CreateScene,
-  CreateRenderer,
-  CreateCamera,
-  CreateControls,
-} from "./Init.js";
+const scene = EFSim.CreateScene();
+const renderer = EFSim.CreateRenderer(document.getElementById("canvas"));
+const camera = EFSim.CreateCamera();
 
-const scene = CreateScene();
-const renderer = CreateRenderer(document.getElementById("canvas"));
-const camera = CreateCamera();
-const controls = CreateControls(camera, renderer);
+// マウスコントロール
+const controls = EFSim.CreateControls(camera, renderer.domElement);
 
-// 自動回転の有無チェックイベント
-document
-  .getElementById("checkbox_auto_rotate")
-  .addEventListener("change", (e) => {
-    controls.autoRotate = e.target.checked;
-  });
-
-// オブジェクトコントローラー
-const transControls = new TransformControls(camera, renderer.domElement);
-// scene.add(transControls);
+// ドラッグでオブジェクトを移動するためのコントロール
+const transControls = EFSim.CreateTransformControls(
+  camera,
+  renderer.domElement,
+  controls,
+  scene
+);
 
 // 点電荷たち
 const point_charges = [
@@ -35,129 +27,54 @@ const point_charges = [
 ];
 
 const field_3d = new Field3D(point_charges);
-scene.add(field_3d);
 
-// 2D/3D切り替え
-document
-  .getElementById("dimension_toggle_switch")
-  .addEventListener("change", (e) => {
-    if (e.target.checked) {
-      // 2D
-      document.getElementById("dimension_toggle_slider").textContent = "2D";
-      scene.remove(field_3d);
-    } else {
-      // 3D
-      document.getElementById("dimension_toggle_slider").textContent = "3D";
-      scene.add(field_3d);
-    }
+// 自動回転切り替え
+{
+  const dom_switch = document.getElementById("checkbox_auto_rotate");
+  controls.autoRotate = dom_switch.checked; // 初期値
+  dom_switch.addEventListener("change", (e) => {
+    controls.autoRotate = e.target.checked;
   });
-
-// 球
-const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-const sphereMaterialRed = new THREE.MeshBasicMaterial(
-  { color: 0xdd5555, wireframe: false },
-  new THREE.MeshStandardMaterial()
-);
-const sphereMaterialBlue = new THREE.MeshBasicMaterial(
-  { color: 0x5555dd, wireframe: false },
-  new THREE.MeshStandardMaterial()
-);
-for (const charge of point_charges) {
-  const mesh = new THREE.Mesh(
-    sphereGeometry,
-    charge.charge > 0 ? sphereMaterialRed : sphereMaterialBlue
-  );
-  mesh.position.copy(charge.pos);
-  scene.add(mesh);
-  // transControls.attach(mesh);
 }
 
-const CreateElectricFieldVector = () => {
-  var arrows = [];
-  for (var point_charge of point_charges) {
-    for (var x = -5; x <= 5; x++) {
-      for (var y = -5; y <= 5; y++) {
-        for (var z = -5; z <= 5; z++) {
-          if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2) continue;
-          if (x === 0 && y === 0 && z === 0) continue;
-          const origin = new THREE.Vector3(x * 5, y * 5, z * 5);
-          origin.add(point_charge.pos);
-          const electric_field_vector = field_3d.posToElectricFieldVector(
-            origin,
-            point_charges
-          );
-
-          const len = electric_field_vector.length();
-          arrows.push(
-            new THREE.ArrowHelper(
-              electric_field_vector.normalize(),
-              origin,
-              1,
-              0xffffff,
-              2,
-              0.5
-            )
-          );
-        }
-      }
-    }
-  }
-  return arrows;
-};
-
-var arrows = CreateElectricFieldVector();
-
-document
-  .getElementById("checkbox_electric_field_vectors")
-  .addEventListener("change", (e) => {
-    if (e.target.checked) {
-      for (const arrow of arrows) {
-        scene.add(arrow);
-      }
+// 2D/3D切り替え
+{
+  const dom_switch = document.getElementById("dimension_toggle_switch");
+  const dom_slider = document.getElementById("dimension_toggle_slider");
+  const ChangeDimension = (is_3d) => {
+    if (is_3d) {
+      dom_slider.textContent = "3D";
+      scene.add(field_3d);
+      transControls.attach(field_3d);
     } else {
-      for (const arrow of arrows) {
-        scene.remove(arrow);
-      }
+      dom_slider.textContent = "2D";
+      scene.remove(field_3d);
+      transControls.detach(field_3d);
     }
+  };
+  ChangeDimension(dom_switch.checked); // 初期値
+  dom_switch.addEventListener("change", (e) => {
+    ChangeDimension(e.target.checked);
   });
+}
 
-transControls.addEventListener("mouseDown", () => {
-  // オブジェクト操作時、OrbitControls無効化
-  controls.enablePan = false;
-  controls.enableRotate = false;
-});
+// 電気力線 表示/非表示
+{
+  const checkbox = document.getElementById("checkbox_electric_lines");
+  field_3d.enableElectricLines(checkbox.checked); // 初期値
+  checkbox.addEventListener("change", (e) => {
+    field_3d.enableElectricLines(e.target.checked);
+  });
+}
 
-transControls.addEventListener("mouseUp", () => {
-  // オブジェクト操作解除時、OrbitControls有効化
-  controls.enablePan = true;
-  controls.enableRotate = true;
-});
-
-transControls.addEventListener("change", () => {
-  // オブジェクト操作解除時、OrbitControls有効化
-  if (document.getElementById("checkbox_electric_field_vectors").checked) {
-    // for (const arrow of arrows) {
-    //   scene.remove(arrow);
-    // }
-    // arrows = CreateElectricFieldVector();
-    // for (const arrow of arrows) {
-    //   scene.add(arrow);
-    // }
-  }
-});
-
-// 座表軸
-// scene.add(new THREE.AxesHelper());
-
-// 床
-const meshFloor = new THREE.Mesh(
-  new THREE.BoxGeometry(100, 0.0001, 100),
-  new THREE.MeshBasicMaterial(
-    { color: 0x555555 },
-    new THREE.MeshStandardMaterial()
-  )
-);
-// scene.add(meshFloor);
+// 電界ベクトル 表示/非表示
+{
+  const checkbox = document.getElementById("checkbox_electric_field_vectors");
+  field_3d.enableElectricFieldVectors(checkbox.checked); // 初期値
+  checkbox.addEventListener("change", (e) => {
+    field_3d.enableElectricFieldVectors(e.target.checked);
+  });
+}
 
 // エントリーポイント
 const main = () => {

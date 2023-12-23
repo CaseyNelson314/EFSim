@@ -13,22 +13,32 @@
       <div id="canvas"></div>
       <div class="settings">
         <label class="dimension_toggle">
-          <input type="checkbox" id="dimension_toggle_switch" />
+          <input type="checkbox" id="dimension_toggle_switch" checked/>
           <div id="dimension_toggle_slider">3D</div>
         </label>
-        <label class="checkbox">
-          <input type="checkbox" id="checkbox_auto_rotate" checked />
-          自動回転
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" id="checkbox_electric_field_vectors" />
-          電界ベクトル
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" id="checkbox_electric_field_vectors" />
-          電気力線
-        </label>
-      </div>
+        <!-- <div class="settings_2d">
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors" />
+            電界ベクトル
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors" />
+            電気力線
+          </label> -->
+        <div class="settings_3d">
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_auto_rotate" checked />
+            自動回転
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors"/>
+            電界ベクトル
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_lines" checked/>
+            電気力線
+          </label>
+        </div>
     </div>
   </body>
 </html>
