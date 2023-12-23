@@ -98,24 +98,26 @@ const CreateElectricLineGeometry = (origin_charge, vector, point_charges, length
 
 const line_material = new THREE.LineBasicMaterial({ color: 0x0000ff });
 for (const point_charge of point_charges) {
-  for (var i = 0; i < 100; i++) {
-    // 球面上に点を打つ
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 2;
-    const x = 5 * Math.sin(theta) * Math.cos(phi);
-    const y = 5 * Math.sin(theta) * Math.sin(phi);
-    const z = 5 * Math.cos(theta);
 
-    const line = new THREE.Line(
-      CreateElectricLineGeometry(
-        point_charge,
-        new THREE.Vector3(x, y, z),
-        point_charges,
-        500
-      ),
-      line_material
-    );
-    scene.add(line);
+  for (var n_theta = 0; n_theta < 10; n_theta++) {
+    for (var n_phi = 0; n_phi < 10; n_phi++) {
+      const theta = (Math.PI * 2) / 10 * n_theta;
+      const phi = (Math.PI * 2) / 10 * n_phi;
+      const x = 5 * Math.sin(theta) * Math.cos(phi);
+      const y = 5 * Math.sin(theta) * Math.sin(phi);
+      const z = 5 * Math.cos(theta);
+
+      const line = new THREE.Line(
+        CreateElectricLineGeometry(
+          point_charge,
+          new THREE.Vector3(x, y, z),
+          point_charges,
+          500
+        ),
+        line_material
+      );
+      scene.add(line);
+    }
   }
   // for (var x = -5; x <= 5; x++) {
   //   for (var y = -5; y <= 5; y++) {
