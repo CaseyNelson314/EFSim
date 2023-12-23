@@ -14,6 +14,18 @@ const renderer = CreateRenderer(document.getElementById("canvas"));
 const camera = CreateCamera();
 const controls = CreateControls(camera, renderer);
 
+// document
+//   .getElementById("dimension_toggle_switch")
+//   .addEventListener("change", (e) => {
+//     if (e.target.checked) {
+//       camera.position.set(0, 0, 100);
+//       camera.lookAt(0, 0, 0);
+//     } else {
+//       camera.position.set(100, 100, 100);
+//       camera.lookAt(0, 0, 0);
+//     }
+//   });
+
 // 自動回転の有無チェックイベント
 document
   .getElementById("checkbox_auto_rotate")
@@ -46,8 +58,8 @@ const transControls = new TransformControls(camera, renderer.domElement);
 
 // 点電荷たち
 const point_charges = [
-  new PointCharge(-0.00001, new THREE.Vector3(60, 0, 60)),
-  new PointCharge(0.0001, new THREE.Vector3(20, 60, 0)),
+  new PointCharge(0.00001, new THREE.Vector3(60, 0, 60)),
+  new PointCharge(-0.0001, new THREE.Vector3(20, 60, 0)),
   new PointCharge(+0.00001, new THREE.Vector3(-50, 0, 20)),
   new PointCharge(0.00005, new THREE.Vector3(20, 0, 0)),
 ];
@@ -73,7 +85,12 @@ for (const charge of point_charges) {
 }
 
 /// @param origin 始点 (PointCharge)
-const CreateElectricLineGeometry = (origin_charge, vector, point_charges, length) => {
+const CreateElectricLineGeometry = (
+  origin_charge,
+  vector,
+  point_charges,
+  length
+) => {
   const points = [origin_charge.pos.clone()];
   const _origin = origin_charge.pos.clone();
   _origin.add(vector);
@@ -98,11 +115,10 @@ const CreateElectricLineGeometry = (origin_charge, vector, point_charges, length
 
 const line_material = new THREE.LineBasicMaterial({ color: 0x0000ff });
 for (const point_charge of point_charges) {
-
   for (var n_theta = 0; n_theta < 10; n_theta++) {
     for (var n_phi = 0; n_phi < 10; n_phi++) {
-      const theta = (Math.PI * 2) / 10 * n_theta;
-      const phi = (Math.PI * 2) / 10 * n_phi;
+      const theta = ((Math.PI * 2) / 10) * n_theta;
+      const phi = ((Math.PI * 2) / 10) * n_phi;
       const x = 5 * Math.sin(theta) * Math.cos(phi);
       const y = 5 * Math.sin(theta) * Math.sin(phi);
       const z = 5 * Math.cos(theta);
@@ -112,7 +128,7 @@ for (const point_charge of point_charges) {
           point_charge,
           new THREE.Vector3(x, y, z),
           point_charges,
-          500
+          1000
         ),
         line_material
       );

@@ -4,12 +4,18 @@
     <meta charset="utf-8" />
     <title>EFSim</title>
     <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/toggle.css" />
+    <link rel="icon" href="static/kagaku_genshi.png" />
   </head>
   <body>
     <script type="module" src="script/main.js"></script>
     <div class="app">
       <div id="canvas"></div>
       <div class="settings">
+        <div class="dimension_toggle">
+          <input type="checkbox" id="dimension_toggle_switch" />
+          <div class="slider">2D/3D</div>
+        </div>
         <div class="enable_auto_rotate">
           <input type="checkbox" id="checkbox_auto_rotate" checked />
           <label for="checkbox_auto_rotate">自動回転</label>
