@@ -3,22 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <title>EFSim</title>
-    <script type="module" crossorigin src="./assets/index-G1Nc7oVF.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index--tieDNGZ.css">
+    <link rel="icon" href="./assets/kagaku_genshi-J5GJWi2o.png" />
+    <script type="module" crossorigin src="./assets/index-aH_LwF-I.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-MeZygEY7.css">
   </head>
   <body>
     <div class="app">
       <div id="canvas"></div>
       <div class="settings">
-        <div class="enable_auto_rotate">
-          <input type="checkbox" id="checkbox_auto_rotate" checked />
-          <label for="checkbox_auto_rotate">自動回転</label>
+        <label class="dimension_toggle">
+          <input type="checkbox" id="dimension_toggle_switch" checked/>
+          <div id="dimension_toggle_slider">3D</div>
+        </label>
+        <!-- <div class="settings_2d">
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors" />
+            電界ベクトル
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors" />
+            電気力線
+          </label> -->
+        <div class="settings_3d">
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_auto_rotate" checked />
+            自動回転
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_field_vectors"/>
+            電界ベクトル
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="checkbox_electric_lines" checked/>
+            電気力線
+          </label>
         </div>
-        <div class="enable_electric_field_vectors">
-          <input type="checkbox" id="checkbox_electric_field_vectors" />
-          <label for="checkbox_electric_field_vectors">電場ベクトル</label>
-        </div>
-      </div>
     </div>
   </body>
 </html>
