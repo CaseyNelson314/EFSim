@@ -45,11 +45,11 @@ const field_3d = new Field3D(point_charges);
     if (is_3d) {
       dom_slider.textContent = "3D";
       scene.add(field_3d);
-      transControls.attach(field_3d);
+      // transControls.attach(field_3d);
     } else {
       dom_slider.textContent = "2D";
       scene.remove(field_3d);
-      transControls.detach(field_3d);
+      // transControls.detach(field_3d);
     }
   };
   ChangeDimension(dom_switch.checked); // 初期値
