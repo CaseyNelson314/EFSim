@@ -18,7 +18,7 @@
   display: none;
 }
 
-.slider {
+#dimension_toggle_slider {
   position: absolute;
   width: 50%;
   height: 100%;
@@ -31,7 +31,7 @@
   color: #fff;
 }
 
-.dimension_toggle:has(:checked) .slider {
+.dimension_toggle:has(:checked) #dimension_toggle_slider {
   border-radius: 0 8px 8px 0;
   transform: translateX(100%);
 }
