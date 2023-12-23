@@ -51,7 +51,7 @@ export const CreateControls = (camera, renderer) => {
   controls.autoRotate = true; // 自動回転
   controls.autoRotateSpeed = 1; // 自動回転の速度
   controls.enableDamping = true; // 視点の移動を滑らかにする
-  controls.dampingFactor = 0.5; // 滑らか度合い
+  controls.dampingFactor = 0.2; // 滑らか度合い
 
   return controls;
 };
