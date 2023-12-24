@@ -1,22 +1,44 @@
 import * as THREE from "three";
-import PointCharge from "./PointCharge.js";
+
+// THREE.Vector3 が等しいかどうかを判定
+const EqualsVector3 = (v1, v2, eps = Number.EPSILON) => {
+  return (
+    Math.abs(v1.x - v2.x) < eps &&
+    Math.abs(v1.y - v2.y) < eps &&
+    Math.abs(v1.z - v2.z) < eps
+  );
+};
+
+// 1つの点電荷からの電界ベクトルを算出
+// @param pos 観測点の座標
+// @param point_charge 点電荷
+const EFVector = (pos, point_charge) => {
+  // 観測点が点電荷と重なっている場合
+  if (EqualsVector3(pos, point_charge.pos)) {
+    return new THREE.Vector3();
+  }
+
+  const diff = new THREE.Vector3();
+  diff.subVectors(pos, point_charge.pos); // 点電荷と観測点との差分
+
+  const k = 8.987552 * 10 ** 9; // クーロン定数
+  const r_sq = diff.lengthSq(); // 点電荷と観測点との距離^2 (平方根処理をなくすため)
+
+  diff.multiplyScalar((k * point_charge.charge) / r_sq ** 2); // クーロン力算出
+
+  return diff; // ベクトルにかける係数
+};
 
 // 指定座標における電場ベクトルを計算
-export const PosToElectricFieldVector = (pos, point_charges) => {
-  var electric_field_vector = new THREE.Vector3(0, 0, 0); // 合成ベクトル
+// @param pos 観測点の座標
+// @param point_charges 点電荷の配列
+const EFieldVectors = (pos, point_charges) => {
+  var electric_field_vector = new THREE.Vector3();
+
   for (const point_charge of point_charges) {
-    const diff = new THREE.Vector3(0, 0, 0);
-    diff.subVectors(pos, point_charge.pos); // 点電荷と観測点との差分ベクトル
-
-    const r_sq = diff.lengthSq(); // 点電荷と観測点との距離^2 (平方根処理をなくすため)
-    const k = 8.987552 * 10 ** 9; // クーロン定数
-
-    const factor = r_sq ? (k * point_charge.charge) / r_sq ** 2 : 0; // ベクトルにかける係数
-
-    diff.multiplyScalar(factor);
-
-    electric_field_vector.add(diff);
+    electric_field_vector.add(EFVector(pos, point_charge));
   }
+
   return electric_field_vector;
 };
 
@@ -37,9 +59,12 @@ class ElectricLines3D extends THREE.Group {
   ) => {
     const points = [origin_charge.pos.clone()];
     const _origin = origin_charge.pos.clone();
-    _origin.add(vector);
+    const _vector = vector.clone();
+    _vector.normalize();
+    _origin.add(_vector);
     for (var i = 0; i < length; i++) {
-      const d_vector = PosToElectricFieldVector(_origin, point_charges);
+      const d_vector = EFieldVectors(_origin, point_charges);
+      // if (d_vector.length() < 0.0001) console.log("break");
       d_vector.normalize();
       if (origin_charge.charge < 0) d_vector.multiplyScalar(-1);
       // 点電荷との衝突判定
@@ -59,13 +84,13 @@ class ElectricLines3D extends THREE.Group {
   createField(point_charges) {
     const line_material = new THREE.LineBasicMaterial({ color: 0xaaaaff });
     for (const point_charge of point_charges) {
-      for (var n_theta = 0; n_theta < 5; n_theta++) {
-        for (var n_phi = 0; n_phi < 5; n_phi++) {
-          const theta = ((Math.PI * 2) / 5) * n_theta;
-          const phi = ((Math.PI * 2) / 5) * n_phi;
-          const x = 5 * Math.sin(theta) * Math.cos(phi);
-          const y = 5 * Math.sin(theta) * Math.sin(phi);
-          const z = 5 * Math.cos(theta);
+      for (var n_theta = 0; n_theta < 10; n_theta++) {
+        for (var n_phi = 0; n_phi < 10; n_phi++) {
+          const theta = ((Math.PI * 2) / 10) * n_theta;
+          const phi = ((Math.PI * 2) / 10) * n_phi;
+          const x = 10 * Math.sin(theta) * Math.cos(phi);
+          const y = 10 * Math.sin(theta) * Math.sin(phi);
+          const z = 10 * Math.cos(theta);
 
           const line = new THREE.Line(
             this.createElectricLineGeometry(
@@ -110,13 +135,10 @@ class ElectricFieldVectors3D extends THREE.Group {
         for (var y = -4; y <= 4; y++) {
           for (var z = -4; z <= 4; z++) {
             if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2) continue;
-            if (x === 0 && y === 0 && z === 0) continue;
+            // if (x === 0 && y === 0 && z === 0) continue;
             const origin = new THREE.Vector3(x * 10, y * 10, z * 10);
             origin.add(point_charge.pos);
-            const electric_field_vector = PosToElectricFieldVector(
-              origin,
-              point_charges
-            );
+            const electric_field_vector = EFieldVectors(origin, point_charges);
 
             const len = electric_field_vector.length();
             this.add(

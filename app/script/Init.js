@@ -17,30 +17,33 @@ export const CreateRenderer = (dom) => {
     antialias: true,
   });
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(dom.offsetWidth, dom.offsetHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
 
   dom.appendChild(renderer.domElement);
 
-  window.addEventListener("resize", () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  // const resizeObserver = new ResizeObserver((entries) => {
+  //   const { width, height } = entries[0].contentRect;
+  //   renderer.setSize(width, height);
+  //   console.log("resize");
+  // });
+  // resizeObserver.observe(dom);
 
   return renderer;
 };
 
 // カメラを作成
-export const CreateCamera = () => {
-  const camera = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight
-  );
+export const CreateCamera = (dom) => {
+  const aspect = dom.offsetWidth / dom.offsetHeight;
+  const camera = new THREE.PerspectiveCamera(50, aspect);
   camera.position.set(150, 150, 150);
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  });
+  // const resizeObserver = new ResizeObserver((entries) => {
+  //   const { width, height } = entries[0].contentRect;
+  //   camera.aspect = width / height;
+  //   camera.updateProjectionMatrix();
+  // });
+  // resizeObserver.observe(dom);
 
   return camera;
 };
@@ -57,6 +60,7 @@ export const CreateControls = (camera, dom) => {
   return controls;
 };
 
+// ドラッグでオブジェクトを移動するためのコントロールを作成
 export const CreateTransformControls = (camera, dom, controls, scene) => {
   const transControls = new TransformControls(camera, dom);
 
@@ -64,8 +68,19 @@ export const CreateTransformControls = (camera, dom, controls, scene) => {
     controls.enablePan = !event.value;
     controls.enableRotate = !event.value;
   });
-  
+
   scene.add(transControls);
 
   return transControls;
 };
+
+// リサイズ時のイベントを登録
+export const ResisterResizeObserver = (dom, renderer, camera) => {
+  const resizeObserver = new ResizeObserver((entries) => {
+    const { width, height } = entries[0].contentRect;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  });
+  resizeObserver.observe(dom);
+}
