@@ -26,10 +26,11 @@ const init = () => {
     new PointCharge(0.00001, new THREE.Vector3(60, 0, 60)),
     new PointCharge(-0.00001, new THREE.Vector3(20, 200, 0)),
     new PointCharge(+0.00001, new THREE.Vector3(-50, 0, 20)),
-    new PointCharge(0.0001, new THREE.Vector3(20, 0, 0)),
+    new PointCharge(0.00005, new THREE.Vector3(20, 0, 0)),
   ];
 
-  const field_3d = new Field3D(point_charges);
+  const field_3d = new Field3D(dom, camera, transControls, point_charges);
+  // transControls.attach(field_3d);
 
   // 自動回転切り替え
   {
@@ -75,6 +76,12 @@ const init = () => {
       field_3d.enableElectricFieldVectors(e.target.checked);
     });
   }
+
+  const helper = new THREE.GridHelper(2000, 100);
+  helper.material.opacity = 0.5;
+  // helper.material.transparent = true;
+  scene.add(helper);
+
   main(scene, renderer, camera, controls);
 };
 // 関数の実行時間を計測する関数
@@ -83,7 +90,7 @@ function measure(name, func) {
   const start = performance.now();
   func();
   const end = performance.now();
-  
+
   console.log(`${name}: ${Math.floor(end - start)}ms`);
 }
 window.addEventListener("load", () => {
@@ -95,6 +102,7 @@ const main = (scene, renderer, camera, controls) => {
   requestAnimationFrame(() => {
     main(scene, renderer, camera, controls);
   });
+
   renderer.render(scene, camera);
   controls.update();
 };
