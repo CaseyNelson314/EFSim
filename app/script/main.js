@@ -24,12 +24,13 @@ const init = () => {
     );
 
     // 点電荷たち
-    const point_charges = [
-        new PointCharge(Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
-        new PointCharge(-Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
-        new PointCharge(+Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
-        new PointCharge(-Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
-    ];
+    const point_charges = [];
+
+    const n = Math.floor(Math.random() * 10) + 1;
+    for (let i = 0; i < n; i++) {
+        const charge_sign = Math.random() > 0.5 ? 1 : -1;
+        point_charges.push(new PointCharge(Math.random() * charge_sign, new THREE.Vector3().randomDirection().multiplyScalar(100)));
+    }
 
     const field_3d = new Field3D(dom, camera, transControls, point_charges);
 

@@ -94,7 +94,7 @@ class ElectricLines3D extends THREE.Object3D {
                     dir_vector.y = Math.sin(phi) * sin_theta;
 
                     const line = new THREE.Line(
-                        this.createElectricLineGeometry(point_charge, dir_vector, point_charges, 1000),
+                        this.createElectricLineGeometry(point_charge, dir_vector, point_charges, 3000),
                         this.line_material);
                     this.add(line);
                 }
