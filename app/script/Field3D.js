@@ -194,6 +194,8 @@ export class Field3D extends THREE.Object3D {
         if (enable) {
             if (this.point_charges_3d == null)
                 this.point_charges_3d = new PointCharges3D(this.point_charges);
+            else
+                this.point_charges_3d.update();
             this.add(this.point_charges_3d);
         }
         else {
@@ -206,6 +208,8 @@ export class Field3D extends THREE.Object3D {
         if (enable) {
             if (this.electric_lines_3d == null)
                 this.electric_lines_3d = new ElectricLines3D(this.point_charges);
+            else
+                this.electric_lines_3d.update();
             this.add(this.electric_lines_3d);
         }
         else {
@@ -217,8 +221,9 @@ export class Field3D extends THREE.Object3D {
     enableElectricFieldVectors = (enable) => {
         if (enable) {
             if (this.electric_field_vectors_3d == null)
-                this.electric_field_vectors_3d =
-                    new ElectricFieldVectors3D(this.point_charges);
+                this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.point_charges);
+            else
+                this.electric_field_vectors_3d.update();
             this.add(this.electric_field_vectors_3d);
         }
         else {

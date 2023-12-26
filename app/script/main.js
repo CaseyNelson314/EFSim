@@ -86,6 +86,23 @@ const init = () => {
         });
     }
 
+    // 床の表示/非表示
+    {
+        const helper = new THREE.GridHelper(2000, 100);
+        helper.material.opacity = 0;
+        scene.add(helper);
+
+        const ChangeHelper = (is_visible) => {
+            helper.visible = is_visible;
+        }
+    
+        const checkbox = document.getElementById("checkbox_show_grid");
+        ChangeHelper(checkbox.checked); // 初期値
+        checkbox.addEventListener("change", (e) => {
+            ChangeHelper(e.target.checked);
+        });
+    }
+
     // 2D/3D切り替え
     {
         const sw = document.getElementById("dimension_toggle_switch");
@@ -119,11 +136,6 @@ const init = () => {
             field_3d.enableElectricFieldVectors(e.target.checked);
         });
     }
-
-    const helper = new THREE.GridHelper(2000, 100);
-    helper.material.opacity = 0.5;
-    // helper.material.transparent = true;
-    scene.add(helper);
 
     main(scene, renderer, camera, controls);
 };
