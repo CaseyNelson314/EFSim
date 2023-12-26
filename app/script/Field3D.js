@@ -51,17 +51,16 @@ class ElectricLines3D extends THREE.Object3D {
     }
 
     /// @param origin 始点 (PointCharge)
-    createElectricLineGeometry = (origin_charge, vector, point_charges, length) => {
+    createElectricLineGeometry = (origin_charge, dir_vector, point_charges, length) => {
         const points = [origin_charge.pos.clone()];
         const _origin = origin_charge.pos.clone();
-        const _vector = vector.clone();
-        _vector.normalize();
-        _origin.add(_vector);
+        _origin.add(dir_vector);
         for (let i = 0; i < length; i++) {
-            const d_vector = EFVector(_origin, point_charges);
-            d_vector.normalize();
+            const d_vector = EFVector(_origin, point_charges).normalize();
+            
             if (origin_charge.charge < 0)
                 d_vector.multiplyScalar(-1);
+
             // 点電荷との衝突判定
             for (const point_charge of point_charges) {
                 const diff = new THREE.Vector3();
@@ -77,17 +76,25 @@ class ElectricLines3D extends THREE.Object3D {
     };
 
     createField(point_charges) {
+        const theta_count = 8;
+        const phi_count = 8;
+        const dir_vector = new THREE.Vector3();
         for (const point_charge of point_charges) {
-            for (let n_theta = 0; n_theta < 10; n_theta++) {
-                for (let n_phi = 0; n_phi < 10; n_phi++) {
-                    const theta = ((Math.PI * 2) / 10) * n_theta;
-                    const phi = ((Math.PI * 2) / 10) * n_phi;
-                    const x = 10 * Math.sin(theta) * Math.cos(phi);
-                    const y = 10 * Math.sin(theta) * Math.sin(phi);
-                    const z = 10 * Math.cos(theta);
+            for (let n_theta = 0; n_theta < theta_count; n_theta++) {
+
+                const theta = (Math.PI * 2) * n_theta / theta_count;
+                const sin_theta = Math.sin(theta);
+
+                dir_vector.z = Math.cos(theta);
+
+                for (let n_phi = 0; n_phi < phi_count; n_phi++) {
+                    const phi = (Math.PI * 2) * n_phi / phi_count;
+
+                    dir_vector.x = Math.cos(phi) * sin_theta;
+                    dir_vector.y = Math.sin(phi) * sin_theta;
 
                     const line = new THREE.Line(
-                        this.createElectricLineGeometry(point_charge, new THREE.Vector3(x, y, z), point_charges, 1000),
+                        this.createElectricLineGeometry(point_charge, dir_vector, point_charges, 1000),
                         this.line_material);
                     this.add(line);
                 }
@@ -106,7 +113,7 @@ class PointCharges3D extends THREE.Object3D {
     constructor(point_charges) {
         super();
         this.point_charges = point_charges;
-        this.geometry = new THREE.SphereGeometry(1, 32, 32);
+        this.geometry = new THREE.SphereGeometry(5, 32, 32);
         this.material_minus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
         this.material_plus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         this.createPointChargesGeometry();
@@ -136,19 +143,22 @@ class ElectricFieldVectors3D extends THREE.Object3D {
     }
 
     createEFVectorGeometry = () => {
-        for (let point_charge of this.point_charges) {
-            for (let x = -4; x <= 4; x++) {
-                for (let y = -4; y <= 4; y++) {
-                    for (let z = -4; z <= 4; z++) {
-                        if (x ** 2 + y ** 2 + z ** 2 > 5 ** 2)
-                            continue;
-                        // if (x === 0 && y === 0 && z === 0) continue;
-                        const origin = new THREE.Vector3(x * 10, y * 10, z * 10);
-                        origin.add(point_charge.pos);
-                        const electric_field_vector = EFVector(origin, this.point_charges);
+        const AddArrow = (point_charge, origin) => {
+            origin.add(point_charge.pos);
+            const electric_field_vector = EFVector(origin, this.point_charges);
 
-                        const len = electric_field_vector.length();
-                        this.add(new THREE.ArrowHelper(electric_field_vector.normalize(), origin, 1, 0xffffff, 2, 0.5));
+            const len = electric_field_vector.length();
+            this.add(new THREE.ArrowHelper(electric_field_vector.normalize(), origin, 3, 0xffffff, 3, 1));
+        }
+        const count = 4;
+        for (let point_charge of this.point_charges) {
+            for (let x = -count; x <= count; x++) {
+                for (let y = -count; y <= count; y++) {
+                    for (let z = -count; z <= count; z++) {
+                        if (x ** 2 + y ** 2 + z ** 2 > count ** 2)
+                            continue;
+                        if (x === 0 && y === 0 && z === 0) continue;
+                        AddArrow(point_charge, new THREE.Vector3(x * 20, y * 20, z * 20));
                     }
                 }
             }
