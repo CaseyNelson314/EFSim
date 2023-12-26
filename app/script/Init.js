@@ -14,7 +14,7 @@ export const CreateScene = () => {
 // レンダラーを作成
 export const CreateRenderer = (dom) => {
   const renderer = new THREE.WebGLRenderer(dom, {
-    antialias: true,
+    antialias: false,
   });
 
   renderer.setSize(dom.offsetWidth, dom.offsetHeight);
