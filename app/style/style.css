@@ -3,6 +3,15 @@
   padding: 0;
 }
 
+#canvas {
+  background-color: #38393b;
+  position: fixed;
+  top: 0;
+  left : 0;
+  width: calc(100% - 250px);
+  height: 100%;
+}
+
 /*設定要素を画面右に表示 */
 .settings {
   background-color: #38393b;
