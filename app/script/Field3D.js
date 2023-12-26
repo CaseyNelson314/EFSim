@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Measure } from "./Measure.js";
 
 // THREE.Vector3 が等しいかどうかを判定
 const EqualsVector = (v1, v2, eps = Number.EPSILON) => {
@@ -47,39 +48,44 @@ class ElectricLines3D extends THREE.Object3D {
         this.point_charges = point_charges;
         this.line_material = new THREE.LineBasicMaterial({ color: 0xaaaaff });
 
-        this.createField(point_charges);
+        this.createELines();
     }
 
     /// @param origin 始点 (PointCharge)
-    createElectricLineGeometry = (origin_charge, dir_vector, point_charges, length) => {
+    createElectricLine = (origin_charge, dir_vector, simulation_distance) => {
         const points = [origin_charge.pos.clone()];
-        const _origin = origin_charge.pos.clone();
-        _origin.add(dir_vector);
-        for (let i = 0; i < length; i++) {
-            const d_vector = EFVector(_origin, point_charges).normalize();
-            
+        const _origin = origin_charge.pos.clone().add(dir_vector);
+        for (; ;) {
+            const d_vector = EFVector(_origin, this.point_charges).normalize();
+
             if (origin_charge.charge < 0)
                 d_vector.multiplyScalar(-1);
 
             // 点電荷との衝突判定
-            for (const point_charge of point_charges) {
+            for (const point_charge of this.point_charges) {
                 const diff = new THREE.Vector3();
                 diff.subVectors(_origin, point_charge.pos);
-                if (diff.length() < 1) {
-                    return new THREE.BufferGeometry().setFromPoints(points);
+                if (diff.lengthSq() < 1) {
+                    return points;
                 }
             }
             _origin.add(d_vector);
+
+            // 原点からの距離が一定以上なら終了
+            if (_origin.lengthSq() > simulation_distance ** 2) {
+                break;
+            }
+
             points.push(_origin.clone());
         }
-        return new THREE.BufferGeometry().setFromPoints(points);
+        return points;
     };
 
-    createField(point_charges) {
+    createELines() {
         const theta_count = 8;
         const phi_count = 8;
         const dir_vector = new THREE.Vector3();
-        for (const point_charge of point_charges) {
+        for (const point_charge of this.point_charges) {
             for (let n_theta = 0; n_theta < theta_count; n_theta++) {
 
                 const theta = (Math.PI * 2) * n_theta / theta_count;
@@ -93,9 +99,8 @@ class ElectricLines3D extends THREE.Object3D {
                     dir_vector.x = Math.cos(phi) * sin_theta;
                     dir_vector.y = Math.sin(phi) * sin_theta;
 
-                    const line = new THREE.Line(
-                        this.createElectricLineGeometry(point_charge, dir_vector, point_charges, 3000),
-                        this.line_material);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(this.createElectricLine(point_charge, dir_vector, 500));
+                    const line = new THREE.Line(geometry, this.line_material);
                     this.add(line);
                 }
             }
@@ -104,7 +109,8 @@ class ElectricLines3D extends THREE.Object3D {
 
     update() {
         this.children = [];
-        this.createField(this.point_charges);
+        // this.createELines();
+        Measure("createELines", () => this.createELines());
     }
 }
 
@@ -143,22 +149,34 @@ class ElectricFieldVectors3D extends THREE.Object3D {
     }
 
     createEFVectorGeometry = () => {
-        const AddArrow = (point_charge, origin) => {
-            origin.add(point_charge.pos);
-            const electric_field_vector = EFVector(origin, this.point_charges);
+        const geometry = new THREE.ConeGeometry(1, 5, 10);
+        const AddArrow = (position, opacity) => {
 
-            const len = electric_field_vector.length();
-            this.add(new THREE.ArrowHelper(electric_field_vector.normalize(), origin, 3, 0xffffff, 3, 1));
+            // 遠いほど矢印の色が薄くなる
+            const material = new THREE.MeshBasicMaterial({ color: 0xaaaaaaa, transparent: true, opacity: opacity });
+            
+            const ef_vector = EFVector(position, this.point_charges);
+            
+            const cone = new THREE.Mesh(geometry, material);
+            cone.position.copy(position);
+            
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize())
+            cone.rotation.setFromQuaternion(quaternion);
+            
+            this.add(cone);
         }
-        const count = 4;
+
+        const count = 5;
         for (let point_charge of this.point_charges) {
             for (let x = -count; x <= count; x++) {
                 for (let y = -count; y <= count; y++) {
                     for (let z = -count; z <= count; z++) {
-                        if (x ** 2 + y ** 2 + z ** 2 > count ** 2)
+                        const length_sq = x ** 2 + y ** 2 + z ** 2;
+                        const opacity = Math.abs(1 - length_sq / (count ** 2));
+                        if (length_sq > count ** 2)
                             continue;
                         if (x === 0 && y === 0 && z === 0) continue;
-                        AddArrow(point_charge, new THREE.Vector3(x * 20, y * 20, z * 20));
+                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(point_charge.pos), opacity);
                     }
                 }
             }
@@ -167,7 +185,8 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
     update() {
         this.children = [];
-        this.createEFVectorGeometry();
+        // this.createEFVectorGeometry();
+        Measure("createEFVectorGeometry", () => this.createEFVectorGeometry());
     }
 }
 

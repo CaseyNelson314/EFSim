@@ -5,6 +5,7 @@ import PointCharge from "./PointCharge.js";
 import { Field3D } from "./Field3D.js";
 import debounce from 'debounce';
 import { throttle } from 'throttle-debounce';
+import { Measure } from "./Measure.js";
 
 
 const init = () => {
@@ -26,10 +27,10 @@ const init = () => {
     // 点電荷たち
     const point_charges = [];
 
-    const n = Math.floor(Math.random() * 10) + 1;
+    const n = 2;//Math.floor(Math.random() * 10) + 1;
     for (let i = 0; i < n; i++) {
         const charge_sign = Math.random() > 0.5 ? 1 : -1;
-        point_charges.push(new PointCharge(Math.random() * charge_sign, new THREE.Vector3().randomDirection().multiplyScalar(100)));
+        point_charges.push(new PointCharge(1 * charge_sign, new THREE.Vector3().randomDirection().multiplyScalar(100)));
     }
 
     const field_3d = new Field3D(dom, camera, transControls, point_charges);
@@ -50,6 +51,10 @@ const init = () => {
             100, () => {
                 field_3d.update();
             }));
+
+        // dragger.addEventListener('objectChange', () => {
+        //         field_3d.update();
+        //     });
     }
 
 
@@ -115,17 +120,9 @@ const init = () => {
 
     main(scene, renderer, camera, controls);
 };
-// 関数の実行時間を計測する関数
-// 実行にかかった時間をミリ秒で出力
-function measure(name, func) {
-    const start = performance.now();
-    func();
-    const end = performance.now();
 
-    console.log(`${name}: ${Math.floor(end - start)}ms`);
-}
 window.addEventListener("load", () => {
-    measure("init", init);
+    Measure("init", init);
 });
 
 // エントリーポイント

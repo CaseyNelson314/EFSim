@@ -22,13 +22,6 @@ export const CreateRenderer = (dom) => {
 
   dom.appendChild(renderer.domElement);
 
-  // const resizeObserver = new ResizeObserver((entries) => {
-  //   const { width, height } = entries[0].contentRect;
-  //   renderer.setSize(width, height);
-  //   console.log("resize");
-  // });
-  // resizeObserver.observe(dom);
-
   return renderer;
 };
 
@@ -37,14 +30,6 @@ export const CreateCamera = (dom) => {
   const aspect = dom.offsetWidth / dom.offsetHeight;
   const camera = new THREE.PerspectiveCamera(50, aspect);
   camera.position.set(200, 200, 200);
-
-  // const resizeObserver = new ResizeObserver((entries) => {
-  //   const { width, height } = entries[0].contentRect;
-  //   camera.aspect = width / height;
-  //   camera.updateProjectionMatrix();
-  // });
-  // resizeObserver.observe(dom);
-
   return camera;
 };
 
