@@ -36,7 +36,7 @@ export const CreateRenderer = (dom) => {
 export const CreateCamera = (dom) => {
   const aspect = dom.offsetWidth / dom.offsetHeight;
   const camera = new THREE.PerspectiveCamera(50, aspect);
-  camera.position.set(150, 150, 150);
+  camera.position.set(200, 200, 200);
 
   // const resizeObserver = new ResizeObserver((entries) => {
   //   const { width, height } = entries[0].contentRect;

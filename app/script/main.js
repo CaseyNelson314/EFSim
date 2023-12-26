@@ -25,17 +25,17 @@ const init = () => {
 
     // 点電荷たち
     const point_charges = [
-        new PointCharge(0.00001, new THREE.Vector3(60, 0, 60)),
-        new PointCharge(-0.00001, new THREE.Vector3(20, 200, 0)),
-        new PointCharge(+0.00001, new THREE.Vector3(-50, 0, 20)),
-        new PointCharge(0.00005, new THREE.Vector3(20, 0, 0)),
+        new PointCharge(Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
+        new PointCharge(-Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
+        new PointCharge(+Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
+        new PointCharge(-Math.random(), new THREE.Vector3().randomDirection().multiplyScalar(100)),
     ];
 
     const field_3d = new Field3D(dom, camera, transControls, point_charges);
 
     {
         const positions = point_charges.map((charge) => charge.pos);
-        const geometry = new THREE.SphereGeometry(10, 32, 32);
+        const geometry = new THREE.SphereGeometry(30, 32, 32);
         const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true, visible: false });
         const hit_ball = positions.map((position) => {
             const sphere = new THREE.Mesh(geometry, material);
@@ -45,35 +45,10 @@ const init = () => {
         });
         const dragger = new Dragger(positions, hit_ball, camera, dom, controls, scene);
 
-        dragger.addEventListener('objectChange', debounce(() => {
-            field_3d.update();
-        }, 10));
-
-        // function throttle(func, limit) {
-        //     let lastFunc;
-        //     let lastRan;
-        //     return function () {
-        //         const context = this;
-        //         const args = arguments;
-        //         if (!lastRan) {
-        //             func.apply(context, args);
-        //             lastRan = Date.now();
-        //         } else {
-        //             clearTimeout(lastFunc);
-        //             lastFunc = setTimeout(function () {
-        //                 if ((Date.now() - lastRan) >= limit) {
-        //                     func.apply(context, args);
-        //                     lastRan = Date.now();
-        //                 }
-        //             }, limit - (Date.now() - lastRan));
-        //         }
-        //     }
-        // }
-
-        // dragger.addEventListener('objectChange', throttle(
-        //     100, () => {
-        //         field_3d.update();
-        //     }));
+        dragger.addEventListener('objectChange', throttle(
+            100, () => {
+                field_3d.update();
+            }));
     }
 
 
@@ -95,7 +70,7 @@ const init = () => {
         const ChangeHelper = (is_visible) => {
             helper.visible = is_visible;
         }
-    
+
         const checkbox = document.getElementById("checkbox_show_grid");
         ChangeHelper(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
