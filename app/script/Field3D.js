@@ -166,7 +166,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
             this.add(cone);
         }
 
-        const count = 5;
+        const count = 4;
         for (let point_charge of this.point_charges) {
             for (let x = -count; x <= count; x++) {
                 for (let y = -count; y <= count; y++) {
