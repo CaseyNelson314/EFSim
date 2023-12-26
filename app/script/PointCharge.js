@@ -2,8 +2,8 @@ import * as THREE from "three";
 
 // 点電荷
 export default class PointCharge {
-  constructor(charge, pos) {
+  constructor(mesh, charge) {
+    this.mesh = mesh;
     this.charge = charge;
-    this.pos = pos;
   }
 }

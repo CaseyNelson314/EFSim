@@ -12,13 +12,12 @@ const EqualsVector = (v1, v2, eps = Number.EPSILON) => {
 // @param pos 観測点の座標
 // @param point_charge 点電荷
 const EFVectorFromSingleCharge = (pos, point_charge) => {
-
-    if (EqualsVector(pos, point_charge.pos)) {
+    if (EqualsVector(pos, point_charge.mesh.position)) {
         return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
     }
 
     const diff = new THREE.Vector3();
-    diff.subVectors(pos, point_charge.pos);    // 点電荷と観測点との差分
+    diff.subVectors(pos, point_charge.mesh.position);    // 点電荷と観測点との差分
 
     const k = 8.987552 * 10 ** 9;    // クーロン定数
     const r_sq4 = diff.lengthSq() ** 2;    // 点電荷と観測点との距離^4
@@ -53,9 +52,10 @@ class ElectricLines3D extends THREE.Object3D {
 
     /// @param origin 始点 (PointCharge)
     createElectricLine = (origin_charge, dir_vector, simulation_distance) => {
-        const points = [origin_charge.pos.clone()];
-        const _origin = origin_charge.pos.clone().add(dir_vector);
+        const points = [origin_charge.mesh.position.clone()];
+        const _origin = origin_charge.mesh.position.clone().add(dir_vector);
         for (; ;) {
+
             const d_vector = EFVector(_origin, this.point_charges).normalize();
 
             if (origin_charge.charge < 0)
@@ -63,9 +63,7 @@ class ElectricLines3D extends THREE.Object3D {
 
             // 点電荷との衝突判定
             for (const point_charge of this.point_charges) {
-                const diff = new THREE.Vector3();
-                diff.subVectors(_origin, point_charge.pos);
-                if (diff.lengthSq() < 1) {
+                if (_origin.distanceToSquared(point_charge.mesh.position) < 1) {
                     return points;
                 }
             }
@@ -86,6 +84,8 @@ class ElectricLines3D extends THREE.Object3D {
         const phi_count = 8;
         const dir_vector = new THREE.Vector3();
         for (const point_charge of this.point_charges) {
+            if (point_charge.charge === 0) continue;
+
             for (let n_theta = 0; n_theta < theta_count; n_theta++) {
 
                 const theta = (Math.PI * 2) * n_theta / theta_count;
@@ -109,34 +109,8 @@ class ElectricLines3D extends THREE.Object3D {
 
     update() {
         this.children = [];
-        // this.createELines();
-        Measure("createELines", () => this.createELines());
-    }
-}
-
-// 点電荷
-class PointCharges3D extends THREE.Object3D {
-    constructor(point_charges) {
-        super();
-        this.point_charges = point_charges;
-        this.geometry = new THREE.SphereGeometry(5, 32, 32);
-        this.material_minus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-        this.material_plus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        this.createPointChargesGeometry();
-    }
-
-    createPointChargesGeometry = () => {
-        for (const point_charge of this.point_charges) {
-            const material = point_charge.charge > 0 ? this.material_plus : this.material_minus;
-            const sphere = new THREE.Mesh(this.geometry, material);
-            sphere.position.copy(point_charge.pos);
-            this.add(sphere);
-        }
-    }
-
-    update() {
-        this.children = [];
-        this.createPointChargesGeometry();
+        this.createELines();
+        // Measure("createELines", () => this.createELines());
     }
 }
 
@@ -150,33 +124,34 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
     createEFVectorGeometry = () => {
         const geometry = new THREE.ConeGeometry(1, 5, 10);
+
         const AddArrow = (position, opacity) => {
 
             // 遠いほど矢印の色が薄くなる
             const material = new THREE.MeshBasicMaterial({ color: 0xaaaaaaa, transparent: true, opacity: opacity });
-            
+
             const ef_vector = EFVector(position, this.point_charges);
-            
+
             const cone = new THREE.Mesh(geometry, material);
             cone.position.copy(position);
-            
+
             const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize())
             cone.rotation.setFromQuaternion(quaternion);
-            
+
             this.add(cone);
         }
 
         const count = 4;
         for (let point_charge of this.point_charges) {
+            if (point_charge.charge === 0) continue;
             for (let x = -count; x <= count; x++) {
                 for (let y = -count; y <= count; y++) {
                     for (let z = -count; z <= count; z++) {
                         const length_sq = x ** 2 + y ** 2 + z ** 2;
                         const opacity = Math.abs(1 - length_sq / (count ** 2));
-                        if (length_sq > count ** 2)
-                            continue;
+                        if (length_sq > count ** 2) continue;
                         if (x === 0 && y === 0 && z === 0) continue;
-                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(point_charge.pos), opacity);
+                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(point_charge.mesh.position), opacity);
                     }
                 }
             }
@@ -185,52 +160,29 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
     update() {
         this.children = [];
-        // this.createEFVectorGeometry();
-        Measure("createEFVectorGeometry", () => this.createEFVectorGeometry());
+        this.createEFVectorGeometry();
+        // Measure("createEFVectorGeometry", () => this.createEFVectorGeometry());
     }
 }
 
 /// 電界
 export class Field3D extends THREE.Object3D {
-    constructor(dom, camera, trans_controls, point_charges) {
+    constructor(point_charges) {
         super();
-        this.dom = dom;
-        this.camera = camera;
-        this.trans_controls = trans_controls;
-        this.point_charges = point_charges;
 
-        this.point_charges_3d = null;
+        this.point_charges = point_charges;
         this.electric_lines_3d = null;
         this.electric_field_vectors_3d = null;
-
-        this.enablePointCharges(true);
     }
 
     /// フィールドの更新
     update = () => {
-        if (this.children.find((child) => child === this.point_charges_3d) != null)
-            this.point_charges_3d.update();
-
         if (this.children.find((child) => child === this.electric_lines_3d) != null)
             this.electric_lines_3d.update();
 
         if (this.children.find((child) => child === this.electric_field_vectors_3d) != null)
             this.electric_field_vectors_3d.update();
     }
-
-    /// 点電荷の表示切替
-    enablePointCharges = (enable) => {
-        if (enable) {
-            if (this.point_charges_3d == null)
-                this.point_charges_3d = new PointCharges3D(this.point_charges);
-            else
-                this.point_charges_3d.update();
-            this.add(this.point_charges_3d);
-        }
-        else {
-            this.remove(this.point_charges_3d);
-        }
-    };
 
     /// 電気力線の表示切替
     enableElectricLines = (enable) => {

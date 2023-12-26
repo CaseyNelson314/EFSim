@@ -33,7 +33,7 @@
             グリッド表示
           </label>
           <label class="checkbox">
-            <input type="checkbox" id="checkbox_auto_rotate" checked />
+            <input type="checkbox" id="checkbox_auto_rotate" />
             自動回転
           </label>
           <label class="checkbox">
@@ -44,6 +44,35 @@
             <input type="checkbox" id="checkbox_electric_lines" checked/>
             電気力線
           </label>
+        </div>
+        <div id="settings_point_charge">
+          <div class="point_charge_position">
+            <p class="title">位置</p>
+            <label for="point_charge_position_x">
+              X
+              <input type="number" id="point_charge_position_x">
+            </label>
+            <label for="point_charge_position_y">
+              Y
+              <input type="number" id="point_charge_position_y">
+            </label>
+            <label for="point_charge_position_z">
+              Z
+              <input type="number" id="point_charge_position_z">
+            </label>
+          </div>
+          <div class="point_charge_charge">
+            <p class="title">電荷量</p>
+            <div class="container">
+              <input type="number" id="point_charge_charge_value">
+              <select id="point_charge_unit" disabled>
+                <option value="c" selected>C</option>
+                <option value="mc">μC</option>
+                <option value="nc">nC</option>
+                <option value="pc">pC</option>
+              </select>
+            </div>
+          </div>
         </div>
     </div>
   </body>

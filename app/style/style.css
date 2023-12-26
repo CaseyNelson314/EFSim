@@ -7,7 +7,7 @@
   background-color: #38393b;
   position: fixed;
   top: 0;
-  left : 0;
+  left: 0;
   width: calc(100% - 250px);
   height: 100%;
 }
@@ -33,4 +33,77 @@
 
 input[type="checkbox"] {
   margin: 0 10px 0 0;
+}
+
+#settings_point_charge {
+  display: flex;
+  flex-direction: column;
+  color: #e3e3e3;
+  border: 1px solid #7c7c7c;
+  border-radius: 4px;
+  margin: 10px 15px 10px 15px;
+  padding: 20px;
+  user-select: none;
+}
+
+#settings_point_charge .title {
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #e3e3e3;
+  user-select: none;
+}
+
+.point_charge_position {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 20px;
+}
+.point_charge_position input[type="number"] {
+  width: 80%;
+}
+
+.point_charge_charge {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.point_charge_charge .container {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+}
+.point_charge_charge input[type="number"] {
+  width: 70%;
+  height: 22px;
+  margin-right: 5px;
+}
+
+.point_charge_charge select {
+  height: 24px;
+  color: #e3e3e3;
+  background-color: #38393b;
+  border: 1px solid #7c7c7c;
+  border-radius: 5px;
+}
+
+input[type="number"] {
+  height: 24px;
+  text-align: right;
+  padding-right: 10px;
+  font-size: 16px;
+  color: #e3e3e3;
+  background-color: #38393b;
+  border: 1px solid #7c7c7c;
+  border-radius: 4px;
+}
+
+/* スピンボタン非表示 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
