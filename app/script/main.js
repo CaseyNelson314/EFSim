@@ -6,6 +6,12 @@ import { Field3D } from "./Field3D.js";
 import { throttle } from 'throttle-debounce';
 import { Measure } from "./Measure.js";
 
+// ローカルストレージから読み込み
+{
+    localStorage.getItem("point_charges");
+    // localStorage.setItem("point_charges", JSON.stringify(point_charges));
+}
+
 const init = () => {
     const dom = document.getElementById("canvas");
     const scene = EFSim.CreateScene();
@@ -22,20 +28,50 @@ const init = () => {
     const point_charge_material_neutral = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const point_charge_geometry = new THREE.SphereGeometry(5, 32, 32);
 
-    const n = Math.floor(Math.random() * 5) + 1;
-    for (let i = 0; i < n; i++) {
-        const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
-        const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
-        const mesh = new THREE.Mesh(point_charge_geometry, material);
+    // ローカルストレージから読み込み
+    {
+        // point_charges: {
+        //     position: { x: 0, y: 0, z: 0 },
+        //     charge: 0,
+        // }
 
-        const x = Math.floor(Math.random() * 200 - 100);
-        const y = Math.floor(Math.random() * 200 - 100);
-        const z = Math.floor(Math.random() * 200 - 100);
-        mesh.position.set(x, y, z);
+        const local_point_charges = localStorage.getItem("point_charges");
+        if (local_point_charges) {
+            for (let point_charge of JSON.parse(local_point_charges)) {
+                const mesh = new THREE.Mesh(point_charge_geometry, point_charge.charge > 0 ? point_charge_material_plus : point_charge.charge < 0 ? point_charge_material_minus : point_charge_material_neutral);
+                mesh.position.set(point_charge.position.x, point_charge.position.y, point_charge.position.z);
+                scene.add(mesh);
+                point_charges.push(new PointCharge(mesh, point_charge.charge));
+            }
+        }
+        else {
+            const n = 4;//Math.floor(Math.random() * 5) + 1;
+            for (let i = 0; i < n; i++) {
+                const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
+                const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
+                const mesh = new THREE.Mesh(point_charge_geometry, material);
 
-        scene.add(mesh);
+                const x = Math.floor(Math.random() * 200 - 100);
+                const y = Math.floor(Math.random() * 200 - 100);
+                const z = Math.floor(Math.random() * 200 - 100);
+                mesh.position.set(x, y, z);
 
-        point_charges.push(new PointCharge(mesh, charge));
+                scene.add(mesh);
+
+                point_charges.push(new PointCharge(mesh, charge));
+            }
+        }
+
+        // ページを離れるときにローカルストレージに保存
+        window.addEventListener("beforeunload", (e) => {
+            const json = JSON.stringify(point_charges.map((point_charge) => {
+                return {
+                    position: point_charge.mesh.position,
+                    charge: point_charge.charge,
+                };
+            }));
+            localStorage.setItem("point_charges", json);
+        });
     }
 
     // シミュレーション空間
@@ -44,7 +80,7 @@ const init = () => {
     {
         const dragger = new Dragger(point_charges, camera, dom, controls, scene);
 
-        dragger.addEventListener('object-change', throttle(100, field_3d.update));
+        dragger.addEventListener('object-change', throttle(50, field_3d.update));
 
         const FormPositionUpdateEvent = (object) => {
             document.getElementById("point_charge_position_x").value = object.position.x.toFixed(2);
@@ -96,22 +132,35 @@ const init = () => {
             field_3d.update();
         });
 
-        // デモとして最初の点電荷を選択
         {
-            dragger.attach(point_charges[0]);
-            FormPositionUpdateEvent(point_charges[0].mesh);
-            FormChargeUpdateEvent(point_charges[0]);
+            const local_selected_point_index = localStorage.getItem("selected_point_index");
+            if (local_selected_point_index) {
+                if (local_selected_point_index!=="null")
+                {
+                    const index = Number(local_selected_point_index);
+                    if (index < point_charges.length) {
+                        console.log(index);
+                        dragger.attach(point_charges[index]);
+                        FormPositionUpdateEvent(point_charges[index].mesh);
+                        FormChargeUpdateEvent(point_charges[index]);
+                    }
+                }
+            }
+            else {
+                // デモとして最初の点電荷を選択
+                dragger.attach(point_charges[0]);
+                FormPositionUpdateEvent(point_charges[0].mesh);
+                FormChargeUpdateEvent(point_charges[0]);
+            }
+
+            window.addEventListener("beforeunload", (e) => {
+                if (dragger.getSelected()) {
+                    localStorage.setItem("selected_point_index", point_charges.indexOf(dragger.getSelected()));
+                }
+                else
+                    localStorage.setItem("selected_point_index", null);
+            });
         }
-    }
-
-
-    // 自動回転切り替え
-    {
-        const checkbox = document.getElementById("checkbox_auto_rotate");
-        controls.autoRotate = checkbox.checked; // 初期値
-        checkbox.addEventListener("change", (e) => {
-            controls.autoRotate = e.target.checked;
-        });
     }
 
     // 床の表示/非表示
@@ -125,15 +174,37 @@ const init = () => {
         }
 
         const checkbox = document.getElementById("checkbox_show_grid");
+        const store = localStorage.getItem("checkbox_show_grid");
+        if (store) {
+            checkbox.checked = store === "true";
+        }
         ChangeHelper(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             ChangeHelper(e.target.checked);
         });
     }
 
+
+    // 自動回転切り替え
+    {
+        const checkbox = document.getElementById("checkbox_auto_rotate");
+        const store = localStorage.getItem("checkbox_auto_rotate");
+        if (store) {
+            checkbox.checked = store === "true";
+        }
+        controls.autoRotate = checkbox.checked; // 初期値
+        checkbox.addEventListener("change", (e) => {
+            controls.autoRotate = e.target.checked;
+        });
+    }
+
     // 2D/3D切り替え
     {
         const sw = document.getElementById("dimension_toggle_switch");
+        const store = localStorage.getItem("dimension_toggle_switch");
+        if (store) {
+            sw.checked = store === "true";
+        }
         const ChangeDimension = (is_3d) => {
             if (is_3d) {
                 scene.add(field_3d);
@@ -150,6 +221,10 @@ const init = () => {
     // 電気力線 表示/非表示
     {
         const checkbox = document.getElementById("checkbox_electric_lines");
+        const store = localStorage.getItem("checkbox_electric_lines");
+        if (store) {
+            checkbox.checked = store === "true";
+        }
         field_3d.enableElectricLines(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             field_3d.enableElectricLines(e.target.checked);
@@ -159,11 +234,23 @@ const init = () => {
     // 電界ベクトル 表示/非表示
     {
         const checkbox = document.getElementById("checkbox_electric_field_vectors");
+        const store = localStorage.getItem("checkbox_electric_field_vectors");
+        if (store) {
+            checkbox.checked = store === "true";
+        }
         field_3d.enableElectricFieldVectors(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             field_3d.enableElectricFieldVectors(e.target.checked);
         });
     }
+
+    window.addEventListener("beforeunload", (e) => {
+        localStorage.setItem("checkbox_show_grid", document.getElementById("checkbox_show_grid").checked);
+        localStorage.setItem("checkbox_auto_rotate", document.getElementById("checkbox_auto_rotate").checked);
+        localStorage.setItem("dimension_toggle_switch", document.getElementById("dimension_toggle_switch").checked);
+        localStorage.setItem("checkbox_electric_lines", document.getElementById("checkbox_electric_lines").checked);
+        localStorage.setItem("checkbox_electric_field_vectors", document.getElementById("checkbox_electric_field_vectors").checked);
+    });
 
     main(scene, renderer, camera, controls);
 };

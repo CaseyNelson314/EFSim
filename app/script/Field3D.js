@@ -99,7 +99,8 @@ class ElectricLines3D extends THREE.Object3D {
                     dir_vector.x = Math.cos(phi) * sin_theta;
                     dir_vector.y = Math.sin(phi) * sin_theta;
 
-                    const geometry = new THREE.BufferGeometry().setFromPoints(this.createElectricLine(point_charge, dir_vector, 500));
+                    const points = this.createElectricLine(point_charge, dir_vector, 1000);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
                     const line = new THREE.Line(geometry, this.line_material);
                     this.add(line);
                 }
