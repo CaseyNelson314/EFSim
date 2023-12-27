@@ -3,7 +3,6 @@ import * as EFSim from "./Init.js";
 import { Dragger } from "./Dragger.js";
 import PointCharge from "./PointCharge.js";
 import { Field3D } from "./Field3D.js";
-import debounce from 'debounce';
 import { throttle } from 'throttle-debounce';
 import { Measure } from "./Measure.js";
 

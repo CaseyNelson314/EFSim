@@ -123,8 +123,8 @@ class ElectricFieldVectors3D extends THREE.Object3D {
     constructor(point_charges) {
         super();
         this.point_charges = point_charges;
-        this.createEFVectorGeometry();
         this.geometry = new THREE.ConeGeometry(1, 5, 10);
+        this.createEFVectorGeometry();
     }
 
     createEFVectorGeometry = () => {
@@ -207,7 +207,7 @@ export class Field3D extends THREE.Object3D {
         if (enable) {
             if (this.electric_field_vectors_3d == null)
                 this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.point_charges);
-            else
+            else;
                 this.electric_field_vectors_3d.update();
             this.add(this.electric_field_vectors_3d);
         }
