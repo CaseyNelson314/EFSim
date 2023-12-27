@@ -181,4 +181,7 @@ const main = (scene, renderer, camera, controls) => {
 
     renderer.render(scene, camera);
     controls.update();
+
+    // メモリ使用量を確認
+    // console.log(performance.memory.usedJSHeapSize);
 };

@@ -108,6 +108,10 @@ class ElectricLines3D extends THREE.Object3D {
     }
 
     update() {
+        // ジオメトリをすべて破棄
+        for (const child of this.children) {
+            child.geometry.dispose();
+        }
         this.children = [];
         this.createELines();
         // Measure("createELines", () => this.createELines());
@@ -120,10 +124,10 @@ class ElectricFieldVectors3D extends THREE.Object3D {
         super();
         this.point_charges = point_charges;
         this.createEFVectorGeometry();
+        this.geometry = new THREE.ConeGeometry(1, 5, 10);
     }
 
     createEFVectorGeometry = () => {
-        const geometry = new THREE.ConeGeometry(1, 5, 10);
 
         const AddArrow = (position, opacity) => {
 
@@ -132,7 +136,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
             const ef_vector = EFVector(position, this.point_charges);
 
-            const cone = new THREE.Mesh(geometry, material);
+            const cone = new THREE.Mesh(this.geometry, material);
             cone.position.copy(position);
 
             const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize())
