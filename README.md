@@ -1,8 +1,10 @@
 # EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml/badge.svg)](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml)
 
-Electric Field Simulator
-
 ![image](https://github.com/CaseyNelson314/EFSim/assets/91818705/714e48d1-60b3-45db-b843-1529ae2986d6)
+
+Electric Field Simulator 
+
+<https://caseynelson314.github.io/EFSim/>
 
 ## Usage
 
