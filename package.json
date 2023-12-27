@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/CaseyNelson314/EFSim#readme",
   "devDependencies": {
-    "debounce": "^2.0.0",
     "three": "^0.159.0",
     "vite": "^5.0.10"
   },
