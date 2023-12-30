@@ -119,3 +119,13 @@ input[type="number"] {
   justify-content: space-evenly;
   padding: 10px;
 }
+
+.settings_buttons button {
+  height: 30px;
+  padding: 0 5px 0 5px;
+  color: #e3e3e3;
+  background-color: #38393b;
+  border: 1px solid #7c7c7c;
+  border-radius: 4px;
+  cursor: pointer;
+}

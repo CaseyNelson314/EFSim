@@ -254,7 +254,7 @@ const init = () => {
     // 追加削除ボタン
     {
         document.getElementById("button_add_point_charge").addEventListener("click", (e) => {
-            const charge = Number(document.getElementById("point_charge_charge_value").value);
+            const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
             const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
             const mesh = new THREE.Mesh(point_charge_geometry, material);
 
