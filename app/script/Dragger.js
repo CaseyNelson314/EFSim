@@ -6,16 +6,14 @@ import * as EFSim from "./Init.js";
 export class Dragger {
     constructor(point_charges, camera, dom, controls, scene) {
 
+        // ドラッグでオブジェクトを移動するためのコントロール
+        this.trans_controls = EFSim.CreateTransformControls(camera, dom, controls, scene);
+
         this.point_charges = point_charges;
-        // this.positions = positions;
-        // this.objects = objects;
         this.camera = camera;
         this.dom = dom;
         this.controls = controls;
         this.scene = scene;
-
-        // ドラッグでオブジェクトを移動するためのコントロール
-        this.trans_controls = EFSim.CreateTransformControls(camera, dom, controls, scene);
 
         this.ray = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
@@ -95,6 +93,15 @@ export class Dragger {
     attach = (object) => {
         this.trans_controls.attach(object.mesh);
         this.selected = object;
+    }
+
+    removeSelected = () => {
+        if (this.selected !== null) {
+            this.trans_controls.detach();
+            this.scene.remove(this.selected.mesh);
+            this.point_charges.splice(this.point_charges.indexOf(this.selected), 1);
+            this.selected = null;
+        }
     }
 
     // オブジェクトがドラッグされたときのイベント

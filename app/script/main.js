@@ -35,51 +35,51 @@ const init = () => {
         //     charge: 0,
         // }
 
-        const local_point_charges = localStorage.getItem("point_charges");
-        if (local_point_charges) {
-            for (let point_charge of JSON.parse(local_point_charges)) {
-                const mesh = new THREE.Mesh(point_charge_geometry, point_charge.charge > 0 ? point_charge_material_plus : point_charge.charge < 0 ? point_charge_material_minus : point_charge_material_neutral);
-                mesh.position.set(point_charge.position.x, point_charge.position.y, point_charge.position.z);
-                scene.add(mesh);
-                point_charges.push(new PointCharge(mesh, point_charge.charge));
-            }
+        // const local_point_charges = localStorage.getItem("point_charges");
+        // if (local_point_charges) {
+        //     for (let point_charge of JSON.parse(local_point_charges)) {
+        //         const mesh = new THREE.Mesh(point_charge_geometry, point_charge.charge > 0 ? point_charge_material_plus : point_charge.charge < 0 ? point_charge_material_minus : point_charge_material_neutral);
+        //         mesh.position.set(point_charge.position.x, point_charge.position.y, point_charge.position.z);
+        //         scene.add(mesh);
+        //         point_charges.push(new PointCharge(mesh, point_charge.charge));
+        //     }
+        // }
+        // else {
+        const n = 4;//Math.floor(Math.random() * 5) + 1;
+        for (let i = 0; i < n; i++) {
+            const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
+            const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
+            const mesh = new THREE.Mesh(point_charge_geometry, material);
+
+            const x = Math.floor(Math.random() * 200 - 100);
+            const y = Math.floor(Math.random() * 200 - 100);
+            const z = Math.floor(Math.random() * 200 - 100);
+            mesh.position.set(x, y, z);
+
+            scene.add(mesh);
+
+            point_charges.push(new PointCharge(mesh, charge));
         }
-        else {
-            const n = 4;//Math.floor(Math.random() * 5) + 1;
-            for (let i = 0; i < n; i++) {
-                const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
-                const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
-                const mesh = new THREE.Mesh(point_charge_geometry, material);
-
-                const x = Math.floor(Math.random() * 200 - 100);
-                const y = Math.floor(Math.random() * 200 - 100);
-                const z = Math.floor(Math.random() * 200 - 100);
-                mesh.position.set(x, y, z);
-
-                scene.add(mesh);
-
-                point_charges.push(new PointCharge(mesh, charge));
-            }
-        }
+        // }
 
         // ページを離れるときにローカルストレージに保存
-        window.addEventListener("beforeunload", (e) => {
-            const json = JSON.stringify(point_charges.map((point_charge) => {
-                return {
-                    position: point_charge.mesh.position,
-                    charge: point_charge.charge,
-                };
-            }));
-            localStorage.setItem("point_charges", json);
-        });
+        // window.addEventListener("beforeunload", (e) => {
+        //     const json = JSON.stringify(point_charges.map((point_charge) => {
+        //         return {
+        //             position: point_charge.mesh.position,
+        //             charge: point_charge.charge,
+        //         };
+        //     }));
+        //     localStorage.setItem("point_charges", json);
+        // });
     }
 
     // シミュレーション空間
     const field_3d = new Field3D(point_charges);
 
-    {
-        const dragger = new Dragger(point_charges, camera, dom, controls, scene);
+    const dragger = new Dragger(point_charges, camera, dom, controls, scene);
 
+    {
         dragger.addEventListener('object-change', throttle(50, field_3d.update));
 
         const FormPositionUpdateEvent = (object) => {
@@ -133,33 +133,32 @@ const init = () => {
         });
 
         {
-            const local_selected_point_index = localStorage.getItem("selected_point_index");
-            if (local_selected_point_index) {
-                if (local_selected_point_index!=="null")
-                {
-                    const index = Number(local_selected_point_index);
-                    if (index < point_charges.length) {
-                        console.log(index);
-                        dragger.attach(point_charges[index]);
-                        FormPositionUpdateEvent(point_charges[index].mesh);
-                        FormChargeUpdateEvent(point_charges[index]);
-                    }
-                }
-            }
-            else {
-                // デモとして最初の点電荷を選択
-                dragger.attach(point_charges[0]);
-                FormPositionUpdateEvent(point_charges[0].mesh);
-                FormChargeUpdateEvent(point_charges[0]);
-            }
+            // const local_selected_point_index = localStorage.getItem("selected_point_index");
+            // if (local_selected_point_index) {
+            //     if (local_selected_point_index !== "null") {
+            //         const index = Number(local_selected_point_index);
+            //         if (index < point_charges.length) {
+            //             console.log(index);
+            //             dragger.attach(point_charges[index]);
+            //             FormPositionUpdateEvent(point_charges[index].mesh);
+            //             FormChargeUpdateEvent(point_charges[index]);
+            //         }
+            //     }
+            // }
+            // else {
+            // デモとして最初の点電荷を選択
+            dragger.attach(point_charges[0]);
+            FormPositionUpdateEvent(point_charges[0].mesh);
+            FormChargeUpdateEvent(point_charges[0]);
+            // }
 
-            window.addEventListener("beforeunload", (e) => {
-                if (dragger.getSelected()) {
-                    localStorage.setItem("selected_point_index", point_charges.indexOf(dragger.getSelected()));
-                }
-                else
-                    localStorage.setItem("selected_point_index", null);
-            });
+            // window.addEventListener("beforeunload", (e) => {
+            //     if (dragger.getSelected()) {
+            //         localStorage.setItem("selected_point_index", point_charges.indexOf(dragger.getSelected()));
+            //     }
+            //     else
+            //         localStorage.setItem("selected_point_index", null);
+            // });
         }
     }
 
@@ -174,10 +173,10 @@ const init = () => {
         }
 
         const checkbox = document.getElementById("checkbox_show_grid");
-        const store = localStorage.getItem("checkbox_show_grid");
-        if (store) {
-            checkbox.checked = store === "true";
-        }
+        // const store = localStorage.getItem("checkbox_show_grid");
+        // if (store) {
+        //     checkbox.checked = store === "true";
+        // }
         ChangeHelper(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             ChangeHelper(e.target.checked);
@@ -188,10 +187,10 @@ const init = () => {
     // 自動回転切り替え
     {
         const checkbox = document.getElementById("checkbox_auto_rotate");
-        const store = localStorage.getItem("checkbox_auto_rotate");
-        if (store) {
-            checkbox.checked = store === "true";
-        }
+        // const store = localStorage.getItem("checkbox_auto_rotate");
+        // if (store) {
+        //     checkbox.checked = store === "true";
+        // }
         controls.autoRotate = checkbox.checked; // 初期値
         checkbox.addEventListener("change", (e) => {
             controls.autoRotate = e.target.checked;
@@ -201,10 +200,10 @@ const init = () => {
     // 2D/3D切り替え
     {
         const sw = document.getElementById("dimension_toggle_switch");
-        const store = localStorage.getItem("dimension_toggle_switch");
-        if (store) {
-            sw.checked = store === "true";
-        }
+        // const store = localStorage.getItem("dimension_toggle_switch");
+        // if (store) {
+        //     sw.checked = store === "true";
+        // }
         const ChangeDimension = (is_3d) => {
             if (is_3d) {
                 scene.add(field_3d);
@@ -221,10 +220,10 @@ const init = () => {
     // 電気力線 表示/非表示
     {
         const checkbox = document.getElementById("checkbox_electric_lines");
-        const store = localStorage.getItem("checkbox_electric_lines");
-        if (store) {
-            checkbox.checked = store === "true";
-        }
+        // const store = localStorage.getItem("checkbox_electric_lines");
+        // if (store) {
+        //     checkbox.checked = store === "true";
+        // }
         field_3d.enableElectricLines(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             field_3d.enableElectricLines(e.target.checked);
@@ -234,23 +233,61 @@ const init = () => {
     // 電界ベクトル 表示/非表示
     {
         const checkbox = document.getElementById("checkbox_electric_field_vectors");
-        const store = localStorage.getItem("checkbox_electric_field_vectors");
-        if (store) {
-            checkbox.checked = store === "true";
-        }
+        // const store = localStorage.getItem("checkbox_electric_field_vectors");
+        // if (store) {
+        //     checkbox.checked = store === "true";
+        // }
         field_3d.enableElectricFieldVectors(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
             field_3d.enableElectricFieldVectors(e.target.checked);
         });
     }
 
-    window.addEventListener("beforeunload", (e) => {
-        localStorage.setItem("checkbox_show_grid", document.getElementById("checkbox_show_grid").checked);
-        localStorage.setItem("checkbox_auto_rotate", document.getElementById("checkbox_auto_rotate").checked);
-        localStorage.setItem("dimension_toggle_switch", document.getElementById("dimension_toggle_switch").checked);
-        localStorage.setItem("checkbox_electric_lines", document.getElementById("checkbox_electric_lines").checked);
-        localStorage.setItem("checkbox_electric_field_vectors", document.getElementById("checkbox_electric_field_vectors").checked);
-    });
+    // window.addEventListener("beforeunload", (e) => {
+    //     localStorage.setItem("checkbox_show_grid", document.getElementById("checkbox_show_grid").checked);
+    //     localStorage.setItem("checkbox_auto_rotate", document.getElementById("checkbox_auto_rotate").checked);
+    //     localStorage.setItem("dimension_toggle_switch", document.getElementById("dimension_toggle_switch").checked);
+    //     localStorage.setItem("checkbox_electric_lines", document.getElementById("checkbox_electric_lines").checked);
+    //     localStorage.setItem("checkbox_electric_field_vectors", document.getElementById("checkbox_electric_field_vectors").checked);
+    // });
+
+    // 追加削除ボタン
+    {
+        document.getElementById("button_add_point_charge").addEventListener("click", (e) => {
+            const charge = Number(document.getElementById("point_charge_charge_value").value);
+            const material = charge > 0 ? point_charge_material_plus : charge < 0 ? point_charge_material_minus : point_charge_material_neutral;
+            const mesh = new THREE.Mesh(point_charge_geometry, material);
+
+            const x = Math.floor(Math.random() * 200 - 100);
+            const y = Math.floor(Math.random() * 200 - 100);
+            const z = Math.floor(Math.random() * 200 - 100);
+            mesh.position.set(x, y, z);
+
+            scene.add(mesh);
+            
+            const point_charge = new PointCharge(mesh, charge);
+            point_charges.push(point_charge);
+            dragger.attach(point_charge);
+
+            field_3d.update();
+        });
+
+        document.getElementById("button_remove_point_charge").addEventListener("click", (e) => {
+            if (dragger.getSelected()) {
+                dragger.removeSelected();
+                field_3d.update();
+            }
+        });
+
+        document.getElementById("button_remove_all_point_charges").addEventListener("click", (e) => {
+            for (let point_charge of point_charges) {
+                scene.remove(point_charge.mesh);
+            }
+            point_charges.splice(0, point_charges.length);
+            dragger.removeSelected();
+            field_3d.update();
+        });
+    }
 
     main(scene, renderer, camera, controls);
 };

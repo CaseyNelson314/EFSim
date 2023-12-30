@@ -35,6 +35,8 @@ input[type="checkbox"] {
   margin: 0 10px 0 0;
 }
 
+/* 点電荷の固有値設定フォーム */
+
 #settings_point_charge {
   display: flex;
   flex-direction: column;
@@ -106,4 +108,14 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+
+/* 点電荷の追加削除ボタン */
+
+.settings_buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  padding: 10px;
 }
