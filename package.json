@@ -2,11 +2,10 @@
   "name": "efsim",
   "version": "1.0.0",
   "description": "Electric Field Simulator",
-  "main": "app/script/main.js",
+  "main": "app/build/main.js",
   "scripts": {
     "dev": "cd app && vite",
-    "build": "cd app && vite build --base ./",
-    "serve": "cd app && vite preview"
+    "build": "cd app && vite build --base ./"
   },
   "repository": {
     "type": "git",
@@ -19,8 +18,13 @@
   },
   "homepage": "https://github.com/CaseyNelson314/EFSim#readme",
   "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/three": "^0.160.0",
     "three": "^0.159.0",
-    "vite": "^5.0.10"
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-plugin-checker": "^0.6.2",
+    "vite-tsconfig-paths": "^4.2.3"
   },
   "type": "module",
   "dependencies": {

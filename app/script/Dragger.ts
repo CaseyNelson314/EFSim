@@ -1,10 +1,32 @@
 import * as THREE from 'three';
-import * as EFSim from "./Init.js";
+import * as EFSim from "./Init";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
+import { PointCharge } from "./PointCharge.js";
 
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
-    constructor(point_charges, camera, dom, controls, scene) {
+    trans_controls: TransformControls;
+    point_charges: PointCharge[];
+    camera: THREE.PerspectiveCamera;
+    dom: HTMLElement;
+    controls: OrbitControls;
+    scene: THREE.Scene;
+    ray: THREE.Raycaster;
+    pointer: THREE.Vector2;
+    listeners: any[];
+    selected: any;
+    on_down_position: THREE.Vector2;
+    on_up_position: THREE.Vector2;
+
+    constructor(
+        point_charges: PointCharge[],
+        camera: THREE.PerspectiveCamera,
+        dom: HTMLElement,
+        controls: OrbitControls,
+        scene: THREE.Scene
+    ) {
 
         // ドラッグでオブジェクトを移動するためのコントロール
         this.trans_controls = EFSim.CreateTransformControls(camera, dom, controls, scene);
@@ -29,7 +51,7 @@ export class Dragger {
     }
 
     setEvent = () => {
-        const onClick = (event) => {
+        const onClick = (event: MouseEvent) => {
             this.pointer.x = (event.clientX / this.dom.offsetWidth) * 2 - 1;
             this.pointer.y = -(event.clientY / this.dom.offsetHeight) * 2 + 1;
 
@@ -90,7 +112,7 @@ export class Dragger {
         return this.selected;
     }
 
-    attach = (object) => {
+    attach = (object: PointCharge) => {
         this.trans_controls.attach(object.mesh);
         this.selected = object;
     }
@@ -105,7 +127,7 @@ export class Dragger {
     }
 
     // オブジェクトがドラッグされたときのイベント
-    addEventListener = (type, listener) => {
+    addEventListener = (type: string, listener: Function) => {
         this.listeners.push({ type: type, listener: listener });
 
         if (type === "object-change")

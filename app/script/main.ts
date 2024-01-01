@@ -1,16 +1,10 @@
 import * as THREE from "three";
 import * as EFSim from "./Init.js";
 import { Dragger } from "./Dragger.js";
-import PointCharge from "./PointCharge.js";
+import { PointCharge } from "./PointCharge.js";
 import { Field3D } from "./Field3D.js";
 import { throttle } from 'throttle-debounce';
 import { Measure } from "./Measure.js";
-
-// ローカルストレージから読み込み
-{
-    localStorage.getItem("point_charges");
-    // localStorage.setItem("point_charges", JSON.stringify(point_charges));
-}
 
 const init = () => {
     const dom = document.getElementById("canvas");
@@ -82,22 +76,22 @@ const init = () => {
     {
         dragger.addEventListener('object-change', throttle(50, field_3d.update));
 
-        const FormPositionUpdateEvent = (object) => {
-            document.getElementById("point_charge_position_x").value = object.position.x.toFixed(2);
-            document.getElementById("point_charge_position_y").value = object.position.y.toFixed(2);
-            document.getElementById("point_charge_position_z").value = object.position.z.toFixed(2);
+        const FormPositionUpdateEvent = (object: THREE.Mesh) => {
+            (document.getElementById("point_charge_position_x") as HTMLInputElement).value = object.position.x.toFixed(2);
+            (document.getElementById("point_charge_position_y") as HTMLInputElement).value = object.position.y.toFixed(2);
+            (document.getElementById("point_charge_position_z") as HTMLInputElement).value = object.position.z.toFixed(2);
         };
-        const FormChargeUpdateEvent = (object) => {
-            document.getElementById("point_charge_charge_value").value = object.charge.toFixed(2);
+        const FormChargeUpdateEvent = (object: PointCharge) => {
+            (document.getElementById("point_charge_charge_value") as HTMLInputElement).value = object.charge.toFixed(2);
         }
 
         dragger.addEventListener('object-change', FormPositionUpdateEvent);
-        dragger.addEventListener('object-selected', (object) => {
+        dragger.addEventListener('object-selected', (object: PointCharge) => {
             FormPositionUpdateEvent(object.mesh);
             FormChargeUpdateEvent(object);
         });
 
-        dragger.addEventListener('object-selected', (object) => {
+        dragger.addEventListener('object-selected', (object: any) => {
             document.getElementById("settings_point_charge").style.display = "block";
         });
         dragger.addEventListener('object-unselected', () => {
@@ -106,22 +100,22 @@ const init = () => {
 
         document.getElementById("point_charge_position_x").addEventListener("input", (e) => {
             if (dragger.getSelected())
-                dragger.getSelected().mesh.position.x = Number(e.target.value);
+                dragger.getSelected().mesh.position.x = (e.target as HTMLInputElement).valueAsNumber;
             field_3d.update();
         });
         document.getElementById("point_charge_position_y").addEventListener("input", (e) => {
             if (dragger.getSelected())
-                dragger.getSelected().mesh.position.y = Number(e.target.value);
+                dragger.getSelected().mesh.position.y = (e.target as HTMLInputElement).valueAsNumber;
             field_3d.update();
         });
         document.getElementById("point_charge_position_z").addEventListener("input", (e) => {
             if (dragger.getSelected())
-                dragger.getSelected().mesh.position.z = Number(e.target.value);
+                dragger.getSelected().mesh.position.z = (e.target as HTMLInputElement).valueAsNumber;
             field_3d.update();
         });
         document.getElementById("point_charge_charge_value").addEventListener("input", (e) => {
             if (dragger.getSelected()) {
-                dragger.getSelected().charge = Number(e.target.value);
+                dragger.getSelected().charge = (e.target as HTMLInputElement).valueAsNumber;
                 if (dragger.getSelected().charge > 0)
                     dragger.getSelected().mesh.material = point_charge_material_plus;
                 else if (dragger.getSelected().charge < 0)
@@ -172,34 +166,34 @@ const init = () => {
             helper.visible = is_visible;
         }
 
-        const checkbox = document.getElementById("checkbox_show_grid");
+        const checkbox = document.getElementById("checkbox_show_grid") as HTMLInputElement;
         // const store = localStorage.getItem("checkbox_show_grid");
         // if (store) {
         //     checkbox.checked = store === "true";
         // }
         ChangeHelper(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
-            ChangeHelper(e.target.checked);
+            ChangeHelper((e.target as HTMLInputElement).checked);
         });
     }
 
 
     // 自動回転切り替え
     {
-        const checkbox = document.getElementById("checkbox_auto_rotate");
+        const checkbox = document.getElementById("checkbox_auto_rotate") as HTMLInputElement;
         // const store = localStorage.getItem("checkbox_auto_rotate");
         // if (store) {
         //     checkbox.checked = store === "true";
         // }
         controls.autoRotate = checkbox.checked; // 初期値
         checkbox.addEventListener("change", (e) => {
-            controls.autoRotate = e.target.checked;
+            controls.autoRotate = (e.target as HTMLInputElement).checked;
         });
     }
 
     // 2D/3D切り替え
     {
-        const sw = document.getElementById("dimension_toggle_switch");
+        const sw = document.getElementById("dimension_toggle_switch") as HTMLInputElement;
         // const store = localStorage.getItem("dimension_toggle_switch");
         // if (store) {
         //     sw.checked = store === "true";
@@ -213,33 +207,33 @@ const init = () => {
         };
         ChangeDimension(sw.checked); // 初期値
         sw.addEventListener("change", (e) => {
-            ChangeDimension(e.target.checked);
+            ChangeDimension((e.target as HTMLInputElement).checked);
         });
     }
 
     // 電気力線 表示/非表示
     {
-        const checkbox = document.getElementById("checkbox_electric_lines");
+        const checkbox = document.getElementById("checkbox_electric_lines") as HTMLInputElement;
         // const store = localStorage.getItem("checkbox_electric_lines");
         // if (store) {
         //     checkbox.checked = store === "true";
         // }
         field_3d.enableElectricLines(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
-            field_3d.enableElectricLines(e.target.checked);
+            field_3d.enableElectricLines((e.target as HTMLInputElement).checked);
         });
     }
 
     // 電界ベクトル 表示/非表示
     {
-        const checkbox = document.getElementById("checkbox_electric_field_vectors");
+        const checkbox = document.getElementById("checkbox_electric_field_vectors") as HTMLInputElement;
         // const store = localStorage.getItem("checkbox_electric_field_vectors");
         // if (store) {
         //     checkbox.checked = store === "true";
         // }
         field_3d.enableElectricFieldVectors(checkbox.checked); // 初期値
         checkbox.addEventListener("change", (e) => {
-            field_3d.enableElectricFieldVectors(e.target.checked);
+            field_3d.enableElectricFieldVectors((e.target as HTMLInputElement).checked);
         });
     }
 
@@ -264,7 +258,7 @@ const init = () => {
             mesh.position.set(x, y, z);
 
             scene.add(mesh);
-            
+
             const point_charge = new PointCharge(mesh, charge);
             point_charges.push(point_charge);
             dragger.attach(point_charge);
