@@ -1,5 +1,12 @@
 import * as THREE from "three";
 
+export enum ChargeType
+{
+    Plus,
+    Minus,
+    Neutral,
+}
+
 // 点電荷
 export class PointCharge {
 
@@ -14,4 +21,14 @@ export class PointCharge {
         this.position = mesh.position;
 
     }
+
+    chargeType = () => {
+        if (this.charge > 0)
+            return ChargeType.Plus;
+        else if (this.charge < 0)
+            return ChargeType.Minus;
+        else
+            return ChargeType.Neutral;
+    }
+
 }

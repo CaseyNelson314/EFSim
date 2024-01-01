@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Measure } from "./Measure.js";
 import { PointCharge } from './PointCharge.js';
 
 // THREE.Vector3 が等しいかどうかを判定
@@ -18,12 +17,12 @@ const EFVectorFromSingleCharge = (
     point_charge: PointCharge
 ) => {
 
-    if (EqualsVector(pos, point_charge.mesh.position)) {
+    if (EqualsVector(pos, point_charge.position)) {
         return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
     }
 
     const diff = new THREE.Vector3();
-    diff.subVectors(pos, point_charge.mesh.position);    // 点電荷と観測点との差分
+    diff.subVectors(pos, point_charge.position);    // 点電荷と観測点との差分
 
     const k = 8.987552 * 10 ** 9;          // クーロン定数
     const r_sq4 = diff.lengthSq() ** 2;    // 点電荷と観測点との距離^4
@@ -64,8 +63,8 @@ const ElectricForceLinePoints = (
     sim_distance: number
 ) => {
 
-    const points = [origin_charge.mesh.position.clone()];
-    const origin = points[0].clone().add(dir_vector);
+    const points = [origin_charge.position.clone()];
+    const origin = points[0]!.clone().add(dir_vector);
 
     for (; ;) {
 
@@ -76,7 +75,7 @@ const ElectricForceLinePoints = (
 
         // 点電荷との衝突判定
         for (const point_charge of point_charges) {
-            if (origin.distanceToSquared(point_charge.mesh.position) < 1) {
+            if (origin.distanceToSquared(point_charge.position) < 1) {
                 return points;
             }
         }
@@ -231,7 +230,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
                         }
 
                         const opacity = Math.abs(1 - length_sq / (count ** 2));
-                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(point_charge.mesh.position), opacity);
+                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(point_charge.position), opacity);
 
                     }
                 }
@@ -273,7 +272,7 @@ export class Field3D extends THREE.Object3D {
     }
 
     /// 電気力線の表示切替
-    enableElectricLines = (enable: Boolean) => {
+    enableElectricLines = (enable: boolean) => {
         if (enable) {
             if (this.electric_lines_3d == null)
                 this.electric_lines_3d = new ElectricLines3D(this.point_charges);
@@ -287,7 +286,7 @@ export class Field3D extends THREE.Object3D {
     };
 
     /// 電界ベクトルの表示切替
-    enableElectricFieldVectors = (enable: Boolean) => {
+    enableElectricFieldVectors = (enable: boolean) => {
         if (enable) {
             if (this.electric_field_vectors_3d == null)
                 this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.point_charges);

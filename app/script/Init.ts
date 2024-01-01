@@ -4,7 +4,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 // シーンを作成
 export const CreateScene = () => {
-    
+
     const scene = new THREE.Scene();
 
     scene.background = new THREE.Color(0x2b2b2b);
@@ -91,7 +91,10 @@ export const ResisterResizeObserver = (
 ) => {
 
     const resizeObserver = new ResizeObserver((entries) => {
-        const { width, height } = entries[0].contentRect;
+        if (entries.length === 0) {
+            return;
+        }
+        const { width, height } = entries[0]!.contentRect;
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();

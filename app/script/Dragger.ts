@@ -15,8 +15,8 @@ export class Dragger {
     scene: THREE.Scene;
     ray: THREE.Raycaster;
     pointer: THREE.Vector2;
-    listeners: any[];
-    selected: any;
+    listeners: { type: string, listener: Function }[];
+    selected: PointCharge | null;
     on_down_position: THREE.Vector2;
     on_up_position: THREE.Vector2;
 
@@ -61,8 +61,10 @@ export class Dragger {
             // 光線との交差判定
             const meshes = this.point_charges.map((point_charge) => { return point_charge.mesh });
             const intersects = this.ray.intersectObjects(meshes, false);
+
             if (intersects.length > 0) {
-                const object = intersects[0].object;
+
+                const object = intersects[0]!.object;
 
                 if (object !== this.trans_controls.object) {
                     this.trans_controls.attach(object);
@@ -77,8 +79,9 @@ export class Dragger {
                     }
                 }
 
-                this.selected = selected;
+                this.selected = selected? selected : null;
             }
+
         };
         this.dom.addEventListener('click', onClick);
 
