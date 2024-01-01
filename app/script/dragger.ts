@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import * as EFSim from "./Init";
+import * as EFSim from "./init";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { PointCharge } from "./PointCharge.js";
+import { PointCharge } from "./pointCharge.js";
 
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
-    trans_controls: TransformControls;
-    point_charges: PointCharge[];
+    transControls: TransformControls;
+    pointCharges: PointCharge[];
     camera: THREE.PerspectiveCamera;
     dom: HTMLElement;
     controls: OrbitControls;
@@ -17,11 +17,11 @@ export class Dragger {
     pointer: THREE.Vector2;
     listeners: { type: string, listener: Function }[];
     selected: PointCharge | null;
-    on_down_position: THREE.Vector2;
-    on_up_position: THREE.Vector2;
+    onDownPosition: THREE.Vector2;
+    onUpPosition: THREE.Vector2;
 
     constructor(
-        point_charges: PointCharge[],
+        pointCharges: PointCharge[],
         camera: THREE.PerspectiveCamera,
         dom: HTMLElement,
         controls: OrbitControls,
@@ -29,9 +29,9 @@ export class Dragger {
     ) {
 
         // ドラッグでオブジェクトを移動するためのコントロール
-        this.trans_controls = EFSim.CreateTransformControls(camera, dom, controls, scene);
+        this.transControls = EFSim.CreateTransformControls(camera, dom, controls, scene);
 
-        this.point_charges = point_charges;
+        this.pointCharges = pointCharges;
         this.camera = camera;
         this.dom = dom;
         this.controls = controls;
@@ -44,8 +44,8 @@ export class Dragger {
 
         this.selected = null;
 
-        this.on_down_position = new THREE.Vector2();
-        this.on_up_position = new THREE.Vector2();
+        this.onDownPosition = new THREE.Vector2();
+        this.onUpPosition = new THREE.Vector2();
 
         this.setEvent();
     }
@@ -59,18 +59,18 @@ export class Dragger {
             this.ray.setFromCamera(this.pointer, this.camera);
 
             // 光線との交差判定
-            const meshes = this.point_charges.map((point_charge) => { return point_charge.mesh });
+            const meshes = this.pointCharges.map((point_charge) => { return point_charge.mesh });
             const intersects = this.ray.intersectObjects(meshes, false);
 
             if (intersects.length > 0) {
 
                 const object = intersects[0]!.object;
 
-                if (object !== this.trans_controls.object) {
-                    this.trans_controls.attach(object);
+                if (object !== this.transControls.object) {
+                    this.transControls.attach(object);
                 }
 
-                const selected = this.point_charges.find((point_charge) => { return point_charge.mesh === object });
+                const selected = this.pointCharges.find((point_charge) => { return point_charge.mesh === object });
 
                 // オブジェクトが選択されたことを通知
                 for (let listener of this.listeners) {
@@ -89,14 +89,14 @@ export class Dragger {
         // (オブジェクトを移動させなかった場合に、選択を解除する)
         // https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_spline_editor.html
         this.dom.addEventListener('pointerdown', (event) => {
-            this.on_down_position.x = event.clientX;
-            this.on_down_position.y = event.clientY;
+            this.onDownPosition.x = event.clientX;
+            this.onDownPosition.y = event.clientY;
         });
         this.dom.addEventListener('pointerup', (event) => {
-            this.on_up_position.x = event.clientX;
-            this.on_up_position.y = event.clientY;
-            if (this.on_down_position.distanceTo(this.on_up_position) === 0) {
-                this.trans_controls.detach();
+            this.onUpPosition.x = event.clientX;
+            this.onUpPosition.y = event.clientY;
+            if (this.onDownPosition.distanceTo(this.onUpPosition) === 0) {
+                this.transControls.detach();
                 this.selected = null;
 
                 // オブジェクトが選択解除されたことを通知
@@ -116,15 +116,15 @@ export class Dragger {
     }
 
     attach = (object: PointCharge) => {
-        this.trans_controls.attach(object.mesh);
+        this.transControls.attach(object.mesh);
         this.selected = object;
     }
 
     removeSelected = () => {
         if (this.selected !== null) {
-            this.trans_controls.detach();
+            this.transControls.detach();
             this.scene.remove(this.selected.mesh);
-            this.point_charges.splice(this.point_charges.indexOf(this.selected), 1);
+            this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
             this.selected = null;
         }
     }
@@ -134,7 +134,7 @@ export class Dragger {
         this.listeners.push({ type: type, listener: listener });
 
         if (type === "object-change")
-            this.trans_controls.addEventListener("objectChange", (e) => {
+            this.transControls.addEventListener("objectChange", (e) => {
                 listener(e.target.object);
             });
     }
