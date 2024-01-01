@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { Measure } from "./Measure.js";
 
 // THREE.Vector3 が等しいかどうかを判定
-const EqualsVector = (v1, v2, eps = Number.EPSILON) => {
+const EqualsVector = (lhs, rhs, eps = Number.EPSILON) => {
     return (
-        Math.abs(v1.x - v2.x) < eps && Math.abs(v1.y - v2.y) < eps &&
-        Math.abs(v1.z - v2.z) < eps);
+        Math.abs(lhs.x - rhs.x) < eps &&
+        Math.abs(lhs.y - rhs.y) < eps &&
+        Math.abs(lhs.z - rhs.z) < eps);
 };
 
 // 1つの点電荷から受ける電界ベクトルを算出
