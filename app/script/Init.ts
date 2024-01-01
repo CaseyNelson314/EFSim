@@ -3,69 +3,100 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
 // シーンを作成
-export const CreateScene = (): THREE.Scene => {
-  const scene = new THREE.Scene();
+export const CreateScene = () => {
+    
+    const scene = new THREE.Scene();
 
-  scene.background = new THREE.Color(0x2b2b2b);
+    scene.background = new THREE.Color(0x2b2b2b);
 
-  return scene;
+    return scene;
+
 };
 
 // レンダラーを作成
-export const CreateRenderer = (dom: HTMLElement): THREE.WebGLRenderer => {
-  const renderer = new THREE.WebGLRenderer({
-    antialias: false,
-  });
+export const CreateRenderer = (
+    dom: HTMLElement
+) => {
 
-  renderer.setSize(dom.offsetWidth, dom.offsetHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+    const renderer = new THREE.WebGLRenderer({
+        antialias: false,
+    });
 
-  dom.appendChild(renderer.domElement);
+    renderer.setSize(dom.offsetWidth, dom.offsetHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
 
-  return renderer;
+    dom.appendChild(renderer.domElement);
+
+    return renderer;
+
 };
 
 // カメラを作成
-export const CreateCamera = (dom: HTMLElement): THREE.PerspectiveCamera => {
-  const aspect = dom.offsetWidth / dom.offsetHeight;
-  const camera = new THREE.PerspectiveCamera(50, aspect);
-  camera.position.set(200, 200, 200);
-  return camera;
+export const CreateCamera = (
+    dom: HTMLElement
+) => {
+
+    const aspect = dom.offsetWidth / dom.offsetHeight;
+    const camera = new THREE.PerspectiveCamera(50, aspect);
+
+    camera.position.set(200, 200, 200);
+
+    return camera;
+
 };
 
 // マウスコントロールを作成
-export const CreateControls = (camera, dom: HTMLElement) => {
-  const controls = new OrbitControls(camera, dom);
+export const CreateControls = (
+    camera: THREE.PerspectiveCamera,
+    dom: HTMLElement
+) => {
 
-  controls.autoRotate = true; // 自動回転
-  controls.autoRotateSpeed = 1; // 自動回転の速度
-  controls.enableDamping = true; // 視点の移動を滑らかにする
-  controls.dampingFactor = 0.2; // 滑らか度合い
+    const controls = new OrbitControls(camera, dom);
 
-  return controls;
+    controls.autoRotate = true; // 自動回転
+    controls.autoRotateSpeed = 1; // 自動回転の速度
+    controls.enableDamping = true; // 視点の移動を滑らかにする
+    controls.dampingFactor = 0.2; // 滑らか度合い
+
+    return controls;
+
 };
 
 // ドラッグでオブジェクトを移動するためのコントロールを作成
-export const CreateTransformControls = (camera, dom: HTMLElement, controls, scene) => {
-  const transControls = new TransformControls(camera, dom);
+export const CreateTransformControls = (
+    camera: THREE.PerspectiveCamera,
+    dom: HTMLElement,
+    controls: OrbitControls,
+    scene: THREE.Scene
+) => {
 
-  transControls.addEventListener("dragging-changed", (event) => {
-    controls.enablePan = !event.value;
-    controls.enableRotate = !event.value;
-  });
+    const transControls = new TransformControls(camera, dom);
 
-  scene.add(transControls);
+    transControls.addEventListener("dragging-changed", (event) => {
+        controls.enablePan = !event.value;
+        controls.enableRotate = !event.value;
+    });
 
-  return transControls;
+    scene.add(transControls);
+
+    return transControls;
+
 };
 
 // リサイズ時のイベントを登録
-export const ResisterResizeObserver = (dom: HTMLElement, renderer, camera) => {
-  const resizeObserver = new ResizeObserver((entries) => {
-    const { width, height } = entries[0].contentRect;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  });
-  resizeObserver.observe(dom);
+export const ResisterResizeObserver = (
+    dom: HTMLElement,
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.PerspectiveCamera
+) => {
+
+    const resizeObserver = new ResizeObserver((entries) => {
+        const { width, height } = entries[0].contentRect;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+
+    resizeObserver.observe(dom);
+
 }
