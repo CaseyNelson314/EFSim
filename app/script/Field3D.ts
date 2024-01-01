@@ -102,6 +102,12 @@ const UniformPointsOnSphere = (count, callback) => {
 
 /// 電気力線
 class ElectricLines3D extends THREE.Object3D {
+
+    point_charges: any;
+    line_material: any;
+    cone_geometry: any;
+    cone_material: any;
+
     constructor(point_charges) {
         super();
         this.point_charges = point_charges;
@@ -137,7 +143,9 @@ class ElectricLines3D extends THREE.Object3D {
     update() {
         // ジオメトリをすべて破棄
         for (const child of this.children) {
-            child.geometry.dispose();
+            if (child instanceof THREE.Line) {
+                child.geometry.dispose();
+            }
         }
         this.children = [];
         this.createELines();
@@ -147,6 +155,10 @@ class ElectricLines3D extends THREE.Object3D {
 
 // 電界ベクトル
 class ElectricFieldVectors3D extends THREE.Object3D {
+
+    point_charges: any;
+    geometry: any;
+
     constructor(point_charges) {
         super();
         this.point_charges = point_charges;
@@ -211,6 +223,11 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
 /// 電界
 export class Field3D extends THREE.Object3D {
+
+    point_charges: any;
+    electric_lines_3d: any;
+    electric_field_vectors_3d: any;
+
     constructor(point_charges) {
         super();
 

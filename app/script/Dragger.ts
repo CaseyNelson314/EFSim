@@ -4,6 +4,19 @@ import * as EFSim from "./Init.js";
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
+    trans_controls: any;
+    point_charges: any;
+    camera: any;
+    dom: any;
+    controls: any;
+    scene: any;
+    ray: THREE.Raycaster;
+    pointer: THREE.Vector2;
+    listeners: any[];
+    selected: any;
+    on_down_position: THREE.Vector2;
+    on_up_position: THREE.Vector2;
+    
     constructor(point_charges, camera, dom, controls, scene) {
 
         // ドラッグでオブジェクトを移動するためのコントロール

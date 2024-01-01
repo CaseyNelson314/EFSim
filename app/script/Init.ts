@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { TransformControls } from "three/addons/controls/TransformControls";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
 // シーンを作成
-export const CreateScene = () => {
+export const CreateScene = (): THREE.Scene => {
   const scene = new THREE.Scene();
 
   scene.background = new THREE.Color(0x2b2b2b);
@@ -12,8 +12,8 @@ export const CreateScene = () => {
 };
 
 // レンダラーを作成
-export const CreateRenderer = (dom) => {
-  const renderer = new THREE.WebGLRenderer(dom, {
+export const CreateRenderer = (dom: HTMLElement): THREE.WebGLRenderer => {
+  const renderer = new THREE.WebGLRenderer({
     antialias: false,
   });
 
@@ -26,7 +26,7 @@ export const CreateRenderer = (dom) => {
 };
 
 // カメラを作成
-export const CreateCamera = (dom) => {
+export const CreateCamera = (dom: HTMLElement): THREE.PerspectiveCamera => {
   const aspect = dom.offsetWidth / dom.offsetHeight;
   const camera = new THREE.PerspectiveCamera(50, aspect);
   camera.position.set(200, 200, 200);
@@ -34,7 +34,7 @@ export const CreateCamera = (dom) => {
 };
 
 // マウスコントロールを作成
-export const CreateControls = (camera, dom) => {
+export const CreateControls = (camera, dom: HTMLElement) => {
   const controls = new OrbitControls(camera, dom);
 
   controls.autoRotate = true; // 自動回転
@@ -46,7 +46,7 @@ export const CreateControls = (camera, dom) => {
 };
 
 // ドラッグでオブジェクトを移動するためのコントロールを作成
-export const CreateTransformControls = (camera, dom, controls, scene) => {
+export const CreateTransformControls = (camera, dom: HTMLElement, controls, scene) => {
   const transControls = new TransformControls(camera, dom);
 
   transControls.addEventListener("dragging-changed", (event) => {
@@ -60,7 +60,7 @@ export const CreateTransformControls = (camera, dom, controls, scene) => {
 };
 
 // リサイズ時のイベントを登録
-export const ResisterResizeObserver = (dom, renderer, camera) => {
+export const ResisterResizeObserver = (dom: HTMLElement, renderer, camera) => {
   const resizeObserver = new ResizeObserver((entries) => {
     const { width, height } = entries[0].contentRect;
     renderer.setSize(width, height);
