@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { PointCharge } from './pointCharge.js';
+import { PointCharge } from './pointCharge';
+import { Measure } from './measure';
 
 // THREE.Vector3 が等しいかどうかを判定
 const EqualsVector = (lhs: THREE.Vector3, rhs: THREE.Vector3, eps = Number.EPSILON) => {
@@ -75,7 +76,10 @@ const ElectricForceLinePoints = (
 
         // 点電荷との衝突判定
         for (const pointCharge of pointCharges) {
-            if (origin.distanceToSquared(pointCharge.position) < 1) {
+            if (pointCharge === origin_charge) {
+                continue;
+            }
+            if (origin.distanceToSquared(pointCharge.position) < 0.5) {
                 return points;
             }
         }
@@ -94,33 +98,47 @@ const ElectricForceLinePoints = (
 };
 
 // 球の面に均一な点ベクトルを生成しコールバック関数を呼び出す
-// @param count theta, phi の分割数
+// @param n 点の数
 // @param callback (vector) => {}
-const UniformPointsOnSphere = (
-    count: number,
-    callback: (vector: THREE.Vector3) => void
-) => {
+/// 一般化螺旋集合を用いて、球面上に点を一様分布する正規ベクトルを生成し、コールバック関数に渡す
+/// @param n 点の数
+/// @param functor コールバック関数
+const GSS = (n: number, functor: (vector: THREE.Vector3) => void) => {
 
-    const dirVector = new THREE.Vector3();
+    // 一般化螺旋集合を用いた球面上の点の一様分布
+    // 参考論文: https://perswww.kuleuven.be/~u0017946/publications/Papers97/art97a-Saff-Kuijlaars-MI/Saff-Kuijlaars-MathIntel97.pdf
 
-    for (let n_theta = 0; n_theta < count; n_theta++) {
+    if (n < 1) return;
 
-        const theta = (Math.PI * 2) * n_theta / count;
-        const sin_theta = Math.sin(theta);
-
-        dirVector.z = Math.cos(theta);
-
-        for (let n_phi = 0; n_phi < count; n_phi++) {
-            const phi = (Math.PI * 2) * n_phi / count;
-
-            dirVector.x = Math.cos(phi) * sin_theta;
-            dirVector.y = Math.sin(phi) * sin_theta;
-
-            callback(dirVector.clone());
-        }
+    if (n === 1) {
+        functor(new THREE.Vector3(0, 1, 0));
+        return;
     }
 
-};
+    let phi = 0;
+    for (let k = 1; k <= n; k++) {
+
+        // P.10 式(8)より パラメータ h_k を算出
+        const h = -1 + 2 * (k - 1) / (n - 1);
+
+        // 式(8)より パラメータ theta_k を算出
+        const theta = Math.acos(h);
+
+        // 式(8)より パラメータ phi_k を算出
+        if (h * h === 1)
+            phi = 0;  // ゼロ除算対策
+        else
+            phi = phi + 3.6 / Math.sqrt(n) / Math.sqrt(1 - h * h);
+
+        // 直交座標系に変換
+        const x = Math.sin(theta) * Math.cos(phi);
+        const z = Math.sin(theta) * Math.sin(phi);
+        const y = Math.cos(theta);
+
+        functor(new THREE.Vector3(x, y, z));
+
+    }
+}
 
 
 /// 電気力線
@@ -148,7 +166,7 @@ class ElectricLines3D extends THREE.Object3D {
         for (const pointCharge of this.pointCharges) {
             if (pointCharge.charge === 0) continue;
 
-            UniformPointsOnSphere(8, (vector) => {
+            GSS(20, (vector) => {
                 // const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
                 // cone.position.copy(vector);
                 // cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vector.normalize());
@@ -171,8 +189,8 @@ class ElectricLines3D extends THREE.Object3D {
             }
         }
         this.children = [];
-        this.createELines();
-        // Measure("createELines", () => this.createELines());
+        // this.createELines();
+        Measure("createELines", () => this.createELines());
     }
 }
 

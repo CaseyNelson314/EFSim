@@ -2,7 +2,6 @@
   "name": "efsim",
   "version": "1.0.0",
   "description": "Electric Field Simulator",
-  "main": "app/build/main.js",
   "scripts": {
     "dev": "cd app && vite",
     "build": "cd app && vite build --base ./"
