@@ -21,7 +21,7 @@ const start = () => {
     const pointChargeMaterialPlus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const pointChargeMaterialMinus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     const pointChargeMaterialNeutral = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const pointChargeGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const pointChargeGeometry = new THREE.SphereGeometry(2, 32, 32);
 
     // 点電荷を作成
     {
@@ -156,7 +156,7 @@ const start = () => {
 
     // 床の表示/非表示
     {
-        const helper = new THREE.GridHelper(2000, 100);
+        const helper = new THREE.GridHelper(600, 100, 0x888888, 0x888888);
         helper.material.opacity = 0;
         scene.add(helper);
 
