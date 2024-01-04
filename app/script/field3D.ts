@@ -172,6 +172,9 @@ class ElectricLines3D extends THREE.Object3D {
             if (child instanceof THREE.Line) {
                 child.geometry.dispose();
             }
+            if (child instanceof THREE.Mesh) {
+                child.geometry.dispose();
+            }
         }
         this.children = [];
         this.createELines();
