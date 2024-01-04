@@ -21,25 +21,22 @@ const start = () => {
     const pointChargeMaterialPlus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const pointChargeMaterialMinus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     const pointChargeMaterialNeutral = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const pointChargeGeometry = new THREE.SphereGeometry(5, 32, 32);
+    const pointChargeGeometry = new THREE.SphereGeometry(1, 32, 32);
 
     // 点電荷を作成
     {
-        const n = 4;
-
-        for (let i = 0; i < n; i++) {
-            const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
-            const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
-            const mesh = new THREE.Mesh(pointChargeGeometry, material);
-
-            const x = Math.floor(Math.random() * 200 - 100);
-            const y = Math.floor(Math.random() * 200 - 100);
-            const z = Math.floor(Math.random() * 200 - 100);
-            mesh.position.set(x, y, z);
-
+        {
+            const mesh = new THREE.Mesh(pointChargeGeometry, pointChargeMaterialPlus);
+            mesh.position.set(-30, 20, 0);
             scene.add(mesh);
+            pointCharges.push(new PointCharge(mesh, 1));
+        }
 
-            pointCharges.push(new PointCharge(mesh, charge));
+        {
+            const mesh = new THREE.Mesh(pointChargeGeometry, pointChargeMaterialMinus);
+            mesh.position.set(30, 0, 0);
+            scene.add(mesh);
+            pointCharges.push(new PointCharge(mesh, -1));
         }
     }
 
@@ -49,6 +46,79 @@ const start = () => {
     const dragger = new Dragger(pointCharges, camera, dom, controls, scene);
 
     {
+        // 座標
+        document.getElementById("point_charge_position_x")!.addEventListener("input", (e) => {
+            const selected = dragger.getSelected();
+            if (selected)
+                selected.position.x = Number((e.target as HTMLInputElement).value)
+            field3D.update();
+        });
+        document.getElementById("point_charge_position_y")!.addEventListener("input", (e) => {
+            const selected = dragger.getSelected();
+            if (selected)
+                selected.position.y = Number((e.target as HTMLInputElement).value)
+            field3D.update();
+        });
+        document.getElementById("point_charge_position_z")!.addEventListener("input", (e) => {
+            const selected = dragger.getSelected();
+            if (selected)
+                selected.position.z = Number((e.target as HTMLInputElement).value)
+            field3D.update();
+        });
+
+
+        // 電荷量
+        const updateCharge = (pointCharge: PointCharge, newCharge: number) => {
+            pointCharge.charge = newCharge;
+            switch (pointCharge.chargeType()) {
+                case ChargeType.Plus:
+                    pointCharge.mesh.material = pointChargeMaterialPlus;
+                    break;
+                case ChargeType.Minus:
+                    pointCharge.mesh.material = pointChargeMaterialMinus;
+                    break;
+                case ChargeType.Neutral:
+                    pointCharge.mesh.material = pointChargeMaterialNeutral;
+                    break;
+            }
+        };
+        const valueWithUnitToValue = (value: number, unit: string) => {
+            switch (unit) {
+                case 'c': return value;
+                case 'uc': return value * 1e-6;
+                case 'nc': return value * 1e-9;
+                case 'pc': return value * 1e-12;
+                default: throw new Error("invalid unit");
+            }
+        };
+        const valueToValueWithUnit = (value: number) => {
+            const appliedAbsValue = Math.abs(value);
+            if (appliedAbsValue >= 1e-3) {
+                return { value: value, unit: 'c' };
+            } else if (appliedAbsValue >= 1e-6) {
+                return { value: value * 1e6, unit: 'uc' };
+            } else if (appliedAbsValue >= 1e-9) {
+                return { value: value * 1e9, unit: 'nc' };
+            } else {
+                return { value: value * 1e12, unit: 'pc' };
+            }
+        };
+
+        const domValue = document.getElementById("point_charge_charge_value")! as HTMLInputElement;
+        const domUnit = document.getElementById("point_charge_unit")! as HTMLSelectElement;
+
+        const onChargeValueChange = () => {
+            const selected = dragger.getSelected();
+            if (selected) {
+                updateCharge(selected, valueWithUnitToValue(Number(domValue.value), domUnit.value));
+            }
+            field3D.update();
+        };
+
+        domValue.addEventListener("input", onChargeValueChange);
+        domUnit.addEventListener("change", onChargeValueChange);
+
+        
         dragger.addEventListener('object-change', throttle(50, field3D.update));
 
         const FormPositionUpdateEvent = (object: THREE.Mesh) => {
@@ -57,7 +127,9 @@ const start = () => {
             (document.getElementById("point_charge_position_z") as HTMLInputElement).value = object.position.z.toFixed(2);
         };
         const FormChargeUpdateEvent = (object: PointCharge) => {
-            (document.getElementById("point_charge_charge_value") as HTMLInputElement).value = object.charge.toFixed(2);
+            const { value, unit } = valueToValueWithUnit(object.charge);
+            domValue.value = value.toFixed(2);
+            domUnit.value = unit;
         }
 
         dragger.addEventListener('object-change', FormPositionUpdateEvent);
@@ -66,50 +138,13 @@ const start = () => {
             FormChargeUpdateEvent(object);
         });
 
-        dragger.addEventListener('object-selected', (/*object: PointCharge*/) => {
+        dragger.addEventListener('object-selected', () => {
             document.getElementById("settings_point_charge")!.style.display = "block";
         });
         dragger.addEventListener('object-unselected', () => {
             document.getElementById("settings_point_charge")!.style.display = "none";
         });
 
-        document.getElementById("point_charge_position_x")!.addEventListener("input", (e) => {
-            const selected = dragger.getSelected();
-            if (selected)
-                selected.position.x = (e.target as HTMLInputElement).valueAsNumber;
-
-            field3D.update();
-        });
-        document.getElementById("point_charge_position_y")!.addEventListener("input", (e) => {
-            const selected = dragger.getSelected();
-            if (selected)
-                selected.position.y = (e.target as HTMLInputElement).valueAsNumber;
-            field3D.update();
-        });
-        document.getElementById("point_charge_position_z")!.addEventListener("input", (e) => {
-            const selected = dragger.getSelected();
-            if (selected)
-                selected.position.z = (e.target as HTMLInputElement).valueAsNumber;
-            field3D.update();
-        });
-        document.getElementById("point_charge_charge_value")!.addEventListener("input", (e) => {
-            const selected = dragger.getSelected();
-            if (selected) {
-                selected.charge = (e.target as HTMLInputElement).valueAsNumber;
-                switch (selected.chargeType()) {
-                    case ChargeType.Plus:
-                        selected.mesh.material = pointChargeMaterialPlus;
-                        break;
-                    case ChargeType.Minus:
-                        selected.mesh.material = pointChargeMaterialMinus;
-                        break;
-                    case ChargeType.Neutral:
-                        selected.mesh.material = pointChargeMaterialNeutral;
-                        break;
-                }
-            }
-            field3D.update();
-        });
 
         {
             // デモとして最初の点電荷を選択
@@ -182,14 +217,14 @@ const start = () => {
 
     // 追加削除ボタン
     {
-        document.getElementById("button_add_point_charge")!.addEventListener("click", (e) => {
-            const charge = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10 + 1);
+        document.getElementById("button_add_point_charge")!.addEventListener("click", () => {
+            const charge = (Math.random() > 0.5 ? 1 : -1);
             const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
             const mesh = new THREE.Mesh(pointChargeGeometry, material);
 
-            const x = Math.floor(Math.random() * 200 - 100);
-            const y = Math.floor(Math.random() * 200 - 100);
-            const z = Math.floor(Math.random() * 200 - 100);
+            const x = Math.floor(Math.random() * 100 - 50);
+            const y = Math.floor(Math.random() * 100 - 50);
+            const z = Math.floor(Math.random() * 100 - 50);
             mesh.position.set(x, y, z);
 
             scene.add(mesh);
@@ -201,14 +236,14 @@ const start = () => {
             field3D.update();
         });
 
-        document.getElementById("button_remove_point_charge")!.addEventListener("click", (e) => {
+        document.getElementById("button_remove_point_charge")!.addEventListener("click", () => {
             if (dragger.getSelected()) {
                 dragger.removeSelected();
                 field3D.update();
             }
         });
 
-        document.getElementById("button_remove_all_point_charges")!.addEventListener("click", (e) => {
+        document.getElementById("button_remove_all_point_charges")!.addEventListener("click", () => {
             for (let pointCharge of pointCharges) {
                 scene.remove(pointCharge.mesh);
             }
@@ -217,7 +252,7 @@ const start = () => {
             field3D.update();
         });
     }
-    
+
     const main = () => {
 
         requestAnimationFrame(main);

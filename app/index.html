@@ -29,11 +29,11 @@
           </label> -->
         <div class="settings_3d">
           <label class="checkbox">
-            <input type="checkbox" id="checkbox_show_grid" checked />
+            <input type="checkbox" id="checkbox_show_grid" />
             グリッド表示
           </label>
           <label class="checkbox">
-            <input type="checkbox" id="checkbox_auto_rotate" />
+            <input type="checkbox" id="checkbox_auto_rotate" checked />
             自動回転
           </label>
           <label class="checkbox">
@@ -50,25 +50,25 @@
             <p class="title">位置</p>
             <label for="point_charge_position_x">
               X
-              <input type="number" id="point_charge_position_x">
+              <input type="number" id="point_charge_position_x" inputmode="decimal">
             </label>
             <label for="point_charge_position_y">
               Y
-              <input type="number" id="point_charge_position_y">
+              <input type="number" id="point_charge_position_y" inputmode="decimal">
             </label>
             <label for="point_charge_position_z">
               Z
-              <input type="number" id="point_charge_position_z">
+              <input type="number" id="point_charge_position_z" inputmode="decimal">
             </label>
           </div>
           <div class="point_charge_charge">
             <p class="title">電荷量</p>
             <div class="container">
-              <input type="number" id="point_charge_charge_value">
-              <select id="point_charge_unit" disabled>
-                <option value="c" selected>C</option>
-                <option value="mc">μC</option>
-                <option value="nc">nC</option>
+              <input type="number" id="point_charge_charge_value" inputmode="decimal">
+              <select id="point_charge_unit">
+                <option value="c">C</option>
+                <option value="uc">μC</option>
+                <option value="nc" selected>nC</option>
                 <option value="pc">pC</option>
               </select>
             </div>

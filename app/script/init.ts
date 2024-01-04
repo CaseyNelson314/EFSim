@@ -39,7 +39,7 @@ export const CreateCamera = (
     const aspect = dom.offsetWidth / dom.offsetHeight;
     const camera = new THREE.PerspectiveCamera(50, aspect);
 
-    camera.position.set(200, 200, 200);
+    camera.position.set(100, 100, 100);
 
     return camera;
 

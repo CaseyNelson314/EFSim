@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { PointCharge } from './pointCharge';
 import { Measure } from './measure';
+import { kCoulomb } from './constrants';
+import { clamp } from 'three/src/math/MathUtils';
+import { GSS } from './gss';
 
 // THREE.Vector3 が等しいかどうかを判定
 const EqualsVector = (lhs: THREE.Vector3, rhs: THREE.Vector3, eps = Number.EPSILON) => {
@@ -13,7 +16,7 @@ const EqualsVector = (lhs: THREE.Vector3, rhs: THREE.Vector3, eps = Number.EPSIL
 // 1つの点電荷から受ける電界ベクトルを算出
 // @param pos 観測点の座標
 // @param pointCharge 点電荷
-const EFVectorFromSingleCharge = (
+const ElectricFieldVectorFromSingleCharge = (
     pos: THREE.Vector3,
     pointCharge: PointCharge
 ) => {
@@ -25,10 +28,9 @@ const EFVectorFromSingleCharge = (
     const diff = new THREE.Vector3();
     diff.subVectors(pos, pointCharge.position);    // 点電荷と観測点との差分
 
-    const k = 8.987552 * 10 ** 9;          // クーロン定数
     const r_sq4 = diff.lengthSq() ** 2;    // 点電荷と観測点との距離^4
 
-    diff.multiplyScalar((k * pointCharge.charge) / r_sq4);
+    diff.multiplyScalar((kCoulomb * pointCharge.charge) / r_sq4);
 
     return diff;
 
@@ -37,7 +39,7 @@ const EFVectorFromSingleCharge = (
 // 指定座標における電場ベクトルを計算
 // @param pos 観測点の座標
 // @param pointCharges 点電荷の配列
-const EFVector = (
+const ElectricFieldVector = (
     pos: THREE.Vector3,
     pointCharges: PointCharge[]
 ) => {
@@ -45,7 +47,7 @@ const EFVector = (
     let electric_field_vector = new THREE.Vector3();
 
     for (const pointCharge of pointCharges) {
-        electric_field_vector.add(EFVectorFromSingleCharge(pos, pointCharge));
+        electric_field_vector.add(ElectricFieldVectorFromSingleCharge(pos, pointCharge));
     }
 
     return electric_field_vector;
@@ -69,7 +71,7 @@ const ElectricForceLinePoints = (
 
     for (; ;) {
 
-        const d_vector = EFVector(origin, pointCharges).normalize();
+        const d_vector = ElectricFieldVector(origin, pointCharges).normalize();
 
         if (origin_charge.charge < 0)
             d_vector.multiplyScalar(-1);
@@ -97,48 +99,11 @@ const ElectricForceLinePoints = (
 
 };
 
-// 球の面に均一な点ベクトルを生成しコールバック関数を呼び出す
-// @param n 点の数
-// @param callback (vector) => {}
-/// 一般化螺旋集合を用いて、球面上に点を一様分布する正規ベクトルを生成し、コールバック関数に渡す
-/// @param n 点の数
-/// @param functor コールバック関数
-const GSS = (n: number, functor: (vector: THREE.Vector3) => void) => {
-
-    // 一般化螺旋集合を用いた球面上の点の一様分布
-    // 参考論文: https://perswww.kuleuven.be/~u0017946/publications/Papers97/art97a-Saff-Kuijlaars-MI/Saff-Kuijlaars-MathIntel97.pdf
-
-    if (n < 1) return;
-
-    if (n === 1) {
-        functor(new THREE.Vector3(0, 1, 0));
-        return;
-    }
-
-    let phi = 0;
-    for (let k = 1; k <= n; k++) {
-
-        // P.10 式(8)より パラメータ h_k を算出
-        const h = -1 + 2 * (k - 1) / (n - 1);
-
-        // 式(8)より パラメータ theta_k を算出
-        const theta = Math.acos(h);
-
-        // 式(8)より パラメータ phi_k を算出
-        if (h * h === 1)
-            phi = 0;  // ゼロ除算対策
-        else
-            phi = phi + 3.6 / Math.sqrt(n) / Math.sqrt(1 - h * h);
-
-        // 直交座標系に変換
-        const x = Math.sin(theta) * Math.cos(phi);
-        const z = Math.sin(theta) * Math.sin(phi);
-        const y = Math.cos(theta);
-
-        functor(new THREE.Vector3(x, y, z));
-
-    }
-}
+// 点電荷から出る電気力線の本数を求める。
+// @param pointCharge 点電荷
+const ElectricForceLineCount = (pointCharge: PointCharge) => {
+    return 4 * Math.PI * kCoulomb * Math.abs(pointCharge.charge);
+};
 
 
 /// 電気力線
@@ -154,8 +119,8 @@ class ElectricLines3D extends THREE.Object3D {
         this.pointCharges = pointCharges;
         this.lineMaterial = new THREE.LineBasicMaterial({ color: 0xccccff });
 
-        this.coneGeometry = new THREE.ConeGeometry(1, 5, 10);
-        this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        this.coneGeometry = new THREE.ConeGeometry(1, 3, 10);
+        this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xaeaece, opacity: 1 });
 
         this.createELines();
     }
@@ -165,19 +130,39 @@ class ElectricLines3D extends THREE.Object3D {
 
         for (const pointCharge of this.pointCharges) {
             if (pointCharge.charge === 0) continue;
+            
+            // const n = Math.floor(clamp(ElectricForceLineCount(pointCharge), 0, 30));
+            const n = 25;
+            const points = GSS(n);
 
-            GSS(20, (vector) => {
-                // const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
-                // cone.position.copy(vector);
-                // cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vector.normalize());
-                // this.add(cone);
-
+            for (const vector of points) {
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = ElectricForceLinePoints(pointCharge, this.pointCharges, vector, 1000);
+                const points = ElectricForceLinePoints(pointCharge, this.pointCharges, vector, 300);
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
                 const line = new THREE.Line(geometry, this.lineMaterial);
                 this.add(line);
-            });
+
+
+                // 電気力線上に一定間隔で矢印を生成
+                const step = points.length / 3;
+                for (let i = step; i + 1 < points.length; i += step) {
+
+                    const origin = points[Math.floor(i)]!;
+                    const diff = new THREE.Vector3();
+                    diff.subVectors(points[Math.floor(i + 1)]!, origin);
+
+                    const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
+                    cone.position.copy(origin);
+
+                    if (pointCharge.charge < 0) {
+                        diff.multiplyScalar(-1);
+                    }
+
+                    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.normalize());
+                    this.add(cone);
+
+                }
+            }
         }
     }
 
@@ -189,8 +174,8 @@ class ElectricLines3D extends THREE.Object3D {
             }
         }
         this.children = [];
-        // this.createELines();
-        Measure("createELines", () => this.createELines());
+        this.createELines();
+        // Measure("createELines", () => this.createELines());
     }
 }
 
@@ -220,7 +205,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
             cone.position.copy(position);
 
-            const ef_vector = EFVector(position, this.pointCharges);
+            const ef_vector = ElectricFieldVector(position, this.pointCharges);
             cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize());
 
             this.add(cone);
