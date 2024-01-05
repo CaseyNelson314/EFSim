@@ -25,19 +25,18 @@ const start = () => {
 
     // 点電荷を作成
     {
-        {
-            const mesh = new THREE.Mesh(pointChargeGeometry, pointChargeMaterialPlus);
-            mesh.position.set(-30, 20, 0);
+        const createCharge = (charge: number, x: number, y: number, z: number) => {
+            const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
+            const mesh = new THREE.Mesh(pointChargeGeometry, material);
+            mesh.position.set(x, y, z);
             scene.add(mesh);
-            pointCharges.push(new PointCharge(mesh, 1));
+            pointCharges.push(new PointCharge(mesh, charge));
         }
 
-        {
-            const mesh = new THREE.Mesh(pointChargeGeometry, pointChargeMaterialMinus);
-            mesh.position.set(30, 0, 0);
-            scene.add(mesh);
-            pointCharges.push(new PointCharge(mesh, -1));
-        }
+        createCharge(-1, 70, 0, 0);
+        createCharge(-1, -70, 0, 0);
+        createCharge(1, 0, 0, -70);
+        createCharge(1, 0, 0, 70);
     }
 
     // シミュレーション空間
@@ -118,7 +117,7 @@ const start = () => {
         domValue.addEventListener("input", onChargeValueChange);
         domUnit.addEventListener("change", onChargeValueChange);
 
-        
+
         dragger.addEventListener('object-change', throttle(50, field3D.update));
 
         const FormPositionUpdateEvent = (object: THREE.Mesh) => {
