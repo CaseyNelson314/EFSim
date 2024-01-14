@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as EFSim from "./init";
 import { Dragger } from "./dragger";
-import { Charge, ChargeType, PointCharge } from "./pointCharge";
+import { Charge, LineCharge, PointCharge } from "./pointCharge";
 import { Field3D } from "./field3D";
 import { throttle } from 'throttle-debounce';
 
@@ -16,28 +16,15 @@ const start = () => {
 
     // 点電荷たち
     const pointCharges: Charge[] = [];
-
-    const pointChargeMaterialPlus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const pointChargeMaterialMinus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    const pointChargeMaterialNeutral = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const pointChargeGeometry = new THREE.SphereGeometry(2, 32, 32);
-
+    
     // 点電荷を作成
     {
-        // const createCharge = (charge: number, x: number, y: number, z: number) => {
-        //     const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
-        //     const mesh = new THREE.Mesh(pointChargeGeometry, material);
-        //     mesh.position.set(x, y, z);
-        //     scene.add(mesh);
-        //     pointCharges.push(new PointCharge(mesh, charge));
-        // }
+        pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
+        pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
+        pointCharges.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
+        pointCharges.push(new PointCharge(new THREE.Vector3(0, -100, 0), -1).attachScene(scene));
 
-        pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1));
-
-        // createCharge(-1, 70, 0, 0);
-        // createCharge(-1, -70, 0, 0);
-        // createCharge(1, 0, 0, -70);
-        // createCharge(1, 0, 0, 70);
+        pointCharges.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
     }
 
     // シミュレーション空間
@@ -68,19 +55,8 @@ const start = () => {
 
 
         // 電荷量
-        const updateCharge = (pointCharge: PointCharge, newCharge: number) => {
-            pointCharge.charge = newCharge;
-            switch (pointCharge.chargeType()) {
-                case ChargeType.Plus:
-                    pointCharge.mesh.material = pointChargeMaterialPlus;
-                    break;
-                case ChargeType.Minus:
-                    pointCharge.mesh.material = pointChargeMaterialMinus;
-                    break;
-                case ChargeType.Neutral:
-                    pointCharge.mesh.material = pointChargeMaterialNeutral;
-                    break;
-            }
+        const updateCharge = (pointCharge: Charge, newCharge: number) => {
+            pointCharge.updateCharge(newCharge);
         };
         const valueWithUnitToValue = (value: number, unit: string) => {
             switch (unit) {
@@ -219,19 +195,14 @@ const start = () => {
     {
         document.getElementById("button_add_point_charge")!.addEventListener("click", () => {
             const charge = (Math.random() > 0.5 ? 1 : -1);
-            const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
-            const mesh = new THREE.Mesh(pointChargeGeometry, material);
-
             const x = Math.floor(Math.random() * 100 - 50);
             const y = Math.floor(Math.random() * 100 - 50);
             const z = Math.floor(Math.random() * 100 - 50);
-            mesh.position.set(x, y, z);
+            
+            const change = new PointCharge(new THREE.Vector3(x, y, z), charge).attachScene(scene);
 
-            scene.add(mesh);
-
-            const pointCharge = new PointCharge(mesh, charge);
-            pointCharges.push(pointCharge);
-            dragger.attach(pointCharge);
+            pointCharges.push(change);
+            dragger.attach(change);
 
             field3D.update();
         });

@@ -30,6 +30,7 @@ export class Dragger {
 
         // ドラッグでオブジェクトを移動するためのコントロール
         this.transControls = EFSim.CreateTransformControls(camera, dom, controls, scene);
+        // this.transControls.mode = "scale";
 
         this.pointCharges = pointCharges;
         this.camera = camera;
