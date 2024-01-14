@@ -22,9 +22,11 @@ const start = () => {
         // pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
         // pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
         // pointCharges.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
-        pointCharges.push(new PointCharge(new THREE.Vector3(0, -100, 0), -1).attachScene(scene));
+        pointCharges.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
 
         pointCharges.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+
+        pointCharges.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
     }
 
     // シミュレーション空間

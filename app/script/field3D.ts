@@ -37,11 +37,12 @@ const ElectricFieldVector = (
 const ElectricForceLinePoints = (
     origin_charge: PointCharge,
     pointCharges: PointCharge[],
+    beginPoint: THREE.Vector3,
     dirVector: THREE.Vector3,
     simDistance: number
 ) => {
 
-    const points = [origin_charge.position.clone()];
+    const points = [beginPoint.clone()];
     const origin = points[0]!.clone().add(dirVector);
 
     for (let i = 0; i < 5000; ++i) {
@@ -102,17 +103,15 @@ class ElectricLines3D extends THREE.Object3D {
         for (const pointCharge of this.pointCharges) {
             if (pointCharge.charge === 0) continue;
             
-            // const n = Math.floor(clamp(ElectricForceLineCount(pointCharge), 0, 30));
-            const n = 25;
-            const points = GSS(n);
+            const points = pointCharge.electricForceLinesDirection();
 
-            for (const vector of points) {
+            for (const point of points) {
+
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = ElectricForceLinePoints(pointCharge, this.pointCharges, vector, 300);
+                const points = ElectricForceLinePoints(pointCharge, this.pointCharges, point.begin, point.direction, 300);
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
                 const line = new THREE.Line(geometry, this.lineMaterial);
                 this.add(line);
-
 
                 // 電気力線上に一定間隔で矢印を生成
                 const step = points.length / 3;

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { kCoulomb } from "./constants";
+import { GSS } from "./gss";
 
 export enum ChargeType {
     Plus,
@@ -59,8 +60,9 @@ export abstract class Charge {
 
     // 任意の座標における電荷との距離^2を返す
     abstract distanceSqFrom: (position: THREE.Vector3) => number;
-    
 
+    // 電気力線の始点、方向ベクトルの配列を返す
+    abstract electricForceLinesDirection: () => { begin: THREE.Vector3, direction: THREE.Vector3 }[];
 };
 
 // 点電荷
@@ -97,16 +99,22 @@ export class PointCharge extends Charge {
         return position.distanceToSquared(this.position);
     }
 
+    // 電気力線の方向ベクトルの配列を返す
+    override electricForceLinesDirection = () => {
+        return GSS(25).map((vector) => { return { begin: this.position, direction: vector } });
+    }
+
 }
 
 // 線電荷
 export class LineCharge extends Charge {
 
-    private lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 200, 50);
+    private lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 50);
 
     constructor(begin: THREE.Vector3, end: THREE.Vector3, charge: number) {
         const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
         super(mesh, charge);
+        this.position.copy(begin);
         mesh.geometry = this.lineChargeGeometry;
     }
 
@@ -135,6 +143,50 @@ export class LineCharge extends Charge {
         diff.subVectors(position, this.position);    // 点電荷と観測点との差分
         diff.y = 0;
         return diff.lengthSq();
+    }
+
+    // 電気力線の方向ベクトルの配列を返す
+    override electricForceLinesDirection = () => {
+        
+        const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
+
+        // 円柱を縦に等分する
+        const n = 5;
+        const begin = this.position.clone().add(new THREE.Vector3(0, -this.lineChargeGeometry.parameters.height / 2, 0));
+        const end = this.position.clone().add(new THREE.Vector3(0, this.lineChargeGeometry.parameters.height / 2, 0));
+        const diff = new THREE.Vector3();
+        diff.subVectors(end, begin);
+        const step = diff.clone().divideScalar(n);
+
+        for (let i = 1; i < n; ++i) {
+            const pos = begin.clone().add(step.clone().multiplyScalar(i));
+            console.log(pos);
+            
+            // 円周を等分する
+            const m = 10;
+            for (let nTheta = 0; nTheta < m; ++nTheta) {
+                const theta = 2 * Math.PI / m * nTheta;
+                const direction = new THREE.Vector3(Math.cos(theta), 0, Math.sin(theta));
+                result.push({ begin: pos, direction: direction });
+            }
+
+            // const m = 50;
+            // const r = 1;
+            // const theta = 2 * Math.PI / m;
+            // const direction = new THREE.Vector3();
+            // for (let j = 0; j < m; ++j) {
+            //     direction.set(
+            //         r * Math.cos(theta * j),
+            //         0,
+            //         r * Math.sin(theta * j)
+            //     );
+            //     result.push({ begin: pos, direction: direction });
+            // }
+
+        }
+
+        return result;
+
     }
 
 }

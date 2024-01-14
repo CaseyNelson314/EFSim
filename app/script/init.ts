@@ -19,7 +19,7 @@ export const CreateRenderer = (
 ) => {
 
     const renderer = new THREE.WebGLRenderer({
-        antialias: false,
+        antialias: true,
     });
 
     renderer.setSize(dom.offsetWidth, dom.offsetHeight);
