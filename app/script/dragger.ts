@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import * as EFSim from "./init";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { PointCharge } from "./pointCharge.js";
+import { Charge } from "./pointCharge.js";
 
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
     transControls: TransformControls;
-    pointCharges: PointCharge[];
+    pointCharges: Charge[];
     camera: THREE.PerspectiveCamera;
     dom: HTMLElement;
     controls: OrbitControls;
@@ -16,12 +16,12 @@ export class Dragger {
     ray: THREE.Raycaster;
     pointer: THREE.Vector2;
     listeners: { type: string, listener: Function }[];
-    selected: PointCharge | null;
+    selected: Charge | null;
     onDownPosition: THREE.Vector2;
     onUpPosition: THREE.Vector2;
 
     constructor(
-        pointCharges: PointCharge[],
+        pointCharges: Charge[],
         camera: THREE.PerspectiveCamera,
         dom: HTMLElement,
         controls: OrbitControls,
@@ -115,7 +115,7 @@ export class Dragger {
         return this.selected;
     }
 
-    attach = (object: PointCharge) => {
+    attach = (object: Charge) => {
         this.transControls.attach(object.mesh);
         this.selected = object;
     }

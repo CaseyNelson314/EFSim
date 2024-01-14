@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { PointCharge } from './pointCharge';
-import { Measure } from './measure';
-import { kCoulomb } from './constrants';
-import { clamp } from 'three/src/math/MathUtils';
+import { Charge, PointCharge } from './pointCharge';
+import { kCoulomb } from './constants';
 import { GSS } from './gss';
 
 // THREE.Vector3 が等しいかどうかを判定
@@ -13,44 +11,21 @@ const EqualsVector = (lhs: THREE.Vector3, rhs: THREE.Vector3, eps = Number.EPSIL
         Math.abs(lhs.z - rhs.z) < eps);
 };
 
-// 1つの点電荷から受ける電界ベクトルを算出
-// @param pos 観測点の座標
-// @param pointCharge 点電荷
-const ElectricFieldVectorFromSingleCharge = (
-    pos: THREE.Vector3,
-    pointCharge: PointCharge
-) => {
-
-    if (EqualsVector(pos, pointCharge.position)) {
-        return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
-    }
-
-    const diff = new THREE.Vector3();
-    diff.subVectors(pos, pointCharge.position);    // 点電荷と観測点との差分
-
-    const r_sq4 = diff.lengthSq() ** 2;    // 点電荷と観測点との距離^4
-
-    diff.multiplyScalar((kCoulomb * pointCharge.charge) / r_sq4);
-
-    return diff;
-
-};
-
 // 指定座標における電場ベクトルを計算
 // @param pos 観測点の座標
 // @param pointCharges 点電荷の配列
 const ElectricFieldVector = (
     pos: THREE.Vector3,
-    pointCharges: PointCharge[]
+    charge: Charge[]
 ) => {
 
-    let electric_field_vector = new THREE.Vector3();
+    let electricFieldVector = new THREE.Vector3();
 
-    for (const pointCharge of pointCharges) {
-        electric_field_vector.add(ElectricFieldVectorFromSingleCharge(pos, pointCharge));
+    for (const pointCharge of charge) {
+        electricFieldVector.add(pointCharge.electricFieldVector(pos));
     }
 
-    return electric_field_vector;
+    return electricFieldVector;
 
 };
 
@@ -97,12 +72,6 @@ const ElectricForceLinePoints = (
 
     return points;
 
-};
-
-// 点電荷から出る電気力線の本数を求める。
-// @param pointCharge 点電荷
-const ElectricForceLineCount = (pointCharge: PointCharge) => {
-    return 4 * Math.PI * kCoulomb * Math.abs(pointCharge.charge);
 };
 
 
@@ -256,11 +225,11 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 /// 電界
 export class Field3D extends THREE.Object3D {
 
-    private pointCharges: PointCharge[];
+    private pointCharges: Charge[];
     private electric_lines_3d: ElectricLines3D | null;
     private electric_field_vectors_3d: ElectricFieldVectors3D | null;
 
-    constructor(pointCharges: PointCharge[]) {
+    constructor(pointCharges: Charge[]) {
         super();
 
         this.pointCharges = pointCharges;

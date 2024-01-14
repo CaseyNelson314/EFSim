@@ -1,10 +1,9 @@
 import * as THREE from "three";
 import * as EFSim from "./init";
 import { Dragger } from "./dragger";
-import { ChargeType, PointCharge } from "./pointCharge";
+import { Charge, ChargeType, PointCharge } from "./pointCharge";
 import { Field3D } from "./field3D";
 import { throttle } from 'throttle-debounce';
-import { Measure } from "./measure";
 
 const start = () => {
 
@@ -16,7 +15,7 @@ const start = () => {
     EFSim.ResisterResizeObserver(dom, renderer, camera);
 
     // 点電荷たち
-    const pointCharges: PointCharge[] = [];
+    const pointCharges: Charge[] = [];
 
     const pointChargeMaterialPlus = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const pointChargeMaterialMinus = new THREE.MeshBasicMaterial({ color: 0x0000ff });
@@ -25,18 +24,20 @@ const start = () => {
 
     // 点電荷を作成
     {
-        const createCharge = (charge: number, x: number, y: number, z: number) => {
-            const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
-            const mesh = new THREE.Mesh(pointChargeGeometry, material);
-            mesh.position.set(x, y, z);
-            scene.add(mesh);
-            pointCharges.push(new PointCharge(mesh, charge));
-        }
+        // const createCharge = (charge: number, x: number, y: number, z: number) => {
+        //     const material = charge > 0 ? pointChargeMaterialPlus : charge < 0 ? pointChargeMaterialMinus : pointChargeMaterialNeutral;
+        //     const mesh = new THREE.Mesh(pointChargeGeometry, material);
+        //     mesh.position.set(x, y, z);
+        //     scene.add(mesh);
+        //     pointCharges.push(new PointCharge(mesh, charge));
+        // }
 
-        createCharge(-1, 70, 0, 0);
-        createCharge(-1, -70, 0, 0);
-        createCharge(1, 0, 0, -70);
-        createCharge(1, 0, 0, 70);
+        pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1));
+
+        // createCharge(-1, 70, 0, 0);
+        // createCharge(-1, -70, 0, 0);
+        // createCharge(1, 0, 0, -70);
+        // createCharge(1, 0, 0, 70);
     }
 
     // シミュレーション空間
@@ -265,8 +266,5 @@ const start = () => {
 
 };
 
-window.addEventListener("load", () => {
-    // Measure("start", start);
-    start();
-});
+window.addEventListener("load", start);
 
