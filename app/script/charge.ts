@@ -52,12 +52,14 @@ export abstract class Charge {
 
     updateCharge = (newCharge: number) => {
         this.charge = newCharge;
-        this.mesh.material = GetMaterialFromChargeType(this.chargeType());
+        this.mesh.material = GetMaterialFromChargeType(ChargeToChargeType(this.charge));
     }
 
-    abstract chargeType: () => ChargeType;
-
     abstract electricFieldVector: (position: THREE.Vector3) => THREE.Vector3;
+
+    // 任意の座標における電荷との距離^2を返す
+    abstract distanceSqFrom: (position: THREE.Vector3) => number;
+    
 
 };
 
@@ -72,13 +74,8 @@ export class PointCharge extends Charge {
         this.position.copy(position);
     }
 
-    override chargeType = () => {
-        return ChargeToChargeType(this.charge);
-    }
-
     // 指定座標における、この点電荷からの電界ベクトルを返す
     override electricFieldVector = (position: THREE.Vector3) => {
-        // return new THREE.Vector3();
 
         if (position.distanceToSquared(this.position) < Number.EPSILON) {
             return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
@@ -95,12 +92,17 @@ export class PointCharge extends Charge {
 
     }
 
+    // 任意の座標における電荷との距離を返す
+    override distanceSqFrom = (position: THREE.Vector3) => {
+        return position.distanceToSquared(this.position);
+    }
+
 }
 
 // 線電荷
 export class LineCharge extends Charge {
 
-    private lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 40, 50);
+    private lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 200, 50);
 
     constructor(begin: THREE.Vector3, end: THREE.Vector3, charge: number) {
         const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
@@ -108,32 +110,31 @@ export class LineCharge extends Charge {
         mesh.geometry = this.lineChargeGeometry;
     }
 
-    override chargeType = () => {
-        return ChargeToChargeType(this.charge)
-    }
-
     // 指定座標における、この線電荷からの電界ベクトルを返す
     override electricFieldVector = (position: THREE.Vector3) => {
 
-        // if (position.distanceToSquared(this.begin) < Number.EPSILON) {
-        //     return new THREE.Vector3()  // 観測点が始点と重なっている場合
-        // }
+        if (position.distanceToSquared(this.position) < Number.EPSILON) {
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+        }
 
-        // if (position.distanceToSquared(this.end) < Number.EPSILON) {
-        //     return new THREE.Vector3()  // 観測点が終点と重なっている場合
-        // }
+        const diff = new THREE.Vector3();
+        diff.subVectors(position, this.position);    // 点電荷と観測点との差分
+        diff.y = 0;
 
-        // const diff = new THREE.Vector3();
-        // diff.subVectors(position, this.begin)    // 始点と観測点との差分
+        const rSq3 = diff.lengthSq() ** 1.5;    // 点電荷と観測点との距離^3
 
-        // const r_sq4 = diff.lengthSq() ** 2    // 始点と観測点との距離^4
+        diff.multiplyScalar((kCoulomb * this.charge) / rSq3);
 
-        // diff.multiplyScalar((kCoulomb * this.charge) / r_sq4)
+        return diff;
 
-        // return diff
+    }
 
-        return new THREE.Vector3();
-
+    // 任意の座標における電荷との距離を返す
+    override distanceSqFrom = (position: THREE.Vector3) => {
+        const diff = new THREE.Vector3();
+        diff.subVectors(position, this.position);    // 点電荷と観測点との差分
+        diff.y = 0;
+        return diff.lengthSq();
     }
 
 }

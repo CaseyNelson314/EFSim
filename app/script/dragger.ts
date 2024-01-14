@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as EFSim from "./init";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Charge } from "./pointCharge.js";
+import { Charge } from "./charge.js";
 
 
 // 点電荷をドラッグして移動させるクラス

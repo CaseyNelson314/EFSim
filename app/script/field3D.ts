@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Charge, PointCharge } from './pointCharge';
+import { Charge, PointCharge } from './charge';
 import { kCoulomb } from './constants';
 import { GSS } from './gss';
 
@@ -44,7 +44,7 @@ const ElectricForceLinePoints = (
     const points = [origin_charge.position.clone()];
     const origin = points[0]!.clone().add(dirVector);
 
-    for (; ;) {
+    for (let i = 0; i < 5000; ++i) {
 
         const d_vector = ElectricFieldVector(origin, pointCharges).normalize();
 
@@ -56,7 +56,9 @@ const ElectricForceLinePoints = (
             if (pointCharge === origin_charge) {
                 continue;
             }
-            if (origin.distanceToSquared(pointCharge.position) < 0.5) {
+            // メッシュの中心座標との距離が一定以下なら衝突とみなす
+            
+            if (pointCharge.distanceSqFrom(origin) < 0.5) {
                 return points;
             }
         }
