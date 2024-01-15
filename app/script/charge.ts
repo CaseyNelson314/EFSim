@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import { kCoulomb } from "./constants";
+import { kCoulomb, permittivity } from "./constants";
 import { GSS } from "./gss";
+import exp from "constants";
 
 export enum ChargeType {
     Plus,
@@ -147,7 +148,7 @@ export class LineCharge extends Charge {
 
     // 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
-        
+
         const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
 
         // 円柱を縦に等分する
@@ -161,7 +162,7 @@ export class LineCharge extends Charge {
         for (let i = 1; i < n; ++i) {
             const pos = begin.clone().add(step.clone().multiplyScalar(i));
             console.log(pos);
-            
+
             // 円周を等分する
             const m = 10;
             for (let nTheta = 0; nTheta < m; ++nTheta) {
@@ -170,23 +171,68 @@ export class LineCharge extends Charge {
                 result.push({ begin: pos, direction: direction });
             }
 
-            // const m = 50;
-            // const r = 1;
-            // const theta = 2 * Math.PI / m;
-            // const direction = new THREE.Vector3();
-            // for (let j = 0; j < m; ++j) {
-            //     direction.set(
-            //         r * Math.cos(theta * j),
-            //         0,
-            //         r * Math.sin(theta * j)
-            //     );
-            //     result.push({ begin: pos, direction: direction });
-            // }
-
         }
 
         return result;
 
     }
 
+}
+
+
+// 球面上に電荷が分布している電荷
+export class SphereSurfaceCharge extends Charge {
+
+    private sphereSurfaceChargeGeometry;
+    private radius: number;
+
+    constructor(position: THREE.Vector3, radius: number, charge: number) {
+        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
+        super(mesh, charge);
+        this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
+        mesh.geometry = this.sphereSurfaceChargeGeometry;
+        this.position.copy(position);
+        this.radius = radius;
+    }
+
+    // 指定座標における、この線電荷からの電界ベクトルを返す
+    override electricFieldVector = (position: THREE.Vector3) => {
+
+        if (position.distanceToSquared(this.position) < Number.EPSILON) {
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+        }
+
+        const diff = new THREE.Vector3();
+        diff.subVectors(position, this.position);    // 点電荷と観測点との差分
+
+        const diffLengthSq = diff.lengthSq();
+        if (diffLengthSq < this.radius ** 2) {
+            return new THREE.Vector3();  // 観測点が球の内部にある場合
+        }
+        else {
+            diff.multiplyScalar((kCoulomb * this.charge) / diffLengthSq);
+            return diff;
+        }
+
+    }
+
+    // 任意の座標における電荷との距離を返す
+    override distanceSqFrom = (position: THREE.Vector3) => {
+        return position.distanceToSquared(this.position);
+    }
+
+    // 電気力線の方向ベクトルの配列を返す
+    override electricForceLinesDirection = () => {
+        return GSS(25).map((vector) => {
+            return {
+                begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),
+                direction: vector
+            }
+        });
+    }
+
+}
+
+// 球内に体積電荷が分布している電荷
+export class SphereVolumeCharge extends Charge {
 }

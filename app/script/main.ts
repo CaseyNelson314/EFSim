@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as EFSim from "./init";
 import { Dragger } from "./dragger";
-import { Charge, LineCharge, PointCharge } from "./charge";
+import { Charge, LineCharge, PointCharge, SphereSurfaceCharge } from "./charge";
 import { Field3D } from "./field3D";
 import { throttle } from 'throttle-debounce';
 
@@ -15,24 +15,28 @@ const start = () => {
     EFSim.ResisterResizeObserver(dom, renderer, camera);
 
     // 点電荷たち
-    const pointCharges: Charge[] = [];
+    const charge: Charge[] = [];
     
     // 点電荷を作成
     {
-        // pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
-        // pointCharges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
-        // pointCharges.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
-        pointCharges.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
+        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
+        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
+        // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
+        // charge.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
 
-        pointCharges.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
 
-        pointCharges.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+
+
+        charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 1).attachScene(scene));
+
     }
 
     // シミュレーション空間
-    const field3D = new Field3D(pointCharges);
+    const field3D = new Field3D(charge);
 
-    const dragger = new Dragger(pointCharges, camera, dom, controls, scene);
+    const dragger = new Dragger(charge, camera, dom, controls, scene);
 
     {
         // 座標
@@ -126,9 +130,9 @@ const start = () => {
 
         {
             // デモとして最初の点電荷を選択
-            dragger.attach(pointCharges[0]!);
-            FormPositionUpdateEvent(pointCharges[0]!.mesh);
-            FormChargeUpdateEvent(pointCharges[0]!);
+            dragger.attach(charge[0]!);
+            FormPositionUpdateEvent(charge[0]!.mesh);
+            FormChargeUpdateEvent(charge[0]!);
         }
     }
 
@@ -196,15 +200,15 @@ const start = () => {
     // 追加削除ボタン
     {
         document.getElementById("button_add_point_charge")!.addEventListener("click", () => {
-            const charge = (Math.random() > 0.5 ? 1 : -1);
+            const chargeValue = (Math.random() > 0.5 ? 1 : -1);
             const x = Math.floor(Math.random() * 100 - 50);
             const y = Math.floor(Math.random() * 100 - 50);
             const z = Math.floor(Math.random() * 100 - 50);
             
-            const change = new PointCharge(new THREE.Vector3(x, y, z), charge).attachScene(scene);
+            const newChange = new PointCharge(new THREE.Vector3(x, y, z), chargeValue).attachScene(scene);
 
-            pointCharges.push(change);
-            dragger.attach(change);
+            charge.push(newChange);
+            dragger.attach(newChange);
 
             field3D.update();
         });
@@ -217,10 +221,10 @@ const start = () => {
         });
 
         document.getElementById("button_remove_all_point_charges")!.addEventListener("click", () => {
-            for (let pointCharge of pointCharges) {
+            for (let pointCharge of charge) {
                 scene.remove(pointCharge.mesh);
             }
-            pointCharges.splice(0, pointCharges.length);
+            charge.splice(0, charge.length);
             dragger.removeSelected();
             field3D.update();
         });
