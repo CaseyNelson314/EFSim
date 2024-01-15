@@ -57,8 +57,8 @@ const ElectricForceLinePoints = (
             if (pointCharge === origin_charge) {
                 continue;
             }
-            // メッシュの中心座標との距離が一定以下なら衝突とみなす
             
+            // 電荷との距離が一定以下なら終了
             if (pointCharge.distanceSqFrom(origin) < 0.5) {
                 return points;
             }

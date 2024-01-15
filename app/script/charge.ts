@@ -210,22 +210,21 @@ export class SphereSurfaceCharge extends Charge {
             return new THREE.Vector3();  // 観測点が球の内部にある場合
         }
         else {
-            diff.multiplyScalar((kCoulomb * this.charge) / diffLengthSq);
-            return diff;
+            return diff.multiplyScalar((kCoulomb * this.charge) / diffLengthSq);
         }
 
     }
 
-    // 任意の座標における電荷との距離を返す
+    // 任意の座標における電荷との距離を返す(外周との距離)
     override distanceSqFrom = (position: THREE.Vector3) => {
-        return position.distanceToSquared(this.position);
+        return position.distanceToSquared(this.position) - this.radius ** 2;
     }
 
     // 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => {
             return {
-                begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),
+                begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),  // 始点は球の外周上
                 direction: vector
             }
         });
@@ -234,5 +233,54 @@ export class SphereSurfaceCharge extends Charge {
 }
 
 // 球内に体積電荷が分布している電荷
-export class SphereVolumeCharge extends Charge {
+export class SphereVolumeCharge extends Charge
+{
+    private sphereSurfaceChargeGeometry;
+    private radius: number;
+
+    constructor(position: THREE.Vector3, radius: number, charge: number) {
+        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
+        super(mesh, charge);
+        this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
+        mesh.geometry = this.sphereSurfaceChargeGeometry;
+        this.position.copy(position);
+        this.radius = radius;
+    }
+
+    // 指定座標における、この線電荷からの電界ベクトルを返す
+    override electricFieldVector = (position: THREE.Vector3) => {
+
+        if (position.distanceToSquared(this.position) < Number.EPSILON) {
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+        }
+
+        const diff = new THREE.Vector3();
+        diff.subVectors(position, this.position);    // 点電荷と観測点との差分
+
+        const diffLengthSq = diff.lengthSq();
+        if (diffLengthSq < this.radius ** 2) {
+            return new THREE.Vector3();  // 観測点が球の内部にある場合
+        }
+        else {
+            return diff.multiplyScalar((this.charge * diff.length() ** 3 / (3 * permittivity)) / diffLengthSq);
+        }
+
+        // E=(ρa^3/3ε)・r^-2
+
+    }
+
+    // 任意の座標における電荷との距離を返す(外周との距離)
+    override distanceSqFrom = (position: THREE.Vector3) => {
+        return position.distanceToSquared(this.position) - this.radius ** 2;
+    }
+
+    // 電気力線の方向ベクトルの配列を返す
+    override electricForceLinesDirection = () => {
+        return GSS(25).map((vector) => {
+            return {
+                begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),  // 始点は球の外周上
+                direction: vector
+            }
+        });
+    }
 }

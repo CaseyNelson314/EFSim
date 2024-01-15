@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as EFSim from "./init";
 import { Dragger } from "./dragger";
-import { Charge, LineCharge, PointCharge, SphereSurfaceCharge } from "./charge";
+import { Charge, LineCharge, PointCharge, SphereSurfaceCharge, SphereVolumeCharge } from "./charge";
 import { Field3D } from "./field3D";
 import { throttle } from 'throttle-debounce';
 
@@ -24,12 +24,12 @@ const start = () => {
         // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
         // charge.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
 
-        charge.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        // charge.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
 
-        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
-
+        // charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
 
         charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 1).attachScene(scene));
+        charge.push(new SphereVolumeCharge(new THREE.Vector3(100, 0, 0), 30, -1).attachScene(scene));
 
     }
 
