@@ -23,10 +23,10 @@ const start = () => {
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
         // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 50, 0), -10).attachScene(scene));
 
-        // charge.push(new LineCharge(new THREE.Vector3(-50, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
-        // charge.push(new LineCharge(new THREE.Vector3(50, 0, 0), new THREE.Vector3(0, 0, 100), false, -1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(-100, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
 
         // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 0.000000011).attachScene(scene));
         // charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
