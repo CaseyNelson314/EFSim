@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Charge } from './charge';
+import { Charge, ChargeType } from './charge';
 
 
 // 指定座標における電場ベクトルを計算
@@ -7,13 +7,13 @@ import { Charge } from './charge';
 // @param charge 点電荷の配列
 const ElectricFieldVector = (
     pos: THREE.Vector3,
-    charge: Charge[]
+    charges: Charge[]
 ) => {
 
     let electricFieldVector = new THREE.Vector3();
 
-    for (const pointCharge of charge) {
-        electricFieldVector.add(pointCharge.electricFieldVector(pos));
+    for (const charge of charges) {
+        electricFieldVector.add(charge.electricFieldVector(pos));
     }
 
     return electricFieldVector;
@@ -27,7 +27,7 @@ const ElectricFieldVector = (
 // @param simDistance シミュレーション距離 (原点からの距離)
 const ElectricForceLinePoints = (
     origin_charge: Charge,
-    charge: Charge[],
+    charges: Charge[],
     beginPoint: THREE.Vector3,
     dirVector: THREE.Vector3,
     simDistance: number
@@ -39,19 +39,19 @@ const ElectricForceLinePoints = (
 
     for (let i = 0; i < 5000; ++i) {
 
-        const d_vector = ElectricFieldVector(origin, charge).normalize();
+        const d_vector = ElectricFieldVector(origin, charges).normalize();
 
-        if (origin_charge.charge < 0)
+        if (origin_charge.getChargeType() === ChargeType.Minus)
             d_vector.multiplyScalar(-1);
 
         // 点電荷との衝突判定
-        for (const pointCharge of charge) {
-            if (pointCharge === origin_charge) {
+        for (const charge of charges) {
+            if (charge === origin_charge) {
                 continue;
             }
 
             // 電荷との距離が一定以下なら終了
-            if (pointCharge.distanceSqFrom(origin) < 0.5) {
+            if (charge.distanceSqFrom(origin) < 0.5) {
                 return points;
             }
         }
@@ -73,14 +73,14 @@ const ElectricForceLinePoints = (
 /// 電気力線
 class ElectricLines3D extends THREE.Object3D {
 
-    private charge: Charge[];
+    private charges: Charge[];
     private lineMaterial: THREE.LineBasicMaterial;
     private coneGeometry: THREE.ConeGeometry;
     private coneMaterial: THREE.MeshBasicMaterial;
 
-    constructor(charge: Charge[]) {
+    constructor(charges: Charge[]) {
         super();
-        this.charge = charge;
+        this.charges = charges;
         this.lineMaterial = new THREE.LineBasicMaterial({ color: 0xccccff });
 
         this.coneGeometry = new THREE.ConeGeometry(1, 3, 10);
@@ -92,15 +92,15 @@ class ElectricLines3D extends THREE.Object3D {
     createELines() {
         // const dirVector = new THREE.Vector3();
 
-        for (const pointCharge of this.charge) {
-            if (pointCharge.charge === 0) continue;
+        for (const charge of this.charges) {
+            if (charge.getChargeType() === ChargeType.Neutral) continue;
 
-            const points = pointCharge.electricForceLinesDirection();
+            const points = charge.electricForceLinesDirection();
 
             for (const point of points) {
 
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = ElectricForceLinePoints(pointCharge, this.charge, point.begin, point.direction, 300);
+                const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 300);
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
                 const line = new THREE.Line(geometry, this.lineMaterial);
                 this.add(line);
@@ -116,7 +116,7 @@ class ElectricLines3D extends THREE.Object3D {
                     const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
                     cone.position.copy(origin);
 
-                    if (pointCharge.charge < 0) {
+                    if (charge.getChargeType() === ChargeType.Minus) {
                         diff.multiplyScalar(-1);
                     }
 
@@ -147,12 +147,12 @@ class ElectricLines3D extends THREE.Object3D {
 // 電界ベクトル
 class ElectricFieldVectors3D extends THREE.Object3D {
 
-    private charge: Charge[];
+    private charges: Charge[];
     private coneGeometry: THREE.ConeGeometry;
 
-    constructor(charge: Charge[]) {
+    constructor(charges: Charge[]) {
         super();
-        this.charge = charge;
+        this.charges = charges;
         this.coneGeometry = new THREE.ConeGeometry(1, 5, 10);
         this.createEFVectorGeometry();
     }
@@ -170,7 +170,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
             cone.position.copy(position);
 
-            const ef_vector = ElectricFieldVector(position, this.charge);
+            const ef_vector = ElectricFieldVector(position, this.charges);
             cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize());
 
             this.add(cone);
@@ -178,9 +178,9 @@ class ElectricFieldVectors3D extends THREE.Object3D {
         }
 
         const count = 4;
-        for (let pointCharge of this.charge) {
+        for (let charge of this.charges) {
 
-            if (pointCharge.charge === 0) {
+            if (charge.getChargeType() === ChargeType.Neutral) {
                 continue;
             }
 
@@ -198,7 +198,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
                         }
 
                         const opacity = Math.abs(1 - length_sq / (count ** 2));
-                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(pointCharge.position), opacity);
+                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(charge.position), opacity);
 
                     }
                 }
@@ -218,14 +218,14 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 /// 電界
 export class Field3D extends THREE.Object3D {
 
-    private charge: Charge[];
+    private charges: Charge[];
     private electric_lines_3d: ElectricLines3D | null;
     private electric_field_vectors_3d: ElectricFieldVectors3D | null;
 
-    constructor(charge: Charge[]) {
+    constructor(charges: Charge[]) {
         super();
 
-        this.charge = charge;
+        this.charges = charges;
         this.electric_lines_3d = null;
         this.electric_field_vectors_3d = null;
     }
@@ -243,7 +243,7 @@ export class Field3D extends THREE.Object3D {
     enableElectricLines = (enable: boolean) => {
         if (enable) {
             if (this.electric_lines_3d == null)
-                this.electric_lines_3d = new ElectricLines3D(this.charge);
+                this.electric_lines_3d = new ElectricLines3D(this.charges);
             else
                 this.electric_lines_3d.update();
             this.add(this.electric_lines_3d);
@@ -257,7 +257,7 @@ export class Field3D extends THREE.Object3D {
     enableElectricFieldVectors = (enable: boolean) => {
         if (enable) {
             if (this.electric_field_vectors_3d == null)
-                this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.charge);
+                this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.charges);
             else
                 this.electric_field_vectors_3d.update();
             this.add(this.electric_field_vectors_3d);

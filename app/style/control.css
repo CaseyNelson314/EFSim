@@ -4,19 +4,21 @@
   flex-direction: row;
   flex-wrap: wrap;
   width: auto;
+  height: 100%;
   gap: 10px;
-  padding: 10px 0 0 10px;
+  padding: 20px;
   color: #e3e3e3;
 }
 
 .charge_control {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   gap: 10px;
-  margin-right: 10px;
+  padding: 10px;
 }
 .control_button {
-  font-size: 13px;
+  font-size: 16px;
   display: flex;
   flex-direction: column;
 }
@@ -24,7 +26,8 @@
   display: flex;
   justify-content: center;
 }
-.control_button button {
+button {
+  background-color: #38393b;
   border: none;
   display: flex;
   justify-content: center;
@@ -32,24 +35,21 @@
   user-select: none;
 }
 .control_img {
-  border: 1px solid #4f4f4f;
-  width: 55px;
-  height: 55px;
+  border: 2px solid #4f4f4f;
+  border-radius: 5px;
+  width: 80px;
+  height: 80px;
   transition: 0.2s;
   cursor: pointer;
 }
 
-
 /* 表示切替チェックボックス */
 .display_control {
-  margin-left: auto;
+  /* margin-left: auto; */
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  margin-left: auto;
-  column-gap: 20px;
-  height: 70px;
-  margin: 10px;
+  /* margin-left: auto; */
   color: #e3e3e3;
   user-select: none;
 }
@@ -57,7 +57,7 @@
 .checkbox {
   display: flex;
   margin: 5px;
-  font-size: 13px;
+  font-size: 16px;
   color: #e3e3e3;
   user-select: none;
 }
@@ -74,7 +74,7 @@ input[type="number"] {
   font-size: 16px;
   color: #e3e3e3;
   background-color: #38393b;
-  border: 1px solid #7c7c7c;
+  border: 2px solid #4f4f4f;
   border-radius: 4px;
 }
 
@@ -88,14 +88,29 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+.delete_button {
+  margin-right: 30px;
+  padding: 10px;
+}
+
 /* パラメータ編集領域 */
 .parameter_editor {
   display: flex;
+  border: 2px solid #4f4f4f;
+  border-radius: 5px;
+  flex-direction: column;
   flex-wrap: wrap;
   color: #e3e3e3;
   user-select: none;
-  font-size: 13px;
+  font-size: 16px;
+}
+
+.parameter_editor .editor {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 10px;
+  padding: 10px;
 }
 
 .parameter_editor .contents {
@@ -108,10 +123,11 @@ input[type="number"] {
   user-select: none;
 }
 
-.parameter_editor .control_button {
+.parameter_editor .title {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 20px 0 20px;
 }
 
 details > * {
@@ -123,4 +139,18 @@ summary {
 /* safari */
 summary::-webkit-details-marker {
   display: none;
+}
+
+.contents {
+  display: flex;
+  justify-content: center;
+}
+.contents label {
+  /* 文字を右に寄せて入力欄を縦縦にそろえる */
+  text-align: right;
+}
+
+.menu_control {
+  margin-top: auto;
+  margin-left: auto;
 }
