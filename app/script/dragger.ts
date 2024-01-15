@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import * as EFSim from "./init";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { PointCharge } from "./pointCharge.js";
+import { Charge } from "./charge.js";
 
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
     transControls: TransformControls;
-    pointCharges: PointCharge[];
+    pointCharges: Charge[];
     camera: THREE.PerspectiveCamera;
     dom: HTMLElement;
     controls: OrbitControls;
@@ -16,12 +16,12 @@ export class Dragger {
     ray: THREE.Raycaster;
     pointer: THREE.Vector2;
     listeners: { type: string, listener: Function }[];
-    selected: PointCharge | null;
+    selected: Charge | null;
     onDownPosition: THREE.Vector2;
     onUpPosition: THREE.Vector2;
 
     constructor(
-        pointCharges: PointCharge[],
+        pointCharges: Charge[],
         camera: THREE.PerspectiveCamera,
         dom: HTMLElement,
         controls: OrbitControls,
@@ -30,7 +30,7 @@ export class Dragger {
 
         // ドラッグでオブジェクトを移動するためのコントロール
         this.transControls = EFSim.CreateTransformControls(camera, dom, controls, scene);
-
+        // this.transControls.mode = "rotate";
         this.pointCharges = pointCharges;
         this.camera = camera;
         this.dom = dom;
@@ -52,8 +52,8 @@ export class Dragger {
 
     setEvent = () => {
         const onClick = (event: MouseEvent) => {
-            this.pointer.x = (event.clientX / this.dom.offsetWidth) * 2 - 1;
-            this.pointer.y = -(event.clientY / this.dom.offsetHeight) * 2 + 1;
+            this.pointer.x = (event.offsetX / this.dom.offsetWidth) * 2 - 1;
+            this.pointer.y = -(event.offsetY / this.dom.offsetHeight) * 2 + 1;
 
             // 現在のカメラの位置からクリックした位置に向かう光線を作成
             this.ray.setFromCamera(this.pointer, this.camera);
@@ -72,14 +72,14 @@ export class Dragger {
 
                 const selected = this.pointCharges.find((point_charge) => { return point_charge.mesh === object });
 
+                this.selected = selected? selected : null;
+
                 // オブジェクトが選択されたことを通知
                 for (let listener of this.listeners) {
                     if (listener.type === 'object-selected') {
                         listener.listener(selected);
                     }
                 }
-
-                this.selected = selected? selected : null;
             }
 
         };
@@ -89,12 +89,12 @@ export class Dragger {
         // (オブジェクトを移動させなかった場合に、選択を解除する)
         // https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_spline_editor.html
         this.dom.addEventListener('pointerdown', (event) => {
-            this.onDownPosition.x = event.clientX;
-            this.onDownPosition.y = event.clientY;
+            this.onDownPosition.x = event.offsetX;
+            this.onDownPosition.y = event.offsetY;
         });
         this.dom.addEventListener('pointerup', (event) => {
-            this.onUpPosition.x = event.clientX;
-            this.onUpPosition.y = event.clientY;
+            this.onUpPosition.x = event.offsetX;
+            this.onUpPosition.y = event.offsetY;
             if (this.onDownPosition.distanceTo(this.onUpPosition) === 0) {
                 this.transControls.detach();
                 this.selected = null;
@@ -115,7 +115,7 @@ export class Dragger {
         return this.selected;
     }
 
-    attach = (object: PointCharge) => {
+    attach = (object: Charge) => {
         this.transControls.attach(object.mesh);
         this.selected = object;
     }
@@ -129,13 +129,17 @@ export class Dragger {
         }
     }
 
+    setMode = (mode: "translate" | "rotate" | "scale") => {
+        this.transControls.setMode(mode);
+    }
+
     // オブジェクトがドラッグされたときのイベント
     addEventListener = (type: string, listener: Function) => {
         this.listeners.push({ type: type, listener: listener });
 
         if (type === "object-change")
             this.transControls.addEventListener("objectChange", (e) => {
-                listener(e.target.object);
+                listener(this.selected);
             });
     }
 

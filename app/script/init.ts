@@ -3,15 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
 // シーンを作成
-export const CreateScene = () => {
-
-    const scene = new THREE.Scene();
-
-    scene.background = new THREE.Color(0x2b2b2b);
-
-    return scene;
-
-};
+export const CreateScene = () => new THREE.Scene();
 
 // レンダラーを作成
 export const CreateRenderer = (
@@ -20,6 +12,7 @@ export const CreateRenderer = (
 
     const renderer = new THREE.WebGLRenderer({
         antialias: false,
+        alpha: true
     });
 
     renderer.setSize(dom.offsetWidth, dom.offsetHeight);

@@ -1,84 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>EFSim</title>
-    <link rel="stylesheet" href="style/style.css" />
-    <link rel="stylesheet" href="style/toggle.css" />
-    <link rel="icon" href="static/kagaku_genshi.png" />
-  </head>
-  <body>
-    <script type="module" src="script/main.ts"></script>
-    <div class="app">
-      <div id="canvas"></div>
-      <div class="settings">
-        <label class="dimension_toggle">
-          <input type="checkbox" id="dimension_toggle_switch" checked/>
-          <div id="dimension_toggle_slider"></div>
-          <div class="dimension_2d">2D</div>
-          <div class="dimension_3d">3D</div>
-        </label>
-        <!-- <div class="settings_2d">
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors" />
-            電界ベクトル
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors" />
-            電気力線
-          </label> -->
-        <div class="settings_3d">
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_show_grid" />
-            グリッド表示
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_auto_rotate" checked />
-            自動回転
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors"/>
-            電界ベクトル
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_lines" checked/>
-            電気力線
-          </label>
+
+<head>
+  <meta charset="utf-8" />
+  <title>EFSim</title>
+  <link rel="stylesheet" href="style/style.css" />
+  <link rel="stylesheet" href="style/toggle.css" />
+  <link rel="stylesheet" href="style/control.css" />
+  <link rel="icon" href="static/kagaku_genshi.png" />
+</head>
+
+<body>
+  <script type="module" src="script/main.ts"></script>
+
+  <div class="app">
+
+    <!-- 編集領域 -->
+    <div class="control">
+
+      <!-- 電荷追加ボタン領域 -->
+      <div class="charge_control">
+        <div class="control_button">
+          <p class="title">点</p>
+          <button type="button" id="add_point_charge_button">
+            <img class="control_img" src="./static/point_charge.png" alt="点">
+          </button>
         </div>
-        <div id="settings_point_charge">
-          <div class="point_charge_position">
-            <p class="title">位置</p>
-            <label for="point_charge_position_x">
+        <div class="control_button">
+          <p class="title">有限線</p>
+          <button type="button" id="add_finite_line_charge_button">
+            <img class="control_img" src="./static/finite_line_charge.png" alt="有限線">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">無限線</p>
+          <button type="button" id="add_infinity_line_charge_button">
+            <img class="control_img" src="./static/infinity_line_charge.png" alt="無限線">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">有限面</p>
+          <button type="button" id="add_finite_surface_charge_button">
+            <img class="control_img" src="./static/finite_surface_charge.png" alt="有限面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">無限面</p>
+          <button type="button" id="add_infinity_surface_charge_button">
+            <img class="control_img" src="./static/infinity_surface_charge.png" alt="無限面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">球面</p>
+          <button type="button" id="add_sphere_surface_charge_button">
+            <img class="control_img" src="./static/sphere_surface_charge.png" alt="球面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">球体</p>
+          <button type="button" id="add_sphere_volume_charge_button">
+            <img class="control_img" src="./static/phere_volume_charge.png" alt="球体">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">削除</p>
+          <button type="button" id="delete_charge_button">
+            <img class="control_img" src="./static/delete.png" alt="削除">
+          </button>
+        </div>
+      </div>
+
+      <!-- 座標編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">座標</p>
+        <div class="editor">
+          <button type="button" id="position_editor">
+            <img class="control_img" src="static/position_edit.png" alt="座標">
+          </button>
+          <div class="contents">
+            <label for="charge_position_x">
               X
-              <input type="number" id="point_charge_position_x" inputmode="decimal">
+              <input type="number" id="charge_position_x" inputmode="decimal">
             </label>
-            <label for="point_charge_position_y">
+            <label for="charge_position_y">
               Y
-              <input type="number" id="point_charge_position_y" inputmode="decimal">
+              <input type="number" id="charge_position_y" inputmode="decimal">
             </label>
-            <label for="point_charge_position_z">
+            <label for="charge_position_z">
               Z
-              <input type="number" id="point_charge_position_z" inputmode="decimal">
+              <input type="number" id="charge_position_z" inputmode="decimal">
             </label>
           </div>
-          <div class="point_charge_charge">
-            <p class="title">電荷量</p>
-            <div class="container">
-              <input type="number" id="point_charge_charge_value" inputmode="decimal">
-              <select id="point_charge_unit">
-                <option value="c">C</option>
-                <option value="uc">μC</option>
-                <option value="nc" selected>nC</option>
-                <option value="pc">pC</option>
-              </select>
-            </div>
+        </div>
+      </div>
+
+      <!-- 回転角編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">回転角</p>
+        <div class="editor">
+          <button type="button" id="rotate_editor">
+            <img class="control_img" src="static/rotate_edit.png" alt="回転角">
+          </button>
+
+          <div class="contents">
+            <label for="charge_rotate_x">
+              X
+              <input type="number" id="charge_rotate_x" inputmode="decimal">
+            </label>
+            <label for="charge_rotate_y">
+              Y
+              <input type="number" id="charge_rotate_y" inputmode="decimal">
+            </label>
+            <label for="charge_rotate_z">
+              Z
+              <input type="number" id="charge_rotate_z" inputmode="decimal">
+            </label>
           </div>
         </div>
-        <div class="settings_buttons">
-          <button id="button_add_point_charge">点電荷追加</button>
-          <button id="button_remove_point_charge">点電荷削除</button>
-          <button id="button_remove_all_point_charges">全削除</button>
+      </div>
+
+      <!-- その他パラメータ編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">その他</p>
+        <div class="editor">
+          <div class="contents" id="detail_editor">
+            <label for="charge_amount" hidden>
+              電荷量[C]
+              <input type="number" id="charge_amount" inputmode="decimal">
+            </label>
+            <label for="charge_line_density" hidden>
+              線密度[C/m]
+              <input type="number" id="charge_line_density" inputmode="decimal" step="0.1">
+            </label>
+            <label for="charge_surface_density" hidden>
+              面密度[C/m^2]
+              <input type="number" id="charge_surface_density" inputmode="decimal">
+            </label>
+            <label for="charge_density" hidden>
+              体積密度[C/m^3]
+              <input type="number" id="charge_density" inputmode="decimal" step="0.1">
+            </label>
+            <label for="charge_radius" hidden>
+              半径[m]
+              <input type="number" id="charge_radius" inputmode="decimal">
+            </label>
+            <label for="charge_length" hidden>
+              長さ[m]
+              <input type="number" id="charge_length" inputmode="decimal">
+            </label>
+          </div>
         </div>
+      </div>
+
+      <!-- 表示非表示ボタン領域 -->
+      <div class="display_control">
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_auto_rotate" checked />
+          自動回転
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_show_grid" />
+          グリッド表示
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_electric_field_vectors" />
+          電界ベクトル
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_electric_lines" checked />
+          電気力線
+        </label>
+      </div>
+
+      <!-- メニューの表示非表示ボタン -->
+      <div class="menu_control">
+        <label for="toggle_menu_input">
+          <input type="checkbox" id="toggle_menu_input">
+          <img src="static/menu.png" alt="hidden">
+          </input>
+        </label>
+      </div>
+
     </div>
-  </body>
+
+    <!-- 描画領域 -->
+    <div id="canvas"></div>
+
+  </div>
+</body>
+
 </html>
