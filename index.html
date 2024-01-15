@@ -1,83 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>EFSim</title>
-    <link rel="icon" href="./assets/kagaku_genshi-J5GJWi2o.png" />
-    <script type="module" crossorigin src="./assets/index-04Xo6UHq.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-zPg0wcae.css">
-  </head>
-  <body>
-    <div class="app">
-      <div id="canvas"></div>
-      <div class="settings">
-        <label class="dimension_toggle">
-          <input type="checkbox" id="dimension_toggle_switch" checked/>
-          <div id="dimension_toggle_slider"></div>
-          <div class="dimension_2d">2D</div>
-          <div class="dimension_3d">3D</div>
-        </label>
-        <!-- <div class="settings_2d">
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors" />
-            電界ベクトル
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors" />
-            電気力線
-          </label> -->
-        <div class="settings_3d">
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_show_grid" />
-            グリッド表示
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_auto_rotate" checked />
-            自動回転
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_field_vectors"/>
-            電界ベクトル
-          </label>
-          <label class="checkbox">
-            <input type="checkbox" id="checkbox_electric_lines" checked/>
-            電気力線
-          </label>
+
+<head>
+  <meta charset="utf-8" />
+  <title>EFSim</title>
+  <link rel="icon" href="./assets/kagaku_genshi-J5GJWi2o.png" />
+  <script type="module" crossorigin src="./assets/index-3YHE5dOO.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-NBp3b0rp.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- 編集領域 -->
+    <div class="control">
+
+      <!-- 電荷追加ボタン領域 -->
+      <div class="charge_control">
+        <div class="control_button">
+          <p class="title">点</p>
+          <button type="button" id="add_point_charge_button">
+            <img class="control_img" src="./assets/point_charge-fnGxtTX5.png" alt="点">
+          </button>
         </div>
-        <div id="settings_point_charge">
-          <div class="point_charge_position">
-            <p class="title">位置</p>
-            <label for="point_charge_position_x">
+        <div class="control_button">
+          <p class="title">有限線</p>
+          <button type="button" id="add_finite_line_charge_button">
+            <img class="control_img" src="./assets/finite_line_charge-zDvqaYUh.png" alt="有限線">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">無限線</p>
+          <button type="button" id="add_infinity_line_charge_button">
+            <img class="control_img" src="./assets/infinity_line_charge-Io7ZY8iJ.png" alt="無限線">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">有限面</p>
+          <button type="button" id="add_finite_surface_charge_button">
+            <img class="control_img" src="./assets/finite_surface_charge-o43rxrXK.png" alt="有限面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">無限面</p>
+          <button type="button" id="add_infinity_surface_charge_button">
+            <img class="control_img" src="./assets/infinity_surface_charge-PY1CnFpf.png" alt="無限面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">球面</p>
+          <button type="button" id="add_sphere_surface_charge_button">
+            <img class="control_img" src="./assets/sphere_surface_charge-r4Mkhqa1.png" alt="球面">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">球体</p>
+          <button type="button" id="add_sphere_volume_charge_button">
+            <img class="control_img" src="./assets/phere_volume_charge-szjbvglU.png" alt="球体">
+          </button>
+        </div>
+        <div class="control_button">
+          <p class="title">削除</p>
+          <button type="button" id="delete_charge_button">
+            <img class="control_img" src="data:image/png;base64,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" alt="削除">
+          </button>
+        </div>
+      </div>
+
+      <!-- 座標編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">座標</p>
+        <div class="editor">
+          <button type="button" id="position_editor">
+            <img class="control_img" src="./assets/position_edit-6T44LaBk.png" alt="座標">
+          </button>
+          <div class="contents">
+            <label for="charge_position_x">
               X
-              <input type="number" id="point_charge_position_x" inputmode="decimal">
+              <input type="number" id="charge_position_x" inputmode="decimal">
             </label>
-            <label for="point_charge_position_y">
+            <label for="charge_position_y">
               Y
-              <input type="number" id="point_charge_position_y" inputmode="decimal">
+              <input type="number" id="charge_position_y" inputmode="decimal">
             </label>
-            <label for="point_charge_position_z">
+            <label for="charge_position_z">
               Z
-              <input type="number" id="point_charge_position_z" inputmode="decimal">
+              <input type="number" id="charge_position_z" inputmode="decimal">
             </label>
           </div>
-          <div class="point_charge_charge">
-            <p class="title">電荷量</p>
-            <div class="container">
-              <input type="number" id="point_charge_charge_value" inputmode="decimal">
-              <select id="point_charge_unit">
-                <option value="c">C</option>
-                <option value="uc">μC</option>
-                <option value="nc" selected>nC</option>
-                <option value="pc">pC</option>
-              </select>
-            </div>
+        </div>
+      </div>
+
+      <!-- 回転角編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">回転角</p>
+        <div class="editor">
+          <button type="button" id="rotate_editor">
+            <img class="control_img" src="./assets/rotate_edit-Gmg1ZCgG.png" alt="回転角">
+          </button>
+
+          <div class="contents">
+            <label for="charge_rotate_x">
+              X
+              <input type="number" id="charge_rotate_x" inputmode="decimal">
+            </label>
+            <label for="charge_rotate_y">
+              Y
+              <input type="number" id="charge_rotate_y" inputmode="decimal">
+            </label>
+            <label for="charge_rotate_z">
+              Z
+              <input type="number" id="charge_rotate_z" inputmode="decimal">
+            </label>
           </div>
         </div>
-        <div class="settings_buttons">
-          <button id="button_add_point_charge">点電荷追加</button>
-          <button id="button_remove_point_charge">点電荷削除</button>
-          <button id="button_remove_all_point_charges">全削除</button>
+      </div>
+
+      <!-- その他パラメータ編集領域 -->
+      <div class="parameter_editor">
+        <p class="title">その他</p>
+        <div class="editor">
+          <div class="contents" id="detail_editor">
+            <label for="charge_amount" hidden>
+              電荷量[C]
+              <input type="number" id="charge_amount" inputmode="decimal">
+            </label>
+            <label for="charge_line_density" hidden>
+              線密度[C/m]
+              <input type="number" id="charge_line_density" inputmode="decimal" step="0.1">
+            </label>
+            <label for="charge_surface_density" hidden>
+              面密度[C/m^2]
+              <input type="number" id="charge_surface_density" inputmode="decimal">
+            </label>
+            <label for="charge_density" hidden>
+              体積密度[C/m^3]
+              <input type="number" id="charge_density" inputmode="decimal" step="0.1">
+            </label>
+            <label for="charge_radius" hidden>
+              半径[m]
+              <input type="number" id="charge_radius" inputmode="decimal">
+            </label>
+            <label for="charge_length" hidden>
+              長さ[m]
+              <input type="number" id="charge_length" inputmode="decimal">
+            </label>
+          </div>
         </div>
+      </div>
+
+      <!-- 表示非表示ボタン領域 -->
+      <div class="display_control">
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_auto_rotate" checked />
+          自動回転
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_show_grid" />
+          グリッド表示
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_electric_field_vectors" />
+          電界ベクトル
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="checkbox_electric_lines" checked />
+          電気力線
+        </label>
+      </div>
+
+      <!-- メニューの表示非表示ボタン -->
+      <div class="menu_control">
+        <label for="toggle_menu_input">
+          <input type="checkbox" id="toggle_menu_input">
+          <img src="static/menu.png" alt="hidden">
+          </input>
+        </label>
+      </div>
+
     </div>
-  </body>
+
+    <!-- 描画領域 -->
+    <div id="canvas"></div>
+
+  </div>
+</body>
+
 </html>
