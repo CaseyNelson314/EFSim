@@ -19,17 +19,17 @@ const start = () => {
     
     // 点電荷を作成
     {
-        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(50, 50, 0), -10).attachScene(scene));
 
-        // charge.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
 
-        // charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
 
-        charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 1).attachScene(scene));
-        charge.push(new SphereVolumeCharge(new THREE.Vector3(100, 0, 0), 30, -1).attachScene(scene));
+        charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 0.000000011).attachScene(scene));
+        charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
 
     }
 
@@ -40,19 +40,19 @@ const start = () => {
 
     {
         // 座標
-        document.getElementById("point_charge_position_x")!.addEventListener("input", (e) => {
+        document.getElementById("charge_position_x")!.addEventListener("input", (e) => {
             const selected = dragger.getSelected();
             if (selected)
                 selected.position.x = Number((e.target as HTMLInputElement).value)
             field3D.update();
         });
-        document.getElementById("point_charge_position_y")!.addEventListener("input", (e) => {
+        document.getElementById("charge_position_y")!.addEventListener("input", (e) => {
             const selected = dragger.getSelected();
             if (selected)
                 selected.position.y = Number((e.target as HTMLInputElement).value)
             field3D.update();
         });
-        document.getElementById("point_charge_position_z")!.addEventListener("input", (e) => {
+        document.getElementById("charge_position_z")!.addEventListener("input", (e) => {
             const selected = dragger.getSelected();
             if (selected)
                 selected.position.z = Number((e.target as HTMLInputElement).value)
@@ -61,78 +61,80 @@ const start = () => {
 
 
         // 電荷量
-        const updateCharge = (pointCharge: Charge, newCharge: number) => {
-            pointCharge.updateCharge(newCharge);
-        };
-        const valueWithUnitToValue = (value: number, unit: string) => {
-            switch (unit) {
-                case 'c': return value;
-                case 'uc': return value * 1e-6;
-                case 'nc': return value * 1e-9;
-                case 'pc': return value * 1e-12;
-                default: throw new Error("invalid unit");
-            }
-        };
-        const valueToValueWithUnit = (value: number) => {
-            const appliedAbsValue = Math.abs(value);
-            if (appliedAbsValue >= 1e-3) {
-                return { value: value, unit: 'c' };
-            } else if (appliedAbsValue >= 1e-6) {
-                return { value: value * 1e6, unit: 'uc' };
-            } else if (appliedAbsValue >= 1e-9) {
-                return { value: value * 1e9, unit: 'nc' };
-            } else {
-                return { value: value * 1e12, unit: 'pc' };
-            }
-        };
+        // const updateCharge = (pointCharge: Charge, newCharge: number) => {
+        //     pointCharge.updateCharge(newCharge);
+        // };
+        // const valueWithUnitToValue = (value: number, unit: string) => {
+        //     switch (unit) {
+        //         case 'c': return value;
+        //         case 'uc': return value * 1e-6;
+        //         case 'nc': return value * 1e-9;
+        //         case 'pc': return value * 1e-12;
+        //         default: throw new Error("invalid unit");
+        //     }
+        // };
+        // const valueToValueWithUnit = (value: number) => {
+        //     const appliedAbsValue = Math.abs(value);
+        //     if (appliedAbsValue >= 1e-3) {
+        //         return { value: value, unit: 'c' };
+        //     } else if (appliedAbsValue >= 1e-6) {
+        //         return { value: value * 1e6, unit: 'uc' };
+        //     } else if (appliedAbsValue >= 1e-9) {
+        //         return { value: value * 1e9, unit: 'nc' };
+        //     } else {
+        //         return { value: value * 1e12, unit: 'pc' };
+        //     }
+        // };
 
-        const domValue = document.getElementById("point_charge_charge_value")! as HTMLInputElement;
-        const domUnit = document.getElementById("point_charge_unit")! as HTMLSelectElement;
+        // const domValue = document.getElementById("charge_charge_value")! as HTMLInputElement;
+        // const domUnit = document.getElementById("charge_unit")! as HTMLSelectElement;
 
-        const onChargeValueChange = () => {
-            const selected = dragger.getSelected();
-            if (selected) {
-                updateCharge(selected, valueWithUnitToValue(Number(domValue.value), domUnit.value));
-            }
-            field3D.update();
-        };
+        // const onChargeValueChange = () => {
+        //     const selected = dragger.getSelected();
+        //     if (selected) {
+        //         updateCharge(selected, valueWithUnitToValue(Number(domValue.value), domUnit.value));
+        //     }
+        //     field3D.update();
+        // };
 
-        domValue.addEventListener("input", onChargeValueChange);
-        domUnit.addEventListener("change", onChargeValueChange);
+        // domValue.addEventListener("input", onChargeValueChange);
+        // domUnit.addEventListener("change", onChargeValueChange);
 
 
         dragger.addEventListener('object-change', throttle(50, field3D.update));
 
-        const FormPositionUpdateEvent = (object: THREE.Mesh) => {
-            (document.getElementById("point_charge_position_x") as HTMLInputElement).value = object.position.x.toFixed(2);
-            (document.getElementById("point_charge_position_y") as HTMLInputElement).value = object.position.y.toFixed(2);
-            (document.getElementById("point_charge_position_z") as HTMLInputElement).value = object.position.z.toFixed(2);
-        };
-        const FormChargeUpdateEvent = (object: PointCharge) => {
-            const { value, unit } = valueToValueWithUnit(object.charge);
-            domValue.value = value.toFixed(2);
-            domUnit.value = unit;
-        }
+        // const FormPositionUpdateEvent = (object: THREE.Mesh) => {
+        //     (document.getElementById("charge_position_x") as HTMLInputElement).value = object.position.x.toFixed(2);
+        //     (document.getElementById("charge_position_y") as HTMLInputElement).value = object.position.y.toFixed(2);
+        //     (document.getElementById("charge_position_z") as HTMLInputElement).value = object.position.z.toFixed(2);
+        // };
+        // const FormChargeUpdateEvent = (object: PointCharge) => {
+        //     const { value, unit } = valueToValueWithUnit(object.charge);
+        //     domValue.value = value.toFixed(2);
+        //     domUnit.value = unit;
+        // }
 
-        dragger.addEventListener('object-change', FormPositionUpdateEvent);
-        dragger.addEventListener('object-selected', (object: PointCharge) => {
-            FormPositionUpdateEvent(object.mesh);
-            FormChargeUpdateEvent(object);
-        });
+        // dragger.addEventListener('object-change', FormPositionUpdateEvent);
+        // dragger.addEventListener('object-selected', (object: PointCharge) => {
+        //     // FormPositionUpdateEvent(object.mesh);
+        //     // FormChargeUpdateEvent(object);
+        // });
 
         dragger.addEventListener('object-selected', () => {
-            document.getElementById("settings_point_charge")!.style.display = "block";
+            (document.getElementById("position_editor") as HTMLDetailsElement).open = true;
+            console.log("object-selected");
         });
         dragger.addEventListener('object-unselected', () => {
-            document.getElementById("settings_point_charge")!.style.display = "none";
+            console.log("object-unselected");
+            (document.getElementById("position_editor") as HTMLDetailsElement).open = false;
         });
 
 
         {
             // デモとして最初の点電荷を選択
             dragger.attach(charge[0]!);
-            FormPositionUpdateEvent(charge[0]!.mesh);
-            FormChargeUpdateEvent(charge[0]!);
+            // FormPositionUpdateEvent(charge[0]!.mesh);
+            // FormChargeUpdateEvent(charge[0]!);
         }
     }
 
@@ -163,22 +165,6 @@ const start = () => {
         });
     }
 
-    // 2D/3D切り替え
-    {
-        const sw = document.getElementById("dimension_toggle_switch") as HTMLInputElement;
-        const ChangeDimension = (is_3d: boolean) => {
-            if (is_3d) {
-                scene.add(field3D);
-            } else {
-                scene.remove(field3D);
-            }
-        };
-        ChangeDimension(sw.checked); // 初期値
-        sw.addEventListener("change", (e) => {
-            ChangeDimension((e.target as HTMLInputElement).checked);
-        });
-    }
-
     // 電気力線 表示/非表示
     {
         const checkbox = document.getElementById("checkbox_electric_lines") as HTMLInputElement;
@@ -199,13 +185,8 @@ const start = () => {
 
     // 追加削除ボタン
     {
-        document.getElementById("button_add_point_charge")!.addEventListener("click", () => {
-            const chargeValue = (Math.random() > 0.5 ? 1 : -1);
-            const x = Math.floor(Math.random() * 100 - 50);
-            const y = Math.floor(Math.random() * 100 - 50);
-            const z = Math.floor(Math.random() * 100 - 50);
-            
-            const newChange = new PointCharge(new THREE.Vector3(x, y, z), chargeValue).attachScene(scene);
+        document.getElementById("add_point_charge_button")!.addEventListener("click", () => {
+            const newChange = new PointCharge(new THREE.Vector3(), 1).attachScene(scene);
 
             charge.push(newChange);
             dragger.attach(newChange);
@@ -213,21 +194,21 @@ const start = () => {
             field3D.update();
         });
 
-        document.getElementById("button_remove_point_charge")!.addEventListener("click", () => {
-            if (dragger.getSelected()) {
-                dragger.removeSelected();
-                field3D.update();
-            }
-        });
+        // document.getElementById("button_remove_charge")!.addEventListener("click", () => {
+        //     if (dragger.getSelected()) {
+        //         dragger.removeSelected();
+        //         field3D.update();
+        //     }
+        // });
 
-        document.getElementById("button_remove_all_point_charges")!.addEventListener("click", () => {
-            for (let pointCharge of charge) {
-                scene.remove(pointCharge.mesh);
-            }
-            charge.splice(0, charge.length);
-            dragger.removeSelected();
-            field3D.update();
-        });
+        // document.getElementById("button_remove_all_charges")!.addEventListener("click", () => {
+        //     for (let pointCharge of charge) {
+        //         scene.remove(pointCharge.mesh);
+        //     }
+        //     charge.splice(0, charge.length);
+        //     dragger.removeSelected();
+        //     field3D.update();
+        // });
     }
 
     const main = () => {

@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { kCoulomb, permittivity } from "./constants";
 import { GSS } from "./gss";
-import exp from "constants";
 
 export enum ChargeType {
     Plus,
@@ -38,31 +37,29 @@ const GetMaterialFromChargeType = (chargeType: ChargeType) => {
 export abstract class Charge {
 
     mesh: THREE.Mesh;
-    charge: number;
+    readonly charge: number;
     readonly position: THREE.Vector3;
 
+    /// @brief 電荷を構築する
     constructor(mesh: THREE.Mesh, charge: number) {
         this.mesh = mesh;
         this.charge = charge;
         this.position = mesh.position;
     }
 
+    /// @brief シーンにこの電荷を追加する
     attachScene = (scene: THREE.Scene) => {
         scene.add(this.mesh);
         return this;
     }
 
-    updateCharge = (newCharge: number) => {
-        this.charge = newCharge;
-        this.mesh.material = GetMaterialFromChargeType(ChargeToChargeType(this.charge));
-    }
-
+    /// @brief 指定座標における、この電荷からの電界ベクトルを返す
     abstract electricFieldVector: (position: THREE.Vector3) => THREE.Vector3;
 
-    // 任意の座標における電荷との距離^2を返す
+    /// @brief 任意の座標における電荷との距離^2を返す
     abstract distanceSqFrom: (position: THREE.Vector3) => number;
 
-    // 電気力線の始点、方向ベクトルの配列を返す
+    /// @brief 電気力線の始点、方向ベクトルの配列を返す
     abstract electricForceLinesDirection: () => { begin: THREE.Vector3, direction: THREE.Vector3 }[];
 };
 
@@ -71,13 +68,17 @@ export class PointCharge extends Charge {
 
     private static readonly pointChargeGeometry = new THREE.SphereGeometry(2, 32, 32);
 
+    /// @brief 点電荷を構築する
+    /// @param position 点電荷の座標
+    /// @param charge 電荷量
     constructor(position: THREE.Vector3, charge: number) {
         const mesh = new THREE.Mesh(PointCharge.pointChargeGeometry, GetMaterialFromChargeType(ChargeToChargeType(charge)));
         super(mesh, charge);
         this.position.copy(position);
     }
 
-    // 指定座標における、この点電荷からの電界ベクトルを返す
+    /// @brief 指定座標における、この点電荷からの電界ベクトルを返す
+    /// @param position 観測点の座標
     override electricFieldVector = (position: THREE.Vector3) => {
 
         if (position.distanceToSquared(this.position) < Number.EPSILON) {
@@ -95,12 +96,13 @@ export class PointCharge extends Charge {
 
     }
 
-    // 任意の座標における電荷との距離を返す
+    /// @brief 任意の座標における電荷との距離を返す
+    /// @param position 観測点の座標
     override distanceSqFrom = (position: THREE.Vector3) => {
         return position.distanceToSquared(this.position);
     }
 
-    // 電気力線の方向ベクトルの配列を返す
+    /// @brief 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => { return { begin: this.position, direction: vector } });
     }
@@ -111,15 +113,22 @@ export class PointCharge extends Charge {
 export class LineCharge extends Charge {
 
     private lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 50);
+    private lineDensity: number;
 
-    constructor(begin: THREE.Vector3, end: THREE.Vector3, charge: number) {
-        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
-        super(mesh, charge);
+    /// @brief 線電荷を構築する
+    /// @param begin 線電荷の始点
+    /// @param end 線電荷の終点
+    /// @param lineDensity 線電荷の線密度
+    constructor(begin: THREE.Vector3, end: THREE.Vector3, isInfiniteLength: boolean, lineDensity: number) {
+        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(lineDensity)));
+        super(mesh, lineDensity);
+        this.lineDensity = lineDensity;
         this.position.copy(begin);
         mesh.geometry = this.lineChargeGeometry;
     }
 
-    // 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @param position 観測点の座標
     override electricFieldVector = (position: THREE.Vector3) => {
 
         if (position.distanceToSquared(this.position) < Number.EPSILON) {
@@ -132,13 +141,14 @@ export class LineCharge extends Charge {
 
         const rSq3 = diff.lengthSq() ** 1.5;    // 点電荷と観測点との距離^3
 
-        diff.multiplyScalar((kCoulomb * this.charge) / rSq3);
+        diff.multiplyScalar((kCoulomb * this.lineDensity) / rSq3);
 
         return diff;
 
     }
 
-    // 任意の座標における電荷との距離を返す
+    /// @brief 任意の座標における電荷との距離を返す
+    /// @param position 観測点の座標
     override distanceSqFrom = (position: THREE.Vector3) => {
         const diff = new THREE.Vector3();
         diff.subVectors(position, this.position);    // 点電荷と観測点との差分
@@ -146,7 +156,7 @@ export class LineCharge extends Charge {
         return diff.lengthSq();
     }
 
-    // 電気力線の方向ベクトルの配列を返す
+    /// @brief 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
 
         const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
@@ -185,17 +195,24 @@ export class SphereSurfaceCharge extends Charge {
 
     private sphereSurfaceChargeGeometry;
     private radius: number;
+    private arealDensity: number;
 
-    constructor(position: THREE.Vector3, radius: number, charge: number) {
-        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
-        super(mesh, charge);
+    /// @brief 球面電荷を構築する
+    /// @param position 球の中心座標
+    /// @param radius 球の半径
+    /// @param arealDensity 面電荷密度
+    constructor(position: THREE.Vector3, radius: number, arealDensity: number) {
+        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(arealDensity)));
+        super(mesh, arealDensity);
         this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
-        mesh.geometry = this.sphereSurfaceChargeGeometry;
         this.position.copy(position);
         this.radius = radius;
+        this.arealDensity = arealDensity;
+        mesh.geometry = this.sphereSurfaceChargeGeometry;
     }
 
-    // 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @param position 観測点の座標
     override electricFieldVector = (position: THREE.Vector3) => {
 
         if (position.distanceToSquared(this.position) < Number.EPSILON) {
@@ -210,17 +227,18 @@ export class SphereSurfaceCharge extends Charge {
             return new THREE.Vector3();  // 観測点が球の内部にある場合
         }
         else {
-            return diff.multiplyScalar((kCoulomb * this.charge) / diffLengthSq);
+            return diff.multiplyScalar((kCoulomb * this.arealDensity) / diffLengthSq);
         }
 
     }
 
-    // 任意の座標における電荷との距離を返す(外周との距離)
+    /// @brief 任意の座標における電荷との距離を返す(外周との距離)
+    /// @param position 観測点の座標
     override distanceSqFrom = (position: THREE.Vector3) => {
         return position.distanceToSquared(this.position) - this.radius ** 2;
     }
 
-    // 電気力線の方向ベクトルの配列を返す
+    /// @brief 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => {
             return {
@@ -237,17 +255,24 @@ export class SphereVolumeCharge extends Charge
 {
     private sphereSurfaceChargeGeometry;
     private radius: number;
+    private volumeDensity: number;    
 
-    constructor(position: THREE.Vector3, radius: number, charge: number) {
-        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(charge)));
-        super(mesh, charge);
+    /// @brief 球体積電荷を構築する
+    /// @param position 球の中心座標
+    /// @param radius 球の半径
+    /// @param volumeDensity 体積電荷密度
+    constructor(position: THREE.Vector3, radius: number, volumeDensity: number) {
+        const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(volumeDensity)));
+        super(mesh, volumeDensity);
         this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
-        mesh.geometry = this.sphereSurfaceChargeGeometry;
         this.position.copy(position);
         this.radius = radius;
+        this.volumeDensity = volumeDensity;
+        mesh.geometry = this.sphereSurfaceChargeGeometry;
     }
 
-    // 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
+    /// @param position 観測点の座標
     override electricFieldVector = (position: THREE.Vector3) => {
 
         if (position.distanceToSquared(this.position) < Number.EPSILON) {
@@ -262,19 +287,20 @@ export class SphereVolumeCharge extends Charge
             return new THREE.Vector3();  // 観測点が球の内部にある場合
         }
         else {
-            return diff.multiplyScalar((this.charge * diff.length() ** 3 / (3 * permittivity)) / diffLengthSq);
+            return diff.multiplyScalar((this.volumeDensity * diff.length() ** 3 / (3 * permittivity)) / diffLengthSq);
         }
 
         // E=(ρa^3/3ε)・r^-2
 
     }
 
-    // 任意の座標における電荷との距離を返す(外周との距離)
+    /// @brief 任意の座標における電荷との距離を返す(外周との距離)
+    /// @param position 観測点の座標
     override distanceSqFrom = (position: THREE.Vector3) => {
         return position.distanceToSquared(this.position) - this.radius ** 2;
     }
 
-    // 電気力線の方向ベクトルの配列を返す
+    /// @brief 電気力線の方向ベクトルの配列を返す
     override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => {
             return {

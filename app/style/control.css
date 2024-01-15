@@ -1,0 +1,126 @@
+.control {
+  background-color: #38393b;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: auto;
+  gap: 10px;
+  padding: 10px 0 0 10px;
+  color: #e3e3e3;
+}
+
+.charge_control {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-right: 10px;
+}
+.control_button {
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+}
+.control_button .title {
+  display: flex;
+  justify-content: center;
+}
+.control_button button {
+  border: none;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+.control_img {
+  border: 1px solid #4f4f4f;
+  width: 55px;
+  height: 55px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+
+/* 表示切替チェックボックス */
+.display_control {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin-left: auto;
+  column-gap: 20px;
+  height: 70px;
+  margin: 10px;
+  color: #e3e3e3;
+  user-select: none;
+}
+
+.checkbox {
+  display: flex;
+  margin: 5px;
+  font-size: 13px;
+  color: #e3e3e3;
+  user-select: none;
+}
+
+input[type="checkbox"] {
+  margin: 0 10px 0 0;
+}
+
+input[type="number"] {
+  height: 20px;
+  width: 80px;
+  text-align: right;
+  padding-right: 10px;
+  font-size: 16px;
+  color: #e3e3e3;
+  background-color: #38393b;
+  border: 1px solid #7c7c7c;
+  border-radius: 4px;
+}
+
+/* スピンボタン非表示 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* パラメータ編集領域 */
+.parameter_editor {
+  display: flex;
+  flex-wrap: wrap;
+  color: #e3e3e3;
+  user-select: none;
+  font-size: 13px;
+  gap: 10px;
+}
+
+.parameter_editor .contents {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  padding-left: 10px;
+  gap: 5px;
+  color: #e3e3e3;
+  user-select: none;
+}
+
+.parameter_editor .control_button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+details > * {
+  float: left;
+}
+summary {
+  list-style: none;
+}
+/* safari */
+summary::-webkit-details-marker {
+  display: none;
+}
