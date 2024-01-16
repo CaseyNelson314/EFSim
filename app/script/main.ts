@@ -68,9 +68,9 @@ const start = () => {
             lineDensity.value = lineCharge.lineDensity.toFixed(3);
 
             // 線電荷は長さを変更できる
-            const lineLength = document.getElementById("charge_length") as HTMLInputElement;
-            lineLength.labels![0]!.style.display = "block";
-            lineLength.value = lineCharge.length.toFixed(3);
+            // const lineLength = document.getElementById("charge_length") as HTMLInputElement;
+            // lineLength.labels![0]!.style.display = "block";
+            // lineLength.value = lineCharge.length.toFixed(3);
         }
         else if (charge instanceof SphereSurfaceCharge) {
             const sphereSurfaceCharge = charge as SphereSurfaceCharge;

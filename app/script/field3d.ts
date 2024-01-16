@@ -177,31 +177,16 @@ class ElectricFieldVectors3D extends THREE.Object3D {
 
         }
 
-        const count = 4;
-        for (let charge of this.charges) {
+        for (const charge of this.charges) {
 
             if (charge.getChargeType() === ChargeType.Neutral) {
                 continue;
             }
 
-            for (let x = -count; x <= count; x++) {
-                for (let y = -count; y <= count; y++) {
-                    for (let z = -count; z <= count; z++) {
-
-                        const length_sq = x ** 2 + y ** 2 + z ** 2;
-                        if (length_sq > count ** 2) {
-                            continue;
-                        }
-
-                        if (x === 0 && y === 0 && z === 0) {
-                            continue;
-                        }
-
-                        const opacity = Math.abs(1 - length_sq / (count ** 2));
-                        AddArrow(new THREE.Vector3(x * 20, y * 20, z * 20).add(charge.position), opacity);
-
-                    }
-                }
+            const points = charge.electricFieldVectorBeginPositions();
+            for (const point of points)
+            {
+                AddArrow(point.vector.add(charge.position), point.opacity);
             }
 
         }

@@ -54,6 +54,9 @@ export abstract class Charge {
     /// @brief 指定座標における、この電荷からの電界ベクトルを返す
     abstract electricFieldVector: (position: THREE.Vector3) => THREE.Vector3;
 
+    /// @brief 電界ベクトルの描画開始座標の配列を返す
+    abstract electricFieldVectorBeginPositions: () => { vector: THREE.Vector3, opacity: number }[];
+
     /// @brief 任意の座標における電荷との距離^2を返す
     abstract distanceSqFrom: (position: THREE.Vector3) => number;
 
@@ -100,6 +103,39 @@ export class PointCharge extends Charge {
 
         return diff.multiplyScalar((kCoulomb * this.charge) / rSq3);
 
+    }
+
+    /// @brief 電界ベクトルの描画開始座標の配列を返す
+    override electricFieldVectorBeginPositions = () => {
+        const result: { vector: THREE.Vector3, opacity: number }[] = [];
+
+        const count = 4;
+
+        for (let x = -count; x <= count; x++) {
+            for (let y = -count; y <= count; y++) {
+                for (let z = -count; z <= count; z++) {
+
+                    const length_sq = x ** 2 + y ** 2 + z ** 2;
+                    if (length_sq > count ** 2) {
+                        continue;
+                    }
+
+                    if (x === 0 && y === 0 && z === 0) {
+                        continue;
+                    }
+
+                    const opacity = Math.abs(1 - length_sq / (count ** 2));
+
+                    result.push({
+                        vector: new THREE.Vector3(20 * x, 20 * y, 20 * z),
+                        opacity: opacity
+                    });
+
+                }
+            }
+        }
+
+        return result;
     }
 
     /// @brief 任意の座標における電荷との距離を返す
@@ -159,6 +195,15 @@ export class LineCharge extends Charge {
         diff.y = 0;
 
         return diff.multiplyScalar((this.lineDensity) / (2 * Math.PI * permittivity * diff.lengthSq()));
+
+    }
+
+
+    /// @brief 電界ベクトルの描画開始座標の配列を返す
+    override electricFieldVectorBeginPositions = () => {
+        
+        // TODO
+        return new Array<{ vector: THREE.Vector3, opacity: number }>();
 
     }
 
@@ -264,6 +309,39 @@ export class SphereSurfaceCharge extends Charge {
         }
 
     }
+    
+    /// @brief 電界ベクトルの描画開始座標の配列を返す
+    override electricFieldVectorBeginPositions = () => {
+        const result: { vector: THREE.Vector3, opacity: number }[] = [];
+
+        const count = 4;
+
+        for (let x = -count; x <= count; x++) {
+            for (let y = -count; y <= count; y++) {
+                for (let z = -count; z <= count; z++) {
+
+                    const length_sq = x ** 2 + y ** 2 + z ** 2;
+                    if (length_sq > count ** 2) {
+                        continue;
+                    }
+
+                    if (x === 0 && y === 0 && z === 0) {
+                        continue;
+                    }
+
+                    const opacity = Math.abs(1 - length_sq / (count ** 2));
+
+                    result.push({
+                        vector: new THREE.Vector3(20 * x, 20 * y, 20 * z),
+                        opacity: opacity
+                    });
+
+                }
+            }
+        }
+
+        return result;
+    }
 
     /// @brief 任意の座標における電荷との距離を返す(外周との距離)
     /// @param position 観測点の座標
@@ -344,6 +422,41 @@ export class SphereVolumeCharge extends Charge
 
 
     }
+
+    
+    /// @brief 電界ベクトルの描画開始座標の配列を返す
+    override electricFieldVectorBeginPositions = () => {
+        const result: { vector: THREE.Vector3, opacity: number }[] = [];
+
+        const count = 4;
+
+        for (let x = -count; x <= count; x++) {
+            for (let y = -count; y <= count; y++) {
+                for (let z = -count; z <= count; z++) {
+
+                    const length_sq = x ** 2 + y ** 2 + z ** 2;
+                    if (length_sq > count ** 2) {
+                        continue;
+                    }
+
+                    if (x === 0 && y === 0 && z === 0) {
+                        continue;
+                    }
+
+                    const opacity = Math.abs(1 - length_sq / (count ** 2));
+
+                    result.push({
+                        vector: new THREE.Vector3(20 * x, 20 * y, 20 * z),
+                        opacity: opacity
+                    });
+
+                }
+            }
+        }
+
+        return result;
+    }
+    
 
     /// @brief 任意の座標における電荷との距離を返す(外周との距離)
     /// @param position 観測点の座標
