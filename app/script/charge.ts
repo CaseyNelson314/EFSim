@@ -96,11 +96,9 @@ export class PointCharge extends Charge {
         const diff = new THREE.Vector3();
         diff.subVectors(position, this.position);    // 点電荷と観測点との差分
 
-        const r_sq4 = diff.lengthSq() ** 2;    // 点電荷と観測点との距離^4
+        const rSq3 = diff.length() ** 3;    // 点電荷と観測点との距離^3
 
-        diff.multiplyScalar((kCoulomb * this.charge) / r_sq4);
-
-        return diff;
+        return diff.multiplyScalar((kCoulomb * this.charge) / rSq3);
 
     }
 
@@ -133,12 +131,13 @@ export class LineCharge extends Charge {
     /// @param begin 線電荷の始点
     /// @param end 線電荷の終点
     /// @param lineDensity 線電荷の線密度
-    constructor(begin: THREE.Vector3, end: THREE.Vector3, isInfiniteLength: boolean, lineDensity: number) {
+    constructor(center: THREE.Vector3, rotate: THREE.Euler, length: number, lineDensity: number) {
         const mesh = new THREE.Mesh(undefined, GetMaterialFromChargeType(ChargeToChargeType(lineDensity)));
         super(mesh);
         this.lineDensity = lineDensity;
-        this.position.copy(begin);
-        this.length = begin.distanceTo(end);
+        this.position.copy(center);
+        this.mesh.rotation.copy(rotate);
+        this.length = length;
         mesh.geometry = this.lineChargeGeometry;
     }
 
@@ -159,11 +158,7 @@ export class LineCharge extends Charge {
         diff.subVectors(position, this.position);    // 点電荷と観測点との差分
         diff.y = 0;
 
-        const rSq3 = diff.lengthSq() ** 1.5;    // 点電荷と観測点との距離^3
-
-        diff.multiplyScalar((kCoulomb * this.lineDensity) / rSq3);
-
-        return diff;
+        return diff.multiplyScalar((this.lineDensity) / (2 * Math.PI * permittivity * diff.lengthSq()));
 
     }
 
@@ -264,7 +259,8 @@ export class SphereSurfaceCharge extends Charge {
             return new THREE.Vector3();  // 観測点が球の内部にある場合
         }
         else {
-            return diff.multiplyScalar((kCoulomb * this.arealDensity) / diffLengthSq);
+            // E=(σa^2)/(εr^2)
+            return diff.multiplyScalar((this.arealDensity * this.radius ** 2) / (permittivity * diffLengthSq));
         }
 
     }
@@ -338,13 +334,14 @@ export class SphereVolumeCharge extends Charge
 
         const diffLengthSq = diff.lengthSq();
         if (diffLengthSq < this.radius ** 2) {
-            return new THREE.Vector3();  // 観測点が球の内部にある場合
+            // E=ρr / 3ε
+            return diff.multiplyScalar(this.volumeDensity * Math.sqrt(diffLengthSq) / (3 * permittivity));
         }
         else {
-            return diff.multiplyScalar((this.volumeDensity * diff.length() ** 3 / (3 * permittivity)) / diffLengthSq);
+            // E=(ρa^3/3ε) / r^2
+            return diff.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq));
         }
 
-        // E=(ρa^3/3ε)・r^-2
 
     }
 

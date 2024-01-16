@@ -18,7 +18,7 @@
   padding: 10px;
 }
 .control_button {
-  font-size: 16px;
+  font-size: 20px;
   display: flex;
   flex-direction: column;
 }
@@ -45,19 +45,17 @@ button {
 
 /* 表示切替チェックボックス */
 .display_control {
-  /* margin-left: auto; */
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  /* margin-left: auto; */
   color: #e3e3e3;
   user-select: none;
 }
 
 .checkbox {
   display: flex;
-  margin: 5px;
-  font-size: 16px;
+  margin: 2px;
+  font-size: 20px;
   color: #e3e3e3;
   user-select: none;
 }
@@ -71,7 +69,7 @@ input[type="number"] {
   width: 80px;
   text-align: right;
   padding-right: 10px;
-  font-size: 16px;
+  font-size: 20px;
   color: #e3e3e3;
   background-color: #38393b;
   border: 2px solid #4f4f4f;
@@ -102,15 +100,15 @@ input[type="number"] {
   flex-wrap: wrap;
   color: #e3e3e3;
   user-select: none;
-  font-size: 16px;
+  font-size: 20px;
+  padding: 5px 10px 5px 10px;
+  gap: 2px;
 }
 
 .parameter_editor .editor {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
 }
 
 .parameter_editor .contents {
@@ -118,7 +116,6 @@ input[type="number"] {
   flex-wrap: wrap;
   flex-direction: column;
   padding-left: 10px;
-  gap: 5px;
   color: #e3e3e3;
   user-select: none;
 }

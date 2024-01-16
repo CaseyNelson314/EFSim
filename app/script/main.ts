@@ -4,7 +4,6 @@ import { Dragger } from "./dragger";
 import { Charge, LineCharge, PointCharge, SphereSurfaceCharge, SphereVolumeCharge } from "./charge";
 import { Field3D } from "./field3d";
 import { throttle } from 'throttle-debounce';
-import { DragControls } from 'three/examples/jsm/controls/DragControls';
 
 const start = () => {
 
@@ -22,14 +21,14 @@ const start = () => {
     {
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
+// charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
         charge.push(new PointCharge(new THREE.Vector3(0, 50, 0), -10).attachScene(scene));
 
-        charge.push(new LineCharge(new THREE.Vector3(-100, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
-        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Vector3(0, 0, 100), false, 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(-100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
+        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
 
         // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 0.000000011).attachScene(scene));
-        // charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
+// charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
 
     }
 
@@ -43,14 +42,14 @@ const start = () => {
     const ChargeSelectFormUpdate = (charge: Charge) => {
 
         // 全電荷は座標を変更できる
-        (document.getElementById("charge_position_x") as HTMLInputElement).value = charge.position.x.toFixed(2);
-        (document.getElementById("charge_position_y") as HTMLInputElement).value = charge.position.y.toFixed(2);
-        (document.getElementById("charge_position_z") as HTMLInputElement).value = charge.position.z.toFixed(2);
+        (document.getElementById("charge_position_x") as HTMLInputElement).value = charge.position.x.toFixed(3);
+        (document.getElementById("charge_position_y") as HTMLInputElement).value = charge.position.y.toFixed(3);
+        (document.getElementById("charge_position_z") as HTMLInputElement).value = charge.position.z.toFixed(3);
 
         // 全電荷は座標を回転できる
-        (document.getElementById("charge_rotate_x") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.x).toFixed(2);
-        (document.getElementById("charge_rotate_y") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.y).toFixed(2);
-        (document.getElementById("charge_rotate_z") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.z).toFixed(2);
+        (document.getElementById("charge_rotate_x") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.x).toFixed(3);
+        (document.getElementById("charge_rotate_y") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.y).toFixed(3);
+        (document.getElementById("charge_rotate_z") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.z).toFixed(3);
 
         if (charge instanceof PointCharge) {
             const pointCharge = charge as PointCharge;
@@ -58,7 +57,7 @@ const start = () => {
             // 点電荷は電荷量を変更できる
             const chargeAmountDom = document.getElementById("charge_amount") as HTMLInputElement
             chargeAmountDom.labels![0]!.style.display = "block";
-            chargeAmountDom.value = pointCharge.charge.toFixed(2);
+            chargeAmountDom.value = pointCharge.charge.toFixed(3);
         }
         else if (charge instanceof LineCharge) {
             const lineCharge = charge as LineCharge;
@@ -66,25 +65,25 @@ const start = () => {
             // 線電荷は電荷密度を変更できる
             const lineDensity = document.getElementById("charge_line_density") as HTMLInputElement;
             lineDensity.labels![0]!.style.display = "block";
-            lineDensity.value = lineCharge.lineDensity.toFixed(2);
+            lineDensity.value = lineCharge.lineDensity.toFixed(3);
 
             // 線電荷は長さを変更できる
             const lineLength = document.getElementById("charge_length") as HTMLInputElement;
             lineLength.labels![0]!.style.display = "block";
-            lineLength.value = lineCharge.length.toFixed(2);
+            lineLength.value = lineCharge.length.toFixed(3);
         }
         else if (charge instanceof SphereSurfaceCharge) {
             const sphereSurfaceCharge = charge as SphereSurfaceCharge;
 
             // 球面電荷は電荷密度を変更できる
-            const chargeDensity = document.getElementById("charge_density") as HTMLInputElement;
+            const chargeDensity = document.getElementById("charge_surface_density") as HTMLInputElement;
             chargeDensity.labels![0]!.style.display = "block";
-            chargeDensity.value = sphereSurfaceCharge.arealDensity.toFixed(2);
+            chargeDensity.value = sphereSurfaceCharge.arealDensity.toFixed(3);
 
             // 球面電荷は半径を変更できる
             const radius = document.getElementById("charge_radius") as HTMLInputElement;
             radius.labels![0]!.style.display = "block";
-            radius.value = sphereSurfaceCharge.radius.toFixed(2);
+            radius.value = sphereSurfaceCharge.radius.toFixed(3);
         }
         else if (charge instanceof SphereVolumeCharge) {
             const sphereVolumeCharge = charge as SphereVolumeCharge;
@@ -92,12 +91,12 @@ const start = () => {
             // 球体電荷は電荷密度を変更できる
             const chargeDensity = document.getElementById("charge_density") as HTMLInputElement;
             chargeDensity.labels![0]!.style.display = "block";
-            chargeDensity.value = sphereVolumeCharge.volumeDensity.toFixed(2);
+            chargeDensity.value = sphereVolumeCharge.volumeDensity.toFixed(3);
 
             // 球体電荷は半径を変更できる
             const radius = document.getElementById("charge_radius") as HTMLInputElement;
             radius.labels![0]!.style.display = "block";
-            radius.value = sphereVolumeCharge.radius.toFixed(2);
+            radius.value = sphereVolumeCharge.radius.toFixed(3);
         }
     };
 
@@ -120,21 +119,24 @@ const start = () => {
             });
             document.getElementById("charge_position_x")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.position.x = Number((e.target as HTMLInputElement).value)
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_position_y")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.position.y = Number((e.target as HTMLInputElement).value)
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_position_z")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.position.z = Number((e.target as HTMLInputElement).value)
-                field3d.update();
+                    field3d.update();
+                }
             });
         }
 
@@ -146,21 +148,24 @@ const start = () => {
             // 回転
             document.getElementById("charge_rotate_x")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.mesh.rotation.x = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_rotate_y")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.mesh.rotation.y = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_rotate_z")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected)
+                if (selected) {
                     selected.mesh.rotation.z = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
-                field3d.update();
+                    field3d.update();
+                }
             });
         }
 
@@ -184,9 +189,10 @@ const start = () => {
         {
             document.getElementById("charge_amount")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof PointCharge)
+                if (selected instanceof PointCharge) {
                     selected.updateCharge(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                    field3d.update();
+                }
             });
         }
 
@@ -194,9 +200,10 @@ const start = () => {
         {
             document.getElementById("charge_line_density")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof LineCharge)
+                if (selected instanceof LineCharge) {
                     selected.updateLineDensity(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                    field3d.update();
+                }
             });
             // todo: 線電荷の長さを変更できるようにする
             // document.getElementById("charge_length")!.addEventListener("input", (e) => {
@@ -209,17 +216,22 @@ const start = () => {
 
         // 球面電荷編集
         {
-            document.getElementById("charge_density")!.addEventListener("input", (e) => {
+            document.getElementById("charge_surface_density")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof SphereSurfaceCharge)
+                if (selected instanceof SphereSurfaceCharge) {
                     selected.updateArealDensity(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_radius")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof SphereSurfaceCharge)
-                    selected.updateRadius(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                if (selected instanceof SphereSurfaceCharge) {
+                    const value = Number((e.target as HTMLInputElement).value);
+                    if (value > 0) {
+                        selected.updateRadius(value);
+                        field3d.update();
+                    }
+                }
             });
         }
 
@@ -227,15 +239,20 @@ const start = () => {
         {
             document.getElementById("charge_density")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof SphereVolumeCharge)
+                if (selected instanceof SphereVolumeCharge) {
                     selected.updateVolumeDensity(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                    field3d.update();
+                }
             });
             document.getElementById("charge_radius")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof SphereVolumeCharge)
-                    selected.updateRadius(Number((e.target as HTMLInputElement).value));
-                field3d.update();
+                if (selected instanceof SphereVolumeCharge) {
+                    const value = Number((e.target as HTMLInputElement).value);
+                    if (value > 0) {
+                        selected.updateRadius(value);
+                        field3d.update();
+                    }
+                }
             });
         }
 
@@ -258,7 +275,7 @@ const start = () => {
             });
             // 線電荷
             document.getElementById("add_infinity_line_charge_button")!.addEventListener("click", () => {
-                const newChange = new LineCharge(new THREE.Vector3(), new THREE.Vector3(0, 0, 100), false, 0.01).attachScene(scene);
+                const newChange = new LineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 100, 1).attachScene(scene);
                 addCharge(newChange);
             });
             // document.getElementById("add_surface_charge_button")!.addEventListener("click", () => {
@@ -270,12 +287,12 @@ const start = () => {
             // });
             // 球面電荷
             document.getElementById("add_sphere_surface_charge_button")!.addEventListener("click", () => {
-                const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 10, 1).attachScene(scene);
+                const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);
                 addCharge(newChange);
             });
             // 球体電荷
             document.getElementById("add_sphere_volume_charge_button")!.addEventListener("click", () => {
-                const newChange = new SphereVolumeCharge(new THREE.Vector3(), 10, 1).attachScene(scene);
+                const newChange = new SphereVolumeCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);
                 addCharge(newChange);
             });
 
