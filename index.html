@@ -5,8 +5,8 @@
   <meta charset="utf-8" />
   <title>EFSim</title>
   <link rel="icon" href="./assets/kagaku_genshi-J5GJWi2o.png" />
-  <script type="module" crossorigin src="./assets/index-f1Iqra3v.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-NBp3b0rp.css">
+  <script type="module" crossorigin src="./assets/index-rOQGkbNm.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-0J1KcO_3.css">
 </head>
 
 <body>
@@ -24,40 +24,40 @@
             <img class="control_img" src="./assets/point_charge-fnGxtTX5.png" alt="点">
           </button>
         </div>
-        <div class="control_button">
+        <!-- <div class="control_button">
           <p class="title">有限線</p>
           <button type="button" id="add_finite_line_charge_button">
-            <img class="control_img" src="./assets/finite_line_charge-zDvqaYUh.png" alt="有限線">
+            <img class="control_img" src="./static/finite_line_charge.png" alt="有限線">
           </button>
-        </div>
+        </div> -->
         <div class="control_button">
           <p class="title">無限線</p>
           <button type="button" id="add_infinity_line_charge_button">
             <img class="control_img" src="./assets/infinity_line_charge-Io7ZY8iJ.png" alt="無限線">
           </button>
         </div>
-        <div class="control_button">
+        <!-- <div class="control_button">
           <p class="title">有限面</p>
           <button type="button" id="add_finite_surface_charge_button">
-            <img class="control_img" src="./assets/finite_surface_charge-o43rxrXK.png" alt="有限面">
+            <img class="control_img" src="./static/finite_surface_charge.png" alt="有限面">
           </button>
         </div>
         <div class="control_button">
           <p class="title">無限面</p>
           <button type="button" id="add_infinity_surface_charge_button">
-            <img class="control_img" src="./assets/infinity_surface_charge-PY1CnFpf.png" alt="無限面">
+            <img class="control_img" src="./static/infinity_surface_charge.png" alt="無限面">
           </button>
-        </div>
+        </div> -->
         <div class="control_button">
-          <p class="title">球面</p>
+          <p class="title">球表面</p>
           <button type="button" id="add_sphere_surface_charge_button">
-            <img class="control_img" src="./assets/sphere_surface_charge-r4Mkhqa1.png" alt="球面">
+            <img class="control_img" src="./assets/sphere_surface_charge-r4Mkhqa1.png" alt="球表面">
           </button>
         </div>
         <div class="control_button">
-          <p class="title">球体</p>
+          <p class="title">球体積</p>
           <button type="button" id="add_sphere_volume_charge_button">
-            <img class="control_img" src="./assets/phere_volume_charge-szjbvglU.png" alt="球体">
+            <img class="control_img" src="./assets/phere_volume_charge-szjbvglU.png" alt="球体積">
           </button>
         </div>
         <div class="control_button">
@@ -140,11 +140,11 @@
             </label>
             <label for="charge_radius" hidden>
               半径[m]
-              <input type="number" id="charge_radius" inputmode="decimal">
+              <input type="number" id="charge_radius" inputmode="decimal" min="0">
             </label>
             <label for="charge_length" hidden>
               長さ[m]
-              <input type="number" id="charge_length" inputmode="decimal">
+              <input type="number" id="charge_length" inputmode="decimal" min="0">
             </label>
           </div>
         </div>
