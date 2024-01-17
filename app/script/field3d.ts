@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
+import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 
 
 // 指定座標における電場ベクトルを計算
@@ -74,14 +75,19 @@ const ElectricForceLinePoints = (
 class ElectricLines3D extends THREE.Object3D {
 
     private charges: Charge[];
-    private lineMaterial: THREE.LineBasicMaterial;
+    private lineMaterial: MeshLineMaterial;
     private coneGeometry: THREE.ConeGeometry;
     private coneMaterial: THREE.MeshBasicMaterial;
 
     constructor(charges: Charge[]) {
         super();
         this.charges = charges;
-        this.lineMaterial = new THREE.LineBasicMaterial({ color: 0xccccff });
+
+        // todo error
+        this.lineMaterial = new MeshLineMaterial({
+            color: 0xffffff,
+            lineWidth: 1,
+        });
 
         this.coneGeometry = new THREE.ConeGeometry(1, 3, 10);
         this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xaeaece, opacity: 1 });
@@ -101,9 +107,16 @@ class ElectricLines3D extends THREE.Object3D {
 
                 // 電気力線の連続点から線分ジオメトリを生成
                 const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 300);
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const line = new THREE.Line(geometry, this.lineMaterial);
-                this.add(line);
+                const geometry = new MeshLineGeometry();
+                // console.log(points);
+                geometry.setPoints(points);
+                const mesh = new THREE.Mesh(geometry, this.lineMaterial);
+                this.add(mesh);
+                
+                // const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                // const line = new THREE.Line(geometry, this.lineMaterial);
+                // this.add(line);
+                
 
                 // 電気力線上に一定間隔で矢印を生成
                 const step = points.length / 3;
@@ -131,7 +144,7 @@ class ElectricLines3D extends THREE.Object3D {
     update() {
         // ジオメトリをすべて破棄
         for (const child of this.children) {
-            if (child instanceof THREE.Line) {
+            if (child instanceof THREE.Mesh) {
                 child.geometry.dispose();
             }
             if (child instanceof THREE.Mesh) {
