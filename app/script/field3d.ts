@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
 import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 
-
 // 指定座標における電場ベクトルを計算
 // @param pos 観測点の座標
 // @param charge 点電荷の配列
@@ -83,14 +82,10 @@ class ElectricLines3D extends THREE.Object3D {
         super();
         this.charges = charges;
 
-        // todo error
-        this.lineMaterial = new MeshLineMaterial({
-            color: 0xffffff,
-            lineWidth: 1,
-        });
+        this.lineMaterial = new MeshLineMaterial({ color: 0xffffff, lineWidth: 1 });
 
-        this.coneGeometry = new THREE.ConeGeometry(1, 3, 10);
-        this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xaeaece, opacity: 1 });
+        this.coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
+        this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xbbbbbb });
 
         this.createELines();
     }
@@ -107,16 +102,15 @@ class ElectricLines3D extends THREE.Object3D {
 
                 // 電気力線の連続点から線分ジオメトリを生成
                 const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 300);
+                if (points.length < 2) {
+                    // 2点以上ないと線分を生成できない
+                    continue;
+                }
                 const geometry = new MeshLineGeometry();
-                // console.log(points);
                 geometry.setPoints(points);
-                const mesh = new THREE.Mesh(geometry, this.lineMaterial);
-                this.add(mesh);
-                
-                // const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                // const line = new THREE.Line(geometry, this.lineMaterial);
-                // this.add(line);
-                
+                const line = new THREE.Mesh(geometry, this.lineMaterial);
+                this.add(line);
+
 
                 // 電気力線上に一定間隔で矢印を生成
                 const step = points.length / 3;
@@ -153,7 +147,6 @@ class ElectricLines3D extends THREE.Object3D {
         }
         this.children = [];
         this.createELines();
-        // Measure("createELines", () => this.createELines());
     }
 }
 
@@ -197,8 +190,7 @@ class ElectricFieldVectors3D extends THREE.Object3D {
             }
 
             const points = charge.electricFieldVectorBeginPositions();
-            for (const point of points)
-            {
+            for (const point of points) {
                 AddArrow(point.vector.add(charge.position), point.opacity);
             }
 
@@ -209,7 +201,6 @@ class ElectricFieldVectors3D extends THREE.Object3D {
     update() {
         this.children = [];
         this.createEFVectorGeometry();
-        // Measure("createEFVectorGeometry", () => this.createEFVectorGeometry());
     }
 }
 
