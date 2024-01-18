@@ -56,14 +56,6 @@ const ElectricForceLinePoints = (
             }
         }
 
-        // 全快からの変化角が大きすぎる場合は終了
-        if (origin_charge instanceof InfinitySurfaceCharge) {
-            const cos = dirVector.dot(electricFieldVector);
-            if (cos <= Number.EPSILON) {
-                break;
-            }
-        }
-
         origin.add(electricFieldVector);
 
         points.push(origin.clone());

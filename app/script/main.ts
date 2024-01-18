@@ -24,7 +24,11 @@ const start = () => {
 
     // 電荷を作成
     {
-        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 0), new THREE.Euler(Math.PI / 2, 0, 0), -1).attachScene(scene));
+
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, -100), -1).attachScene(scene));
+        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
+        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
     }
 
     // シミュレーション空間
