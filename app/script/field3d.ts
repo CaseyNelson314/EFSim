@@ -51,7 +51,7 @@ const ElectricForceLinePoints = (
             }
 
             // 電荷との距離が一定以下なら終了
-            if (charge.distanceSqFrom(origin) < 0.5) {
+            if (charge.isContact(charge.distanceFrom(origin))) {
                 return points;
             }
         }
@@ -101,7 +101,7 @@ class ElectricLines3D extends THREE.Object3D {
             for (const point of points) {
 
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 300);
+                const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 500);
                 if (points.length < 2) {
                     // 2点以上ないと線分を生成できない
                     continue;
