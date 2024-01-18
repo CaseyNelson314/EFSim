@@ -1,9 +1,14 @@
 import * as THREE from "three";
 import * as EFSim from "./init";
 import { Dragger } from "./dragger";
-import { Charge, LineCharge, PointCharge, SphereSurfaceCharge, SphereVolumeCharge } from "./charge";
 import { Field3D } from "./field3d";
 import { throttle } from 'throttle-debounce';
+import { Charge } from "./charge";
+import { PointCharge } from "./pointCharge";
+import { InfinityLineCharge } from "./infinityLineCharge";
+import { InfinitySurfaceCharge } from "./infinitySurfaceCharge";
+import { SphereSurfaceCharge } from "./sphereSurfaceCharge";
+import { SphereVolumeCharge } from "./sphereVolumeCharge";
 
 const start = () => {
 
@@ -17,19 +22,9 @@ const start = () => {
     // 点電荷たち
     const charge: Charge[] = [];
 
-    // 点電荷を作成
+    // 電荷を作成
     {
-        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
-        // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
-        charge.push(new PointCharge(new THREE.Vector3(0, 50, 0), -10).attachScene(scene));
-
-        charge.push(new LineCharge(new THREE.Vector3(-100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
-        charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
-
-        // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 0.000000011).attachScene(scene));
-        // charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
-
+        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 0), new THREE.Euler(Math.PI / 2, 0, 0), -1).attachScene(scene));
     }
 
     // シミュレーション空間
@@ -59,8 +54,8 @@ const start = () => {
             chargeAmountDom.labels![0]!.style.display = "block";
             chargeAmountDom.value = pointCharge.charge.toFixed(3);
         }
-        else if (charge instanceof LineCharge) {
-            const lineCharge = charge as LineCharge;
+        else if (charge instanceof InfinityLineCharge) {
+            const lineCharge = charge as InfinityLineCharge;
 
             // 線電荷は電荷密度を変更できる
             const lineDensity = document.getElementById("charge_line_density") as HTMLInputElement;
@@ -71,6 +66,14 @@ const start = () => {
             // const lineLength = document.getElementById("charge_length") as HTMLInputElement;
             // lineLength.labels![0]!.style.display = "block";
             // lineLength.value = lineCharge.length.toFixed(3);
+        }
+        else if (charge instanceof InfinitySurfaceCharge) {
+            const planeCharge = charge as InfinitySurfaceCharge;
+
+            // 面電荷は電荷密度を変更できる
+            const surfaceDensity = document.getElementById("charge_surface_density") as HTMLInputElement;
+            surfaceDensity.labels![0]!.style.display = "block";
+            surfaceDensity.value = planeCharge.surfaceDensity.toFixed(3);
         }
         else if (charge instanceof SphereSurfaceCharge) {
             const sphereSurfaceCharge = charge as SphereSurfaceCharge;
@@ -217,7 +220,7 @@ const start = () => {
         {
             document.getElementById("charge_line_density")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
-                if (selected instanceof LineCharge) {
+                if (selected instanceof InfinityLineCharge) {
                     selected.updateLineDensity(Number((e.target as HTMLInputElement).value));
                     field3d.update();
                 }
@@ -225,10 +228,21 @@ const start = () => {
             // todo: 線電荷の長さを変更できるようにする
             // document.getElementById("charge_length")!.addEventListener("input", (e) => {
             //     const selected = dragger.getSelected();
-            //     if (selected instanceof LineCharge)
+            //     if (selected instanceof InfinityLineCharge)
             //         selected.updateLength(Number((e.target as HTMLInputElement).value));
             //     field3d.update();
             // });
+        }
+
+        // 面電荷編集
+        {
+            document.getElementById("charge_surface_density")!.addEventListener("input", (e) => {
+                const selected = dragger.getSelected();
+                if (selected instanceof InfinitySurfaceCharge) {
+                    selected.updateSurfaceDensity(Number((e.target as HTMLInputElement).value));
+                    field3d.update();
+                }
+            });
         }
 
         // 球面電荷編集
@@ -293,7 +307,7 @@ const start = () => {
             });
             // 線電荷
             document.getElementById("add_infinity_line_charge_button")!.addEventListener("click", () => {
-                const newChange = new LineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 100, 1).attachScene(scene);
+                const newChange = new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 1).attachScene(scene);
                 addCharge(newChange);
             });
             // document.getElementById("add_surface_charge_button")!.addEventListener("click", () => {
@@ -303,6 +317,11 @@ const start = () => {
 
             //     field3d.update();
             // });
+            // 面電荷
+            document.getElementById("add_infinity_surface_charge_button")!.addEventListener("click", () => {
+                const newChange = new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1).attachScene(scene);
+                addCharge(newChange);
+            });
             // 球面電荷
             document.getElementById("add_sphere_surface_charge_button")!.addEventListener("click", () => {
                 const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);
@@ -322,6 +341,9 @@ const start = () => {
                     // 再アタッチする
                     if (charge.length > 0) {
                         dragger.attach(charge[0]!);
+                    }
+                    else {
+                        onObjectUnselected();
                     }
                 }
             };

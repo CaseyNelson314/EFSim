@@ -1,0 +1,35 @@
+// 電荷の保存形式をきめているところ
+
+{
+    "settings": {
+        "autoRotate": true,
+        "grid": true,
+        "electricField": true,
+        "lineWidth": 1
+    },
+    "scene": [
+        {
+            "name": "双極子",
+            "pointCharges": [
+                {
+                    "position": [0, 0, 0],
+                    "charge": 1
+                },
+                {
+                    "position": [0, 1, 0],
+                    "charge": -1
+                }
+            ]
+        },
+        {
+            "name": "線電荷",
+            "lineCharges": [
+                {
+                    "position": [0, 0, 0],
+                    "charge": 1,
+                    "direction": [0, 1, 0]
+                }
+            ]
+        }
+    ]
+}
