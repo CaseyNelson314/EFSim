@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
+import { InfinitySurfaceCharge } from './infinitySurfaceCharge';
 import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 
 // 指定座標における電場ベクトルを計算
@@ -36,13 +37,12 @@ const ElectricForceLinePoints = (
     const points = [beginPoint.clone()];
     const origin = points[0]!.clone().add(dirVector);
 
-
     for (let i = 0; i < 5000; ++i) {
 
-        const d_vector = ElectricFieldVector(origin, charges).normalize();
+        const electricFieldVector = ElectricFieldVector(origin, charges).normalize();
 
         if (origin_charge.getChargeType() === ChargeType.Minus)
-            d_vector.multiplyScalar(-1);
+            electricFieldVector.multiplyScalar(-1);
 
         // 点電荷との衝突判定
         for (const charge of charges) {
@@ -55,14 +55,23 @@ const ElectricForceLinePoints = (
                 return points;
             }
         }
-        origin.add(d_vector);
+
+        // 全快からの変化角が大きすぎる場合は終了
+        if (origin_charge instanceof InfinitySurfaceCharge) {
+            const cos = dirVector.dot(electricFieldVector);
+            if (cos <= Number.EPSILON) {
+                break;
+            }
+        }
+
+        origin.add(electricFieldVector);
+
+        points.push(origin.clone());
 
         // 原点からの距離が一定以上なら終了
         if (origin.lengthSq() > simDistance ** 2) {
             break;
         }
-
-        points.push(origin.clone());
     }
 
     return points;
@@ -111,7 +120,10 @@ class ElectricLines3D extends THREE.Object3D {
                 const line = new THREE.Mesh(geometry, this.lineMaterial);
                 this.add(line);
 
-
+                if (points.length < 20) {
+                    // 3点以上ないと矢印を生成できない
+                    continue;
+                }
                 // 電気力線上に一定間隔で矢印を生成
                 const step = points.length / 3;
                 for (let i = step; i + 1 < points.length; i += step) {

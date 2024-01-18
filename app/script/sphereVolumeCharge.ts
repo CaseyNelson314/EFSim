@@ -39,7 +39,7 @@ export class SphereVolumeCharge implements Charge {
         this.volumeDensity = volumeDensity;
     }
 
-    attachScene: (scene: THREE.Scene) => Charge = (scene: THREE.Scene) => {
+    attachScene = (scene: THREE.Scene) => {
         scene.add(this.mesh);
         return this;
     }

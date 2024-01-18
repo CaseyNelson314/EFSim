@@ -39,7 +39,7 @@ export class SphereSurfaceCharge implements Charge {
         this.radius = radius;
     }
 
-    attachScene: (scene: THREE.Scene) => Charge = (scene: THREE.Scene) => {
+    attachScene = (scene: THREE.Scene) => {
         scene.add(this.mesh);
         return this;
     }

@@ -6,6 +6,7 @@ import { throttle } from 'throttle-debounce';
 import { Charge } from "./charge";
 import { PointCharge } from "./pointCharge";
 import { InfinityLineCharge } from "./infinityLineCharge";
+import { InfinitySurfaceCharge } from "./infinitySurfaceCharge";
 import { SphereSurfaceCharge } from "./sphereSurfaceCharge";
 import { SphereVolumeCharge } from "./sphereVolumeCharge";
 
@@ -21,31 +22,9 @@ const start = () => {
     // 点電荷たち
     const charge: Charge[] = [];
 
-    // 点電荷を作成
+    // 電荷を作成
     {
-
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(100,0,100), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(100,0,-100), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(-100,0,100), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(-100,0,-100), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(50,0,0), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(-50,0,0), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(0,0,50), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(0,0,-50), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(0,0,0), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // for (let i = 0; i < 100; i++) {
-        //     charge.push(new PointCharge(new THREE.Vector3(0, i, 0), 1).attachScene(scene));
-        // }
-        //charge.push(new PointCharge(new THREE.Vector3(0, 50, 100), -1).attachScene(scene));
-
-        // charge.push(new InfinityLineCharge(new THREE.Vector3(100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
-
-        // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, -1).attachScene(scene));
-        // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 50, 0), 10, 1).attachScene(scene));
-        // charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
-
+        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 0), new THREE.Euler(Math.PI / 2, 0, 0), -1).attachScene(scene));
     }
 
     // シミュレーション空間
@@ -87,6 +66,14 @@ const start = () => {
             // const lineLength = document.getElementById("charge_length") as HTMLInputElement;
             // lineLength.labels![0]!.style.display = "block";
             // lineLength.value = lineCharge.length.toFixed(3);
+        }
+        else if (charge instanceof InfinitySurfaceCharge) {
+            const planeCharge = charge as InfinitySurfaceCharge;
+
+            // 面電荷は電荷密度を変更できる
+            const surfaceDensity = document.getElementById("charge_surface_density") as HTMLInputElement;
+            surfaceDensity.labels![0]!.style.display = "block";
+            surfaceDensity.value = planeCharge.surfaceDensity.toFixed(3);
         }
         else if (charge instanceof SphereSurfaceCharge) {
             const sphereSurfaceCharge = charge as SphereSurfaceCharge;
@@ -247,6 +234,17 @@ const start = () => {
             // });
         }
 
+        // 面電荷編集
+        {
+            document.getElementById("charge_surface_density")!.addEventListener("input", (e) => {
+                const selected = dragger.getSelected();
+                if (selected instanceof InfinitySurfaceCharge) {
+                    selected.updateSurfaceDensity(Number((e.target as HTMLInputElement).value));
+                    field3d.update();
+                }
+            });
+        }
+
         // 球面電荷編集
         {
             document.getElementById("charge_surface_density")!.addEventListener("input", (e) => {
@@ -319,6 +317,11 @@ const start = () => {
 
             //     field3d.update();
             // });
+            // 面電荷
+            document.getElementById("add_infinity_surface_charge_button")!.addEventListener("click", () => {
+                const newChange = new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1).attachScene(scene);
+                addCharge(newChange);
+            });
             // 球面電荷
             document.getElementById("add_sphere_surface_charge_button")!.addEventListener("click", () => {
                 const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);

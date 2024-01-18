@@ -35,7 +35,7 @@ export class PointCharge implements Charge {
         this.position = this.mesh.position;
     }
 
-    attachScene: (scene: THREE.Scene) => Charge = (scene: THREE.Scene) => {
+    attachScene = (scene: THREE.Scene) => {
         scene.add(this.mesh);
         return this;
     }

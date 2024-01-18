@@ -43,7 +43,3 @@ export interface Charge {
     /// @brief 電荷の正負を取得する
     getChargeType: () => ChargeType;
 };
-
-// 無限平面電荷
-export class InfinityPlaneCharge implements Charge {
-}

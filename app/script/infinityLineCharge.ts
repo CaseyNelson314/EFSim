@@ -32,22 +32,22 @@ export class InfinityLineCharge implements Charge {
     /// @param lineDensity 線電荷の線密度
     constructor(center: THREE.Vector3, rotate: THREE.Euler, lineDensity: number) {
         this.lineDensity = lineDensity;
-        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 50)
-        this.mesh = new THREE.Mesh(this.lineChargeGeometry, this.getMaterialFromChargeType());  
+        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10)
+        this.mesh = new THREE.Mesh(this.lineChargeGeometry, this.getMaterialFromChargeType());
         this.mesh.position.copy(center);
         this.mesh.rotation.copy(rotate);
         this.position = this.mesh.position;
         this.length = length;
     }
 
-    attachScene: (scene: THREE.Scene) => Charge = (scene: THREE.Scene) => {
+    attachScene = (scene: THREE.Scene) => {
         scene.add(this.mesh);
         return this;
     }
 
     updateLineDensity = (lineDensity: number) => {
         this.lineDensity = lineDensity;
-        this.mesh.material = this.getMaterialFromChargeType();  
+        this.mesh.material = this.getMaterialFromChargeType();
     }
 
     /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
@@ -81,7 +81,7 @@ export class InfinityLineCharge implements Charge {
         positionTransformed.applyQuaternion(this.mesh.quaternion.clone().invert());   // 線電荷を逆クオータニオン分回転させるとx=z=0となるので、観測点の座標も同じく回転させる
         positionTransformed.y = 0;                                                    // 線電荷はy軸に沿っているのため、y座標を無視
 
-        return positionTransformed.applyQuaternion(this.mesh.quaternion);             // 線電荷を元に戻す
+        return positionTransformed.applyQuaternion(this.mesh.quaternion);             // 観測点との差分の角度を元に戻す
 
     }
 
@@ -96,10 +96,10 @@ export class InfinityLineCharge implements Charge {
 
         const heightCount = 6;
         const thetaCount = 10;
-        
+
         const beginHeight = this.lineChargeGeometry.parameters.height / 2;
         const step = (this.lineChargeGeometry.parameters.height) / heightCount;
-        
+
         const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
 
         for (let nHeight = 1; nHeight < heightCount; ++nHeight) {
@@ -109,9 +109,9 @@ export class InfinityLineCharge implements Charge {
             // 円周を等分する
             for (let nTheta = 0.5; nTheta < thetaCount; ++nTheta) {
                 const theta = 2 * Math.PI / thetaCount * nTheta;
-                
+
                 const direction = new THREE.Vector3(Math.cos(theta), 0, Math.sin(theta)).applyQuaternion(this.mesh.quaternion);
-                
+
                 result.push({ begin: pos, direction: direction });
             }
 
