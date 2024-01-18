@@ -29,7 +29,7 @@ Clone
 ```sh
 git clone https://github.com/CaseyNelson314/EFSim.git
 cd EFSim
-npm install --save-dev
+npm install
 ```
 
 ### Launch local server

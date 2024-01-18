@@ -11,7 +11,7 @@ export const CreateRenderer = (
 ) => {
 
     const renderer = new THREE.WebGLRenderer({
-        antialias: false,
+        antialias: true,
         alpha: true
     });
 
@@ -32,7 +32,7 @@ export const CreateCamera = (
     const aspect = dom.offsetWidth / dom.offsetHeight;
     const camera = new THREE.PerspectiveCamera(50, aspect);
 
-    camera.position.set(100, 100, 100);
+    camera.position.set(150, 150, 150);
 
     return camera;
 

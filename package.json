@@ -28,6 +28,8 @@
   },
   "type": "module",
   "dependencies": {
+    "@lume/three-meshline": "^4.0.5",
+    "three.meshline": "^1.4.0",
     "throttle-debounce": "^5.0.0"
   }
 }

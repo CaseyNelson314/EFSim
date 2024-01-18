@@ -21,14 +21,14 @@ const start = () => {
     {
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 0), 1).attachScene(scene));
         // charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), -1).attachScene(scene));
-// charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
+        // charge.push(new PointCharge(new THREE.Vector3(0, 100, 0), 1).attachScene(scene));
         charge.push(new PointCharge(new THREE.Vector3(0, 50, 0), -10).attachScene(scene));
 
         charge.push(new LineCharge(new THREE.Vector3(-100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
         charge.push(new LineCharge(new THREE.Vector3(100, 0, 0), new THREE.Euler(0, 0, 0), 200, 1).attachScene(scene));
 
         // charge.push(new SphereSurfaceCharge(new THREE.Vector3(0, 0, 0), 10, 0.000000011).attachScene(scene));
-// charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
+        // charge.push(new SphereVolumeCharge(new THREE.Vector3(0, 0, 0), 1, -0.00000001).attachScene(scene));
 
     }
 
@@ -38,8 +38,8 @@ const start = () => {
 
     const dragger = new Dragger(charge, camera, dom, controls, scene);
 
-    // 電荷が選択中であるときのフォームの更新
-    const ChargeSelectFormUpdate = (charge: Charge) => {
+    // オブジェクトを移動中であるときのフォームの更新
+    const onObjectDragging = (charge: Charge) => {
 
         // 全電荷は座標を変更できる
         (document.getElementById("charge_position_x") as HTMLInputElement).value = charge.position.x.toFixed(3);
@@ -100,18 +100,50 @@ const start = () => {
         }
     };
 
-    // 電荷の選択が解除されたときのイベント
-    const ChargeUnselectFormUpdate = () => {
-        // #detail_editor 内のすべてのlavelを非表示にする
-        const labels = document.getElementById("detail_editor")!.querySelectorAll("label");
-        for (const label of labels) {
-            label.style.display = "none";
-        }
-    };
-
-    ChargeUnselectFormUpdate();
-
     {
+
+        // オブジェクトの選択が解除されたときのイベント
+        const onObjectUnselected = () => {
+
+            // #detail_editor 内のすべてのlavelを非表示にする
+            const labels = document.getElementById("detail_editor")!.querySelectorAll("label");
+            for (const label of labels) {
+                label.style.display = "none";
+            }
+
+            // .parameter_editorの要素を非表示にする
+            const editors = document.querySelectorAll('.parameter_editor');
+            for (const editor of editors) {
+                (editor as HTMLElement).style.display = "none";
+            }
+
+        };
+
+        onObjectUnselected();
+
+        const onObjectSelected = () => {
+            onObjectUnselected();
+
+            const editors = document.querySelectorAll('.parameter_editor');
+            for (const editor of editors) {
+                (editor as HTMLElement).style.display = "block";
+            }
+
+            onObjectDragging(dragger.getSelected()!);
+        }
+
+
+        // 電荷移動時のイベント
+        {
+            dragger.addEventListener('object-change', throttle(50, (object: Charge) => {
+                onObjectDragging(object);
+                field3d.update();
+            }));
+
+            dragger.addEventListener('object-selected', onObjectSelected);
+            dragger.addEventListener('object-unselected', onObjectUnselected);
+        }
+
         // 座標編集
         {
             document.getElementById("position_editor")!.addEventListener("click", () => {
@@ -169,21 +201,6 @@ const start = () => {
             });
         }
 
-        // 電荷移動時のイベント
-        {
-            dragger.addEventListener('object-change', throttle(50, (object: Charge) => {
-                ChargeSelectFormUpdate(object);
-                field3d.update();
-            }));
-
-            dragger.addEventListener('object-selected', () => {
-                ChargeUnselectFormUpdate();
-                ChargeSelectFormUpdate(dragger.getSelected()!);
-            });
-            dragger.addEventListener('object-unselected', () => {
-                ChargeUnselectFormUpdate();
-            });
-        }
 
         // 点電荷編集
         {
@@ -263,8 +280,9 @@ const start = () => {
                 charge.push(newCharge);
                 dragger.attach(newCharge);
 
-                ChargeUnselectFormUpdate();
-                ChargeSelectFormUpdate(newCharge);
+                onObjectUnselected();
+                onObjectDragging(newCharge);
+                onObjectSelected();
 
                 field3d.update();
             }
@@ -328,7 +346,7 @@ const start = () => {
         {
             // デモとして最初の点電荷を選択
             // dragger.attach(charge[0]!);
-            // ChargeSelectFormUpdate(charge[0]!);
+            // onObjectDragging(charge[0]!);
             // PositionFormPositionUpdate(charge[0]!.mesh);
             // FormChargeUpdateEvent(charge[0]!);
         }
