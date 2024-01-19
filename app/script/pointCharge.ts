@@ -52,46 +52,12 @@ export class PointCharge implements Charge {
         const diffVector = this.distanceFrom(position);
 
         if (diffVector.lengthSq() < Number.EPSILON) {
-            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (ゼロ割り防止)
         }
 
-        const rSq3 = diffVector.length() ** 3;    // 点電荷と観測点との距離^3
+        // E=kq/r^2
+        return diffVector.multiplyScalar((kCoulomb * this.charge) / (diffVector.length() ** 3));
 
-        return diffVector.multiplyScalar((kCoulomb * this.charge) / rSq3);
-
-    }
-
-    /// @brief 電界ベクトルの描画開始座標の配列を返す
-    electricFieldVectorBeginPositions = () => {
-        const result: { vector: THREE.Vector3, opacity: number }[] = [];
-
-        const count = 4;
-
-        for (let x = -count; x <= count; x++) {
-            for (let y = -count; y <= count; y++) {
-                for (let z = -count; z <= count; z++) {
-
-                    const length_sq = x ** 2 + y ** 2 + z ** 2;
-                    if (length_sq > count ** 2) {
-                        continue;
-                    }
-
-                    if (x === 0 && y === 0 && z === 0) {
-                        continue;
-                    }
-
-                    const opacity = Math.abs(1 - length_sq / (count ** 2));
-
-                    result.push({
-                        vector: new THREE.Vector3(20 * x, 20 * y, 20 * z),
-                        opacity: opacity
-                    });
-
-                }
-            }
-        }
-
-        return result;
     }
 
     /// @brief 任意の座標における電荷との距離ベクトルを返す
@@ -115,5 +81,8 @@ export class PointCharge implements Charge {
     getChargeType = () => {
         return ChargeToChargeType(this.charge);
     }
+
+    /// @brief 解放
+    dispose = () => {}
 
 }

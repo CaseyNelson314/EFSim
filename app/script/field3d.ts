@@ -1,33 +1,32 @@
 import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
-import { InfinitySurfaceCharge } from './infinitySurfaceCharge';
 import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 
 // 指定座標における電場ベクトルを計算
-// @param pos 観測点の座標
-// @param charge 点電荷の配列
+// @param charge 電荷の配列
+// @param position 観測点の座標
 const ElectricFieldVector = (
-    pos: THREE.Vector3,
-    charges: Charge[]
+    charges: Charge[],
+    position: THREE.Vector3
 ) => {
 
     let electricFieldVector = new THREE.Vector3();
 
     for (const charge of charges) {
-        electricFieldVector.add(charge.electricFieldVector(pos));
+        electricFieldVector.add(charge.electricFieldVector(position));
     }
 
     return electricFieldVector;
 
 };
 
-// 電気力線の連続点を生成
-// @param origin_charge 始点 (Charge)
-// @param charge 点電荷の配列
-// @param dirVector 方向ベクトル
-// @param simDistance シミュレーション距離 (原点からの距離)
+/// 電気力線の連続点を生成
+/// @param originCharge 始点
+/// @param charge 電荷の配列
+/// @param dirVector 方向ベクトル
+/// @param simDistance シミュレーション距離 (原点からの距離)
 const ElectricForceLinePoints = (
-    origin_charge: Charge,
+    originCharge: Charge,
     charges: Charge[],
     beginPoint: THREE.Vector3,
     dirVector: THREE.Vector3,
@@ -37,30 +36,46 @@ const ElectricForceLinePoints = (
     const points = [beginPoint.clone()];
     const origin = points[0]!.clone().add(dirVector);
 
-    for (let i = 0; i < 5000; ++i) {
+    for (let i = 0; i < 2000; ++i) {
 
-        const electricFieldVector = ElectricFieldVector(origin, charges).normalize();
+        // 任意の座標における電場ベクトルを計算
+        const electricFieldVector = ElectricFieldVector(charges, origin);
 
-        if (origin_charge.getChargeType() === ChargeType.Minus)
+        // 負電荷の場合も正電荷と同様の力線を描画するため、電場ベクトルを反転させる
+        if (originCharge.getChargeType() === ChargeType.Minus) {
             electricFieldVector.multiplyScalar(-1);
+        }
 
-        // 点電荷との衝突判定
+        // 電場ベクトルの方向に長さ1だけ移動 (これを繰り返すことで電気力線を生成)
+        origin.add(electricFieldVector.normalize());
+        points.push(origin.clone());
+
+        // 力線が他の電荷と接触したら終了
         for (const charge of charges) {
-            if (charge === origin_charge) {
+
+            // 自分自身との衝突判定は行わない
+            if (charge === originCharge) {
                 continue;
             }
 
-            // 電荷との距離が一定以下なら終了
+            // 電荷同士の正負が同じなら衝突判定を行わない
+            if (originCharge.getChargeType() === charge.getChargeType()) {
+                continue;
+            }
+
+            // 中性電荷との衝突判定は行わない
+            if (charge.getChargeType() === ChargeType.Neutral) {
+                continue;
+            }
+
+            // 他電荷との衝突判定
             if (charge.isContact(charge.distanceFrom(origin))) {
                 return points;
             }
+
         }
 
-        origin.add(electricFieldVector);
-
-        points.push(origin.clone());
-
-        // 原点からの距離が一定以上なら終了
+        // 原点からの距離がシミュレーション距離を超えたら終了
         if (origin.lengthSq() > simDistance ** 2) {
             break;
         }
@@ -92,9 +107,8 @@ class ElectricLines3D extends THREE.Object3D {
     }
 
     createELines() {
-        // const dirVector = new THREE.Vector3();
-
         for (const charge of this.charges) {
+
             if (charge.getChargeType() === ChargeType.Neutral) continue;
 
             const points = charge.electricForceLinesDirection();
@@ -145,66 +159,9 @@ class ElectricLines3D extends THREE.Object3D {
             if (child instanceof THREE.Mesh) {
                 child.geometry.dispose();
             }
-            if (child instanceof THREE.Mesh) {
-                child.geometry.dispose();
-            }
         }
         this.children = [];
         this.createELines();
-    }
-}
-
-// 電界ベクトル
-class ElectricFieldVectors3D extends THREE.Object3D {
-
-    private charges: Charge[];
-    private coneGeometry: THREE.ConeGeometry;
-
-    constructor(charges: Charge[]) {
-        super();
-        this.charges = charges;
-        this.coneGeometry = new THREE.ConeGeometry(1, 5, 10);
-        this.createEFVectorGeometry();
-    }
-
-    createEFVectorGeometry = () => {
-
-        const AddArrow = (
-            position: THREE.Vector3,
-            opacity: number
-        ) => {
-
-            // 遠いほど矢印の色が薄くなる
-            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: opacity });
-            const cone = new THREE.Mesh(this.coneGeometry, material);
-
-            cone.position.copy(position);
-
-            const ef_vector = ElectricFieldVector(position, this.charges);
-            cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), ef_vector.normalize());
-
-            this.add(cone);
-
-        }
-
-        for (const charge of this.charges) {
-
-            if (charge.getChargeType() === ChargeType.Neutral) {
-                continue;
-            }
-
-            const points = charge.electricFieldVectorBeginPositions();
-            for (const point of points) {
-                AddArrow(point.vector.add(charge.position), point.opacity);
-            }
-
-        }
-
-    }
-
-    update() {
-        this.children = [];
-        this.createEFVectorGeometry();
     }
 }
 
@@ -213,23 +170,18 @@ export class Field3D extends THREE.Object3D {
 
     private charges: Charge[];
     private electric_lines_3d: ElectricLines3D | null;
-    private electric_field_vectors_3d: ElectricFieldVectors3D | null;
 
     constructor(charges: Charge[]) {
         super();
 
         this.charges = charges;
         this.electric_lines_3d = null;
-        this.electric_field_vectors_3d = null;
     }
 
     /// フィールドの更新
     update = () => {
         if (this.children.find((child) => child === this.electric_lines_3d) != null)
             this.electric_lines_3d?.update();
-
-        if (this.children.find((child) => child === this.electric_field_vectors_3d) != null)
-            this.electric_field_vectors_3d?.update();
     }
 
     /// 電気力線の表示切替
@@ -243,20 +195,6 @@ export class Field3D extends THREE.Object3D {
         }
         else {
             this.remove(this.electric_lines_3d as ElectricLines3D);
-        }
-    };
-
-    /// 電界ベクトルの表示切替
-    enableElectricFieldVectors = (enable: boolean) => {
-        if (enable) {
-            if (this.electric_field_vectors_3d == null)
-                this.electric_field_vectors_3d = new ElectricFieldVectors3D(this.charges);
-            else
-                this.electric_field_vectors_3d.update();
-            this.add(this.electric_field_vectors_3d);
-        }
-        else {
-            this.remove(this.electric_field_vectors_3d as ElectricFieldVectors3D);
         }
     };
 }

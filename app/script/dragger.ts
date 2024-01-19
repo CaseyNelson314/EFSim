@@ -124,6 +124,7 @@ export class Dragger {
         if (this.selected !== null) {
             this.transControls.detach();
             this.scene.remove(this.selected.mesh);
+            this.selected.dispose();
             this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
             this.selected = null;
         }

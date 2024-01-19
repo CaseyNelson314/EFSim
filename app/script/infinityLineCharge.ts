@@ -32,7 +32,7 @@ export class InfinityLineCharge implements Charge {
     /// @param lineDensity 線電荷の線密度
     constructor(center: THREE.Vector3, rotate: THREE.Euler, lineDensity: number) {
         this.lineDensity = lineDensity;
-        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10)
+        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10);
         this.mesh = new THREE.Mesh(this.lineChargeGeometry, this.getMaterialFromChargeType());
         this.mesh.position.copy(center);
         this.mesh.rotation.copy(rotate);
@@ -61,14 +61,6 @@ export class InfinityLineCharge implements Charge {
         }
 
         return distance.multiplyScalar((this.lineDensity) / (2 * Math.PI * permittivity * distance.lengthSq()));
-
-    }
-
-    /// @brief 電界ベクトルの描画開始座標の配列を返す
-    electricFieldVectorBeginPositions = () => {
-
-        // TODO
-        return new Array<{ vector: THREE.Vector3, opacity: number }>();
 
     }
 
@@ -124,6 +116,11 @@ export class InfinityLineCharge implements Charge {
     /// @brief 電荷の正負を取得する
     getChargeType = () => {
         return ChargeToChargeType(this.lineDensity);
+    }
+    
+    /// @brief 解放
+    dispose = () => {
+        this.lineChargeGeometry.dispose();
     }
 
 }

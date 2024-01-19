@@ -26,8 +26,8 @@ const start = () => {
     {
 
         charge.push(new PointCharge(new THREE.Vector3(0, 0, -100), -1).attachScene(scene));
-        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1).attachScene(scene));
+        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
+        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1).attachScene(scene));
         charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
     }
 
@@ -142,7 +142,7 @@ const start = () => {
 
         // 電荷移動時のイベント
         {
-            dragger.addEventListener('object-change', throttle(50, (object: Charge) => {
+            dragger.addEventListener('object-change', throttle(100, (object: Charge) => {
                 onObjectDragging(object);
                 field3d.update();
             }));
@@ -414,20 +414,14 @@ const start = () => {
         });
     }
 
-    // 電界ベクトル 表示/非表示
-    {
-        const checkbox = document.getElementById("checkbox_electric_field_vectors") as HTMLInputElement;
-        field3d.enableElectricFieldVectors(checkbox.checked); // 初期値
-        checkbox.addEventListener("change", (e) => {
-            field3d.enableElectricFieldVectors((e.target as HTMLInputElement).checked);
-        });
-    }
     const main = () => {
 
         requestAnimationFrame(main);
 
         renderer.render(scene, camera);
         controls.update();
+
+        console.log(renderer.info.memory)
 
     };
 

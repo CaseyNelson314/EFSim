@@ -80,39 +80,6 @@ export class SphereSurfaceCharge implements Charge {
 
     }
 
-    /// @brief 電界ベクトルの描画開始座標の配列を返す
-    electricFieldVectorBeginPositions = () => {
-        const result: { vector: THREE.Vector3, opacity: number }[] = [];
-
-        const count = 4;
-
-        for (let x = -count; x <= count; x++) {
-            for (let y = -count; y <= count; y++) {
-                for (let z = -count; z <= count; z++) {
-
-                    const length_sq = x ** 2 + y ** 2 + z ** 2;
-                    if (length_sq > count ** 2) {
-                        continue;
-                    }
-
-                    if (x === 0 && y === 0 && z === 0) {
-                        continue;
-                    }
-
-                    const opacity = Math.abs(1 - length_sq / (count ** 2));
-
-                    result.push({
-                        vector: new THREE.Vector3(20 * x, 20 * y, 20 * z),
-                        opacity: opacity
-                    });
-
-                }
-            }
-        }
-
-        return result;
-    }
-
     /// @brief 任意の座標における電荷との距離ベクトルを返す
     /// @param position 観測点の座標
     distanceFrom = (position: THREE.Vector3) => {
@@ -138,6 +105,11 @@ export class SphereSurfaceCharge implements Charge {
     /// @brief 電荷の正負を取得する
     getChargeType = () => {
         return ChargeToChargeType(this.arealDensity);
+    }
+
+    /// @brief 解放
+    dispose = () => {
+        this.sphereSurfaceChargeGeometry.dispose();
     }
 
 }

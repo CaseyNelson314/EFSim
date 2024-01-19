@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Charge, ChargeToChargeType, ChargeType } from "./charge";
+import { Charge, ChargeToChargeType } from "./charge";
 import { permittivity } from "./constants";
 
 // 無限平面電荷
@@ -49,10 +49,6 @@ export class InfinitySurfaceCharge implements Charge {
         }
 
         return distance.multiplyScalar(this.surfaceDensity / (2 * permittivity * distance.length()));
-    }
-
-    electricFieldVectorBeginPositions = () => {
-        return [];
     }
 
     distanceFrom = (position: THREE.Vector3) => {
@@ -105,5 +101,10 @@ export class InfinitySurfaceCharge implements Charge {
 
     getChargeType = () => {
         return ChargeToChargeType(this.surfaceDensity);
+    }
+
+    /// @brief 解放
+    dispose = () => {
+        this.surfaceChargeGeometry.dispose();
     }
 }
