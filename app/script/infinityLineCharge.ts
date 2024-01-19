@@ -5,7 +5,7 @@ import { permittivity } from "./constants";
 
 
 // 線電荷
-export class InfinityLineCharge implements Charge {
+export class InfinityLineCharge extends Charge {
 
     private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
@@ -21,8 +21,7 @@ export class InfinityLineCharge implements Charge {
     }
 
     private lineChargeGeometry;
-    readonly position: THREE.Vector3;
-    mesh: THREE.Mesh;
+    private mesh: THREE.Mesh;
     lineDensity: number;
     length: number;
 
@@ -31,18 +30,13 @@ export class InfinityLineCharge implements Charge {
     /// @param end 線電荷の終点
     /// @param lineDensity 線電荷の線密度
     constructor(center: THREE.Vector3, rotate: THREE.Euler, lineDensity: number) {
+        super();
         this.lineDensity = lineDensity;
         this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10);
         this.mesh = new THREE.Mesh(this.lineChargeGeometry, this.getMaterialFromChargeType());
         this.mesh.position.copy(center);
         this.mesh.rotation.copy(rotate);
-        this.position = this.mesh.position;
         this.length = length;
-    }
-
-    attachScene = (scene: THREE.Scene) => {
-        scene.add(this.mesh);
-        return this;
     }
 
     updateLineDensity = (lineDensity: number) => {
@@ -52,7 +46,7 @@ export class InfinityLineCharge implements Charge {
 
     /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
     /// @param position 観測点の座標
-    electricFieldVector = (position: THREE.Vector3) => {
+    override electricFieldVector = (position: THREE.Vector3) => {
 
         const distance = this.distanceFrom(position);
 
@@ -66,7 +60,7 @@ export class InfinityLineCharge implements Charge {
 
     /// @brief 任意の座標における電荷との距離ベクトルを返す
     /// @param position 観測点の座標
-    distanceFrom = (position: THREE.Vector3) => {
+    override distanceFrom = (position: THREE.Vector3) => {
 
         // 計算を行いやすいよう、線電荷がx=z=0に位置するように観測点の座標を変換する
         const positionTransformed = position.clone().sub(this.position);              // 線電荷の中心を原点に移動
@@ -79,12 +73,12 @@ export class InfinityLineCharge implements Charge {
 
     /// @brief 距離ベクトルを基に接触判定を行う
     /// @param distanceFrom 距離ベクトル
-    isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (distanceFrom: THREE.Vector3) => {
         return distanceFrom.lengthSq() < 1;
     }
 
     /// @brief 電気力線の方向ベクトルの配列を返す
-    electricForceLinesDirection = () => {
+    override electricForceLinesDirection = () => {
 
         const heightCount = 6;
         const thetaCount = 10;
@@ -114,12 +108,12 @@ export class InfinityLineCharge implements Charge {
     }
 
     /// @brief 電荷の正負を取得する
-    getChargeType = () => {
+    override getChargeType = () => {
         return ChargeToChargeType(this.lineDensity);
     }
-    
+
     /// @brief 解放
-    dispose = () => {
+    override dispose = () => {
         this.lineChargeGeometry.dispose();
     }
 

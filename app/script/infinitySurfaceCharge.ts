@@ -3,7 +3,7 @@ import { Charge, ChargeToChargeType } from "./charge";
 import { permittivity } from "./constants";
 
 // 無限平面電荷
-export class InfinitySurfaceCharge implements Charge {
+export class InfinitySurfaceCharge extends Charge {
 
     private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
     private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
@@ -19,29 +19,23 @@ export class InfinitySurfaceCharge implements Charge {
     }
 
     private surfaceChargeGeometry = new THREE.PlaneGeometry(200, 200);
-    position: THREE.Vector3;
     mesh: THREE.Mesh;
     surfaceDensity: number;
 
     constructor(position: THREE.Vector3, rotate: THREE.Euler, surfaceDensity: number) {
+        super();
         this.surfaceDensity = surfaceDensity;
         this.mesh = new THREE.Mesh(this.surfaceChargeGeometry, this.getMaterialFromChargeType());
         this.mesh.position.copy(position);
         this.mesh.rotation.copy(rotate);
-        this.position = this.mesh.position;
     }
-
-    attachScene = (scene: THREE.Scene) => {
-        scene.add(this.mesh);
-        return this;
-    }
-
+    
     updateSurfaceDensity = (surfaceDensity: number) => {
         this.surfaceDensity = surfaceDensity;
         this.mesh.material = this.getMaterialFromChargeType();
     }
 
-    electricFieldVector = (position: THREE.Vector3) => {
+    override electricFieldVector = (position: THREE.Vector3) => {
         const distance = this.distanceFrom(position);
 
         if (distance.lengthSq() < Number.EPSILON) {
@@ -51,7 +45,7 @@ export class InfinitySurfaceCharge implements Charge {
         return distance.multiplyScalar(this.surfaceDensity / (2 * permittivity * distance.length()));
     }
 
-    distanceFrom = (position: THREE.Vector3) => {
+    override distanceFrom = (position: THREE.Vector3) => {
 
         // 計算を行いやすいよう、面電荷がz=0に位置するように観測点の座標を変換する
         const positionTransformed = position.clone().sub(this.position);              // 面電荷の中心を原点に移動
@@ -63,11 +57,11 @@ export class InfinitySurfaceCharge implements Charge {
 
     }
 
-    isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (distanceFrom: THREE.Vector3) => {
         return distanceFrom.lengthSq() < 1;
     }
 
-    electricForceLinesDirection = () => {
+    override electricForceLinesDirection = () => {
         
         const widthCount = 6;
         const heightCount = 6;
@@ -99,12 +93,12 @@ export class InfinitySurfaceCharge implements Charge {
         return result;
     }
 
-    getChargeType = () => {
+    override getChargeType = () => {
         return ChargeToChargeType(this.surfaceDensity);
     }
 
     /// @brief 解放
-    dispose = () => {
+    override dispose = () => {
         this.surfaceChargeGeometry.dispose();
     }
 }

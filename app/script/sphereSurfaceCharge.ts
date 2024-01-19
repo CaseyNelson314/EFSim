@@ -4,10 +4,9 @@ import { permittivity } from "./constants";
 import { GSS } from "./gss";
 
 // 球面上に電荷が分布している電荷
-export class SphereSurfaceCharge implements Charge {
+export class SphereSurfaceCharge extends Charge {
 
     private sphereSurfaceChargeGeometry;
-    readonly position: THREE.Vector3;
     mesh: THREE.Mesh;
     radius: number;
     arealDensity: number;
@@ -31,17 +30,12 @@ export class SphereSurfaceCharge implements Charge {
     /// @param radius 球の半径
     /// @param arealDensity 面電荷密度
     constructor(position: THREE.Vector3, radius: number, arealDensity: number) {
+        super();
         this.arealDensity = arealDensity;
         this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
         this.mesh = new THREE.Mesh(this.sphereSurfaceChargeGeometry, this.getMaterialFromChargeType(arealDensity));
-        this.mesh.position.copy(position);
-        this.position = this.mesh.position;
+        this.position.copy(position);
         this.radius = radius;
-    }
-
-    attachScene = (scene: THREE.Scene) => {
-        scene.add(this.mesh);
-        return this;
     }
 
     updateArealDensity = (arealDensity: number) => {
@@ -58,7 +52,7 @@ export class SphereSurfaceCharge implements Charge {
 
     /// @brief 指定座標における、この電荷からの電界ベクトルを返す
     /// @param position 観測点の座標
-    electricFieldVector = (position: THREE.Vector3) => {
+    override electricFieldVector = (position: THREE.Vector3) => {
 
         const diffVector = this.distanceFrom(position);
         const diffLengthSq = diffVector.lengthSq();
@@ -82,18 +76,18 @@ export class SphereSurfaceCharge implements Charge {
 
     /// @brief 任意の座標における電荷との距離ベクトルを返す
     /// @param position 観測点の座標
-    distanceFrom = (position: THREE.Vector3) => {
+    override distanceFrom = (position: THREE.Vector3) => {
         return position.clone().sub(this.position);
     }
 
     /// @brief 距離ベクトルを基に接触判定を行う
     /// @param distanceFrom 距離ベクトル
-    isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (distanceFrom: THREE.Vector3) => {
         return distanceFrom.lengthSq() < this.radius ** 2;
     }
 
     /// @brief 電気力線の方向ベクトルの配列を返す
-    electricForceLinesDirection = () => {
+    override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => {
             return {
                 begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),  // 始点は球の外周上
@@ -103,12 +97,12 @@ export class SphereSurfaceCharge implements Charge {
     }
 
     /// @brief 電荷の正負を取得する
-    getChargeType = () => {
+    override getChargeType = () => {
         return ChargeToChargeType(this.arealDensity);
     }
 
     /// @brief 解放
-    dispose = () => {
+    override dispose = () => {
         this.sphereSurfaceChargeGeometry.dispose();
     }
 

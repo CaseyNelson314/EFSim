@@ -58,26 +58,25 @@ export class Dragger {
             // 現在のカメラの位置からクリックした位置に向かう光線を作成
             this.ray.setFromCamera(this.pointer, this.camera);
 
-            // 光線との交差判定
-            const meshes = this.pointCharges.map((point_charge) => { return point_charge.mesh });
-            const intersects = this.ray.intersectObjects(meshes, false);
+            // 光線との交差判定 (childrenを再帰的に探索する)
+            const meshes = this.pointCharges;
+            const intersects = this.ray.intersectObjects(meshes, true);
 
             if (intersects.length > 0) {
 
                 const object = intersects[0]!.object;
 
+                // オブジェクトを選択
+                this.selected = object as Charge;
+
                 if (object !== this.transControls.object) {
                     this.transControls.attach(object);
                 }
-
-                const selected = this.pointCharges.find((point_charge) => { return point_charge.mesh === object });
-
-                this.selected = selected? selected : null;
-
+                
                 // オブジェクトが選択されたことを通知
                 for (let listener of this.listeners) {
                     if (listener.type === 'object-selected') {
-                        listener.listener(selected);
+                        listener.listener(object as Charge);
                     }
                 }
             }
@@ -116,14 +115,14 @@ export class Dragger {
     }
 
     attach = (object: Charge) => {
-        this.transControls.attach(object.mesh);
+        this.transControls.attach(object);
         this.selected = object;
     }
 
     removeSelected = () => {
         if (this.selected !== null) {
             this.transControls.detach();
-            this.scene.remove(this.selected.mesh);
+            this.scene.remove(this.selected);
             this.selected.dispose();
             this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
             this.selected = null;
@@ -139,7 +138,7 @@ export class Dragger {
         this.listeners.push({ type: type, listener: listener });
 
         if (type === "object-change")
-            this.transControls.addEventListener("objectChange", (e) => {
+            this.transControls.addEventListener("objectChange", () => {
                 listener(this.selected);
             });
     }

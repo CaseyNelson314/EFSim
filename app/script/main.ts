@@ -25,10 +25,14 @@ const start = () => {
     // 電荷を作成
     {
 
-        charge.push(new PointCharge(new THREE.Vector3(0, 0, -100), -1).attachScene(scene));
-        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1).attachScene(scene));
-        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1).attachScene(scene));
-        charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), 1).attachScene(scene));
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, -100), -1));
+        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1));
+        // charge.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1));
+        charge.push(new PointCharge(new THREE.Vector3(0, 0, 100), 1));
+
+        for (const c of charge) {
+            scene.add(c);
+        }
     }
 
     // シミュレーション空間
@@ -46,9 +50,9 @@ const start = () => {
         (document.getElementById("charge_position_z") as HTMLInputElement).value = charge.position.z.toFixed(3);
 
         // 全電荷は座標を回転できる
-        (document.getElementById("charge_rotate_x") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.x).toFixed(3);
-        (document.getElementById("charge_rotate_y") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.y).toFixed(3);
-        (document.getElementById("charge_rotate_z") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.mesh.rotation.z).toFixed(3);
+        (document.getElementById("charge_rotate_x") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.rotation.x).toFixed(3);
+        (document.getElementById("charge_rotate_y") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.rotation.y).toFixed(3);
+        (document.getElementById("charge_rotate_z") as HTMLInputElement).value = THREE.MathUtils.radToDeg(charge.rotation.z).toFixed(3);
 
         if (charge instanceof PointCharge) {
             const pointCharge = charge as PointCharge;
@@ -112,7 +116,7 @@ const start = () => {
         // オブジェクトの選択が解除されたときのイベント
         const onObjectUnselected = () => {
 
-            // #detail_editor 内のすべてのlavelを非表示にする
+            // #detail_editor 内のすべてのlabelを非表示にする
             const labels = document.getElementById("detail_editor")!.querySelectorAll("label");
             for (const label of labels) {
                 label.style.display = "none";
@@ -188,21 +192,21 @@ const start = () => {
             document.getElementById("charge_rotate_x")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
                 if (selected) {
-                    selected.mesh.rotation.x = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
+                    selected.rotation.x = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
                     field3d.update();
                 }
             });
             document.getElementById("charge_rotate_y")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
                 if (selected) {
-                    selected.mesh.rotation.y = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
+                    selected.rotation.y = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
                     field3d.update();
                 }
             });
             document.getElementById("charge_rotate_z")!.addEventListener("input", (e) => {
                 const selected = dragger.getSelected();
                 if (selected) {
-                    selected.mesh.rotation.z = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
+                    selected.rotation.z = THREE.MathUtils.degToRad(Number((e.target as HTMLInputElement).value))
                     field3d.update();
                 }
             });
@@ -295,6 +299,7 @@ const start = () => {
         // 追加削除ボタン
         {
             const addCharge = (newCharge: Charge) => {
+                scene.add(newCharge);
                 charge.push(newCharge);
                 dragger.attach(newCharge);
 
@@ -306,12 +311,12 @@ const start = () => {
             }
             // 点電荷
             document.getElementById("add_point_charge_button")!.addEventListener("click", () => {
-                const newChange = new PointCharge(new THREE.Vector3(), 1).attachScene(scene);
+                const newChange = new PointCharge(new THREE.Vector3(), 1);
                 addCharge(newChange);
             });
             // 線電荷
             document.getElementById("add_infinity_line_charge_button")!.addEventListener("click", () => {
-                const newChange = new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 1).attachScene(scene);
+                const newChange = new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 1);
                 addCharge(newChange);
             });
             // document.getElementById("add_surface_charge_button")!.addEventListener("click", () => {
@@ -323,17 +328,17 @@ const start = () => {
             // });
             // 面電荷
             document.getElementById("add_infinity_surface_charge_button")!.addEventListener("click", () => {
-                const newChange = new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1).attachScene(scene);
+                const newChange = new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1);
                 addCharge(newChange);
             });
             // 球面電荷
             document.getElementById("add_sphere_surface_charge_button")!.addEventListener("click", () => {
-                const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);
+                const newChange = new SphereSurfaceCharge(new THREE.Vector3(), 5, 0.001);
                 addCharge(newChange);
             });
             // 球体電荷
             document.getElementById("add_sphere_volume_charge_button")!.addEventListener("click", () => {
-                const newChange = new SphereVolumeCharge(new THREE.Vector3(), 5, 0.001).attachScene(scene);
+                const newChange = new SphereVolumeCharge(new THREE.Vector3(), 5, 0.001);
                 addCharge(newChange);
             });
 
@@ -421,7 +426,7 @@ const start = () => {
         renderer.render(scene, camera);
         controls.update();
 
-        console.log(renderer.info.memory)
+        // console.log(renderer.info.memory)
 
     };
 
