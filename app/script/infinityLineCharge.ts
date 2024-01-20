@@ -1,58 +1,99 @@
-import * as THREE from "three";
-import { Charge, ChargeToChargeType } from "./charge";
-import { permittivity } from "./constants";
+import * as THREE from 'three';
+import { Charge, ChargeToChargeType } from './charge';
+import { permittivity } from './constants';
 
 
+/**
+ * 無限線電荷
+ */
+export class InfinityLineCharge extends Charge {
 
-// 線電荷
-export class InfinityLineCharge implements Charge {
 
-    private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    private static neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    private lineChargeGeometry: THREE.CylinderGeometry;
+    private mesh: THREE.Mesh;
+    private lineDensity: number;
+    private length: number;
 
-    private getMaterialFromChargeType = () => {
-        if (this.lineDensity > 0)
-            return InfinityLineCharge.plusMaterial;
-        else if (this.lineDensity < 0)
-            return InfinityLineCharge.minusMaterial;
-        else
-            return InfinityLineCharge.neutralMaterial;
-    }
 
-    private lineChargeGeometry;
-    readonly position: THREE.Vector3;
-    mesh: THREE.Mesh;
-    lineDensity: number;
-    length: number;
-
-    /// @brief 線電荷を構築する
-    /// @param begin 線電荷の始点
-    /// @param end 線電荷の終点
-    /// @param lineDensity 線電荷の線密度
+    /**
+     * 線電荷を構築する
+     * @param center 中心座標
+     * @param rotate 回転
+     * @param lineDensity 線密度
+     */
     constructor(center: THREE.Vector3, rotate: THREE.Euler, lineDensity: number) {
+        super();
         this.lineDensity = lineDensity;
-        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10)
-        this.mesh = new THREE.Mesh(this.lineChargeGeometry, this.getMaterialFromChargeType());
-        this.mesh.position.copy(center);
-        this.mesh.rotation.copy(rotate);
-        this.position = this.mesh.position;
+        this.lineChargeGeometry = new THREE.CylinderGeometry(1, 1, 400, 10);
+        this.mesh = new THREE.Mesh(this.lineChargeGeometry, InfinityLineCharge.getMaterial(this.lineDensity));
+        this.position.copy(center);
+        this.rotation.copy(rotate);
+        this.add(this.mesh);
         this.length = length;
     }
 
-    attachScene = (scene: THREE.Scene) => {
-        scene.add(this.mesh);
-        return this;
-    }
 
+    /**
+     * 線電荷の長さを更新する
+     * @param lineDensity 線電荷の線密度
+     */
     updateLineDensity = (lineDensity: number) => {
         this.lineDensity = lineDensity;
-        this.mesh.material = this.getMaterialFromChargeType();
+        this.mesh.material = InfinityLineCharge.getMaterial(this.lineDensity);
     }
 
-    /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
-    /// @param position 観測点の座標
-    electricFieldVector = (position: THREE.Vector3) => {
+
+    /**
+     * 線電荷の長さを取得する
+     * @returns 線電荷の長さ
+     */
+    getLineDensity = () => {
+        return this.lineDensity;
+    }
+
+
+    /**
+     * 電荷の正負を取得する
+     * @returns 電荷の正負
+     */
+    override getChargeType = () => {
+        return ChargeToChargeType(this.lineDensity);
+    }
+
+
+    /**
+     * 任意の座標における電荷との距離ベクトルを取得する
+     * @param position 任意の座標
+     * @returns 電荷との距離ベクトル
+     */
+    override distanceFrom = (position: THREE.Vector3) => {
+
+        // 計算を行いやすいよう、線電荷がx=z=0に位置するように観測点の座標を変換する
+        const positionTransformed = position.clone().sub(this.position);              // 線電荷の中心を原点に移動
+        positionTransformed.applyQuaternion(this.mesh.quaternion.clone().invert());   // 線電荷を逆クオータニオン分回転させるとx=z=0となるので、観測点の座標も同じく回転させる
+        positionTransformed.y = 0;                                                    // 線電荷はy軸に沿っているのため、y座標を無視
+
+        return positionTransformed.applyQuaternion(this.mesh.quaternion);             // 観測点との差分の角度を元に戻す
+
+    }
+
+
+    /**
+     * 距離ベクトルを基に接触判定を行う
+     * @param distanceFrom 電荷との距離ベクトル
+     * @returns 接触しているかどうか
+     */
+    override isContact = (distanceFrom: THREE.Vector3) => {
+        return distanceFrom.lengthSq() < 1;
+    }
+
+
+    /**
+     * 任意の座標における、この電荷からの電界ベクトルを返す
+     * @param position 任意の座標
+     * @returns 電界ベクトル
+     */
+    override electricFieldVector = (position: THREE.Vector3) => {
 
         const distance = this.distanceFrom(position);
 
@@ -64,35 +105,12 @@ export class InfinityLineCharge implements Charge {
 
     }
 
-    /// @brief 電界ベクトルの描画開始座標の配列を返す
-    electricFieldVectorBeginPositions = () => {
 
-        // TODO
-        return new Array<{ vector: THREE.Vector3, opacity: number }>();
-
-    }
-
-    /// @brief 任意の座標における電荷との距離ベクトルを返す
-    /// @param position 観測点の座標
-    distanceFrom = (position: THREE.Vector3) => {
-
-        // 計算を行いやすいよう、線電荷がx=z=0に位置するように観測点の座標を変換する
-        const positionTransformed = position.clone().sub(this.position);              // 線電荷の中心を原点に移動
-        positionTransformed.applyQuaternion(this.mesh.quaternion.clone().invert());   // 線電荷を逆クオータニオン分回転させるとx=z=0となるので、観測点の座標も同じく回転させる
-        positionTransformed.y = 0;                                                    // 線電荷はy軸に沿っているのため、y座標を無視
-
-        return positionTransformed.applyQuaternion(this.mesh.quaternion);             // 観測点との差分の角度を元に戻す
-
-    }
-
-    /// @brief 距離ベクトルを基に接触判定を行う
-    /// @param distanceFrom 距離ベクトル
-    isContact = (distanceFrom: THREE.Vector3) => {
-        return distanceFrom.lengthSq() < 1;
-    }
-
-    /// @brief 電気力線の方向ベクトルの配列を返す
-    electricForceLinesDirection = () => {
+    /**
+     * 電気力線の始点、方向ベクトルの配列を返す
+     * @returns 電気力線の始点、方向ベクトルの配列
+     */
+    override electricForceLinesDirection = () => {
 
         const heightCount = 6;
         const thetaCount = 10;
@@ -102,6 +120,7 @@ export class InfinityLineCharge implements Charge {
 
         const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
 
+        // 高さを等分する
         for (let nHeight = 1; nHeight < heightCount; ++nHeight) {
 
             const pos = new THREE.Vector3(0, beginHeight - step * nHeight, 0).applyQuaternion(this.mesh.quaternion).add(this.position);
@@ -121,9 +140,33 @@ export class InfinityLineCharge implements Charge {
 
     }
 
-    /// @brief 電荷の正負を取得する
-    getChargeType = () => {
-        return ChargeToChargeType(this.lineDensity);
+
+    /**
+     * 解放
+     * @note ジオメトリやマテリアルの破棄を行う
+     */
+    override dispose = () => {
+        this.lineChargeGeometry.dispose();
+    }
+
+
+    private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    private static neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+
+
+    /**
+     * 線電荷のマテリアルを取得する
+     * @param lineDensity 線電荷の線密度
+     * @returns マテリアル
+     */
+    private static getMaterial = (lineDensity: number) => {
+        if (lineDensity > 0)
+            return InfinityLineCharge.plusMaterial;
+        else if (lineDensity < 0)
+            return InfinityLineCharge.minusMaterial;
+        else
+            return InfinityLineCharge.neutralMaterial;
     }
 
 }
