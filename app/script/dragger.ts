@@ -58,26 +58,23 @@ export class Dragger {
             // 現在のカメラの位置からクリックした位置に向かう光線を作成
             this.ray.setFromCamera(this.pointer, this.camera);
 
-            for (const charge of this.pointCharges) {
-                
-                // 光線との交差判定 (childrenを再帰的に探索する)
-                const meshes = charge.children;
-                const intersects = this.ray.intersectObjects(meshes, false);
+            // 光線との交差判定 (childrenを再帰的に探索する)
+            const meshes = this.pointCharges;
+            const intersects = this.ray.intersectObjects(meshes, false);
 
-                if (intersects.length > 0) {
+            if (intersects.length > 0) {
 
-                    // オブジェクトを選択
-                    this.selected = charge;
+                // オブジェクトを選択
+                this.selected = intersects[0]!.object as Charge;
 
-                    if (charge !== this.transControls.object) {
-                        this.transControls.attach(charge);
-                    }
+                if (this.selected !== this.transControls.object) {
+                    this.transControls.attach(this.selected);
+                }
 
-                    // オブジェクトが選択されたことを通知
-                    for (let listener of this.listeners) {
-                        if (listener.type === 'object-selected') {
-                            listener.listener(charge as Charge);
-                        }
+                // オブジェクトが選択されたことを通知
+                for (let listener of this.listeners) {
+                    if (listener.type === 'object-selected') {
+                        listener.listener(this.selected);
                     }
                 }
             }

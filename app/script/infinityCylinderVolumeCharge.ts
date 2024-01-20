@@ -2,55 +2,79 @@ import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 
-
 /**
- * 無限線電荷
+ * 球面上に電荷が分布している電荷
  */
-export class InfinityLineCharge extends Charge {
+export class InfinityCylinderVolumeCharge extends Charge {
 
 
-    private lineDensity: number;
+    private radius: number;
+    private volumeDensity: number;
 
 
     /**
-     * 線電荷を構築する
-     * @param center 中心座標
-     * @param rotate 回転
-     * @param lineDensity 線密度
+     * 球面電荷を構築する
+     * @param position 球の中心座標
+     * @param radius 球の半径
+     * @param arealDensity 面電荷密度
      */
-    constructor(center: THREE.Vector3, rotate: THREE.Euler, lineDensity: number) {
+    constructor(position: THREE.Vector3, rotation: THREE.Euler, radius: number, volumeDensity: number) {
 
-        const geometry = new THREE.CylinderGeometry(1, 1, 400, 10);
-        const material = InfinityLineCharge.getMaterial(lineDensity);
+        const geometry = new THREE.CylinderGeometry(radius, radius, 400, 20);
+        const material = InfinityCylinderVolumeCharge.getMaterial(volumeDensity);
         super(geometry, material);
-        
-        this.position.copy(center);
-        this.rotation.copy(rotate);
 
-        this.lineDensity = lineDensity;
+        this.position.copy(position);
+        this.rotation.copy(rotation);
+
+        this.radius = radius;
+        this.volumeDensity = volumeDensity;
+    }
+
+
+    /**
+     * 球の半径を更新する
+     * @returns 球の半径
+     */
+    updateRadius = (radius: number) => {
+
+        this.radius = radius;
+        this.geometry.dispose();
+        this.geometry = new THREE.CylinderGeometry(radius, radius, 400, 20);
 
     }
 
 
     /**
-     * 線電荷の長さを更新する
-     * @param lineDensity 線電荷の線密度
+     * 球の半径を取得する
+     * @returns 球の半径
      */
-    updateLineDensity = (lineDensity: number) => {
+    getRadius = () => {
 
-        this.lineDensity = lineDensity;
-        this.material = InfinityLineCharge.getMaterial(this.lineDensity);
+        return this.radius;
 
     }
 
 
     /**
-     * 線電荷の長さを取得する
-     * @returns 線電荷の長さ
+     * 体積電荷密度を更新する
+     * @param volumeDensity 体積電荷密度
      */
-    getLineDensity = () => {
+    updateVolumeDensity = (volumeDensity: number) => {
 
-        return this.lineDensity;
+        this.volumeDensity = volumeDensity;
+        this.material = InfinityCylinderVolumeCharge.getMaterial(volumeDensity);
+
+    }
+
+
+    /**
+     * 体積電荷密度を取得する
+     * @returns 体積電荷密度
+     */
+    getVolumeDensity = () => {
+
+        return this.volumeDensity;
 
     }
 
@@ -61,7 +85,7 @@ export class InfinityLineCharge extends Charge {
      */
     override getChargeType = () => {
 
-        return ChargeToChargeType(this.lineDensity);
+        return ChargeToChargeType(this.volumeDensity);
 
     }
 
@@ -90,7 +114,7 @@ export class InfinityLineCharge extends Charge {
      */
     override isContact = (distanceFrom: THREE.Vector3) => {
 
-        return distanceFrom.lengthSq() < 1;
+        return distanceFrom.lengthSq() < this.radius ** 2;
 
     }
 
@@ -104,11 +128,20 @@ export class InfinityLineCharge extends Charge {
 
         const distance = this.distanceFrom(position);
 
-        if (distance.lengthSq() < Number.EPSILON) {
+        const lengthSq = distance.lengthSq();
+
+        if (lengthSq < Number.EPSILON) {
             return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (0除算防止)
         }
 
-        return distance.multiplyScalar((this.lineDensity) / (2 * Math.PI * permittivity * distance.lengthSq()));
+        if (lengthSq < this.radius ** 2) {
+            // E=rp/(2εr)
+            return distance.multiplyScalar((this.volumeDensity * this.radius) / (2 * permittivity * distance.length()));
+        }
+        else {
+            // E=a^2p/(2εr^2)
+            return distance.multiplyScalar((this.volumeDensity * this.radius ** 2) / (2 * permittivity * lengthSq));
+        }
 
     }
 
@@ -138,7 +171,8 @@ export class InfinityLineCharge extends Charge {
 
                 const direction = new THREE.Vector3(Math.cos(theta), 0, Math.sin(theta)).applyQuaternion(this.quaternion);
 
-                result.push({ begin: pos, direction: direction });
+                // 外向き
+                result.push({ begin: pos.clone().add(direction.clone().multiplyScalar(this.radius)), direction: direction });
             }
 
         }
@@ -159,25 +193,22 @@ export class InfinityLineCharge extends Charge {
     }
 
 
-    private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    private static neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-
+    private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
+    private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+    private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
 
     /**
-     * 線電荷のマテリアルを取得する
-     * @param lineDensity 線電荷の線密度
+     * 電荷の正負に応じたマテリアルを返す
+     * @param chargeType 電荷の正負
      * @returns マテリアル
      */
-    private static getMaterial = (lineDensity: number) => {
-
-        if (lineDensity > 0)
-            return InfinityLineCharge.plusMaterial;
-        else if (lineDensity < 0)
-            return InfinityLineCharge.minusMaterial;
+    private static getMaterial = (chargeType: number) => {
+        if (chargeType > 0)
+            return InfinityCylinderVolumeCharge.plusMaterial;
+        else if (chargeType < 0)
+            return InfinityCylinderVolumeCharge.minusMaterial;
         else
-            return InfinityLineCharge.neutralMaterial;
-
+            return InfinityCylinderVolumeCharge.neutralMaterial;
     }
 
 }

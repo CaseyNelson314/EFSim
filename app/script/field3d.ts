@@ -27,7 +27,7 @@ const ElectricFieldVector = (
 
 /**
  * 電気力線の連続点を生成
- * @param charge 線電荷が出る電荷
+ * @param originCharge 線電荷が出る電荷
  * @param charges 電荷の配列
  * @param beginPoint 始点
  * @param dirVector 方向ベクトル
@@ -35,7 +35,7 @@ const ElectricFieldVector = (
  * @returns 
  */
 const ElectricForceLinePoints = (
-    charge: Charge,
+    originCharge: Charge,
     charges: Charge[],
     beginPoint: THREE.Vector3,
     dirVector: THREE.Vector3,
@@ -51,7 +51,7 @@ const ElectricForceLinePoints = (
         const electricFieldVector = ElectricFieldVector(charges, origin);
 
         // 負電荷の場合も正電荷と同様の力線を描画するため、電界ベクトルを反転させる
-        if (charge.getChargeType() === ChargeType.Minus) {
+        if (originCharge.getChargeType() === ChargeType.Minus) {
             electricFieldVector.multiplyScalar(-1);
         }
 
@@ -63,12 +63,12 @@ const ElectricForceLinePoints = (
         for (const charge of charges) {
 
             // 自分自身との衝突判定は行わない
-            if (charge === charge) {
+            if (charge === originCharge) {
                 continue;
             }
 
             // 電荷同士の正負が同じなら衝突判定を行わない
-            if (charge.getChargeType() === charge.getChargeType()) {
+            if (charge.getChargeType() === originCharge.getChargeType()) {
                 continue;
             }
 
