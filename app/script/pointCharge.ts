@@ -14,7 +14,7 @@ export class PointCharge extends Charge {
     private mesh: THREE.Mesh;
     private charge: number;
 
-    
+
     /**
      * 点電荷を構築する
      * @param position 点電荷の座標
@@ -110,6 +110,28 @@ export class PointCharge extends Charge {
      * @note ジオメトリやマテリアルの破棄を行う
      */
     override dispose = () => { }
+
+
+    /**
+     * JSONから電荷を生成する
+     */
+    static override fromJSON = (json: any) => {
+        return new PointCharge(
+            new THREE.Vector3(json.position[0], json.position[1], json.position[2]),  // json.positionはnumber[]型
+            json.charge
+        );
+    }
+
+
+    /**
+     * 電荷をJSONに変換する
+     */
+    override toJSON = () => {
+        return {
+            position: this.position.toArray(),
+            charge: this.charge
+        };
+    }
 
 
     private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });

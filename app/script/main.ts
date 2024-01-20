@@ -25,10 +25,13 @@ const start = () => {
     // 電荷を作成
     {
 
-        charges.push(new PointCharge(new THREE.Vector3(0, 0, -100), -1));
+        const p = new PointCharge(new THREE.Vector3(0, 0, -100), -1);
+        charges.push(p);
         // charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1));
         // charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1));
-        charges.push(new PointCharge(new THREE.Vector3(0, 0, 100), 1));
+
+        const json = JSON.parse("{\"position\":[0,0,-100],\"charge\":-1}");
+        charges.push(PointCharge.fromJSON(json));
 
         for (const charge of charges) {
             scene.add(charge);
@@ -426,6 +429,11 @@ const start = () => {
 
         renderer.render(scene, camera);
         controls.update();
+
+        // for (const charge of charges)
+        // {
+        //     console.log(charge.toJSON())
+        // }
 
         // console.log(renderer.info.memory)
 

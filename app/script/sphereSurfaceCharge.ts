@@ -27,6 +27,7 @@ export class SphereSurfaceCharge extends Charge {
         this.arealDensity = arealDensity;
         this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
         this.mesh = new THREE.Mesh(this.sphereSurfaceChargeGeometry, SphereSurfaceCharge.getMaterial(arealDensity));
+        this.add(this.mesh);
     }
 
 

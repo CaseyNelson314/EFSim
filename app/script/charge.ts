@@ -78,4 +78,15 @@ export abstract class Charge extends THREE.Object3D {
     abstract dispose: () => void;
 
 
+    /**
+     * JSONから電荷を生成する
+     */
+    static fromJSON: (json: any) => void;
+
+
+    /**
+     * 電荷をJSONに変換する
+     */
+    abstract override toJSON(): any;
+
 };
