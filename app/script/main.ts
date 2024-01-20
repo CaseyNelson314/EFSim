@@ -25,6 +25,12 @@ const start = () => {
 
     // 電荷を作成
     {
+        charges.push(new PointCharge(new THREE.Vector3(-50, 0, -50), 1));
+        charges.push(new PointCharge(new THREE.Vector3(50, 0, 50), -1));
+
+        for (const charge of charges) {
+            scene.add(charge);
+        }
     }
 
     // シミュレーション空間
@@ -63,10 +69,6 @@ const start = () => {
             lineDensity.labels![0]!.style.display = 'block';
             lineDensity.value = lineCharge.getLineDensity().toFixed(3);
 
-            // 線電荷は長さを変更できる
-            // const lineLength = document.getElementById('charge_length') as HTMLInputElement;
-            // lineLength.labels![0]!.style.display = 'block';
-            // lineLength.value = lineCharge.length.toFixed(3);
         }
         else if (charges instanceof InfinitySurfaceCharge) {
             const planeCharge = charges as InfinitySurfaceCharge;
@@ -443,11 +445,6 @@ const start = () => {
 
         renderer.render(scene, camera);
         controls.update();
-
-        // for (const charge of charges)
-        // {
-        //     console.log(charge.toJSON())
-        // }
 
         // console.log(renderer.info.memory)
 
