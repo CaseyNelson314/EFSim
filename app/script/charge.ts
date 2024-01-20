@@ -30,7 +30,7 @@ export const ChargeToChargeType = (charge: number) => {
  * 電荷
  * @note 全ての電荷はこのクラスを継承する
  */
-export abstract class Charge extends THREE.Object3D {
+export abstract class Charge extends THREE.Mesh {
 
 
     /**

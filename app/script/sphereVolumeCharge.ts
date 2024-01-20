@@ -10,7 +10,6 @@ import { GSS } from './gss';
 export class SphereVolumeCharge extends Charge {
 
 
-    private mesh: THREE.Mesh;
     private radius: number;
     private volumeDensity: number;
 
@@ -22,12 +21,16 @@ export class SphereVolumeCharge extends Charge {
      * @param volumeDensity 体積電荷密度
      */
     constructor(position: THREE.Vector3, radius: number, volumeDensity: number) {
-        super();
-        this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
-        this.mesh = new THREE.Mesh(this.sphereSurfaceChargeGeometry, SphereVolumeCharge.getMaterial(volumeDensity));
+
+        const geometry = new THREE.SphereGeometry(radius, 32, 32);
+        const material = SphereVolumeCharge.getMaterial(volumeDensity);
+        super(geometry, material);
+
         this.position.copy(position);
+
         this.radius = radius;
         this.volumeDensity = volumeDensity;
+
     }
 
 
@@ -36,10 +39,12 @@ export class SphereVolumeCharge extends Charge {
      * @param radius 球の半径
      */
     updateRadius = (radius: number) => {
+
         this.radius = radius;
-        this.sphereSurfaceChargeGeometry.dispose();
-        this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
-        this.mesh.geometry = this.sphereSurfaceChargeGeometry;
+
+        this.geometry.dispose();
+        this.geometry = new THREE.SphereGeometry(radius, 32, 32);
+
     }
 
     /**
@@ -47,7 +52,9 @@ export class SphereVolumeCharge extends Charge {
      * @returns 球の半径
      */
     getRadius = () => {
+
         return this.radius;
+
     }
 
 
@@ -56,8 +63,10 @@ export class SphereVolumeCharge extends Charge {
      * @param volumeDensity 体積電荷密度
      */
     updateVolumeDensity = (volumeDensity: number) => {
+
         this.volumeDensity = volumeDensity;
-        this.mesh.material = SphereVolumeCharge.getMaterial(volumeDensity);
+        this.material = SphereVolumeCharge.getMaterial(volumeDensity);
+
     }
 
 
@@ -66,18 +75,22 @@ export class SphereVolumeCharge extends Charge {
      * @returns 体積電荷密度
      */
     getVolumeDensity = () => {
+
         return this.volumeDensity;
+
     }
 
-    
+
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負
      */
     override getChargeType = () => {
+
         return ChargeToChargeType(this.volumeDensity);
+
     }
-    
+
 
     /**
      * 任意の座標における電荷との距離ベクトルを取得する
@@ -85,7 +98,9 @@ export class SphereVolumeCharge extends Charge {
      * @returns 電荷との距離ベクトル
      */
     override distanceFrom = (position: THREE.Vector3) => {
+
         return position.clone().sub(this.position);
+
     }
 
 
@@ -95,7 +110,9 @@ export class SphereVolumeCharge extends Charge {
      * @returns 接触しているかどうか
      */
     override isContact = (distanceFrom: THREE.Vector3) => {
+
         return distanceFrom.lengthSq() < this.radius ** 2;
+
     }
 
 
@@ -110,7 +127,7 @@ export class SphereVolumeCharge extends Charge {
         const diffLengthSq = diffVector.lengthSq();
 
         if (diffLengthSq < Number.EPSILON) {
-            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (0除算防止)
         }
 
         if (diffLengthSq < this.radius ** 2) {
@@ -130,28 +147,31 @@ export class SphereVolumeCharge extends Charge {
      * @returns 電気力線の始点、方向ベクトルの配列
      */
     override electricForceLinesDirection = () => {
+
         return GSS(25).map((vector) => {
             return {
                 begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),  // 始点は球の外周上
                 direction: vector
             }
         });
+
     }
-    
+
 
     /**
      * 解放
      * @note ジオメトリやマテリアルの破棄を行う
      */
     override dispose = () => {
-        this.sphereSurfaceChargeGeometry.dispose();
+
+        this.geometry.dispose();
+
     }
 
 
     private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
     private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
     private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
-    private sphereSurfaceChargeGeometry;
 
 
     /**
@@ -160,12 +180,14 @@ export class SphereVolumeCharge extends Charge {
      * @returns マテリアル
      */
     private static getMaterial = (chargeType: number) => {
+
         if (chargeType > 0)
             return SphereVolumeCharge.plusMaterial;
         else if (chargeType < 0)
             return SphereVolumeCharge.minusMaterial;
         else
             return SphereVolumeCharge.neutralMaterial;
+
     }
 
 

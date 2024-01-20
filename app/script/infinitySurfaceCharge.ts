@@ -9,7 +9,6 @@ import { permittivity } from './constants';
 export class InfinitySurfaceCharge extends Charge {
 
     
-    private mesh: THREE.Mesh;
     private surfaceDensity: number;
 
 
@@ -20,12 +19,16 @@ export class InfinitySurfaceCharge extends Charge {
      * @param surfaceDensity 面密度
      */
     constructor(position: THREE.Vector3, rotate: THREE.Euler, surfaceDensity: number) {
-        super();
-        this.surfaceDensity = surfaceDensity;
-        this.mesh = new THREE.Mesh(this.surfaceChargeGeometry, InfinitySurfaceCharge.getMaterial(this.surfaceDensity));
+
+        const geometry = new THREE.PlaneGeometry(200, 200);
+        const material = InfinitySurfaceCharge.getMaterial(surfaceDensity);
+        super(geometry, material);
+
         this.position.copy(position);
         this.rotation.copy(rotate);
-        this.add(this.mesh);
+
+        this.surfaceDensity = surfaceDensity;
+
     }
 
 
@@ -34,8 +37,10 @@ export class InfinitySurfaceCharge extends Charge {
      * @param surfaceDensity 面密度
      */
     updateSurfaceDensity = (surfaceDensity: number) => {
+
         this.surfaceDensity = surfaceDensity;
-        this.mesh.material = InfinitySurfaceCharge.getMaterial(this.surfaceDensity);
+        this.material = InfinitySurfaceCharge.getMaterial(this.surfaceDensity);
+        
     }
 
     /**
@@ -43,7 +48,9 @@ export class InfinitySurfaceCharge extends Charge {
      * @returns 面密度
      */
     getSurfaceDensity = () => {
+
         return this.surfaceDensity;
+
     }
 
 
@@ -52,7 +59,9 @@ export class InfinitySurfaceCharge extends Charge {
      * @returns 電荷の正負
      */
     override getChargeType = () => {
+
         return ChargeToChargeType(this.surfaceDensity);
+
     }
 
 
@@ -64,9 +73,9 @@ export class InfinitySurfaceCharge extends Charge {
     override distanceFrom = (position: THREE.Vector3) => {
 
         // 計算を行いやすいよう、面電荷がz=0に位置するように観測点の座標を変換する
-        const positionTransformed = position.clone().sub(this.position);              // 面電荷の中心を原点に移動
+        const positionTransformed = position.clone().sub(this.position);         // 面電荷の中心を原点に移動
         positionTransformed.applyQuaternion(this.quaternion.clone().invert());   // 面電荷を逆クオータニオン分回転させるとz=0となるので、観測点の座標も同じく回転させる
-        positionTransformed.x = 0;                                                    // z 軸以外無視
+        positionTransformed.x = 0;                                               // z 軸以外無視
         positionTransformed.y = 0;
 
         return positionTransformed.applyQuaternion(this.quaternion);             // 観測点との差分の角度を元に戻す
@@ -80,7 +89,9 @@ export class InfinitySurfaceCharge extends Charge {
      * @returns 接触しているかどうか
      */
     override isContact = (distanceFrom: THREE.Vector3) => {
+
         return distanceFrom.lengthSq() < 1;
+
     }
     
 
@@ -90,13 +101,15 @@ export class InfinitySurfaceCharge extends Charge {
      * @returns 電界ベクトル
      */
     override electricFieldVector = (position: THREE.Vector3) => {
+
         const distance = this.distanceFrom(position);
 
         if (distance.lengthSq() < Number.EPSILON) {
-            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (0除算防止)
         }
 
         return distance.multiplyScalar(this.surfaceDensity / (2 * permittivity * distance.length()));
+
     }
 
 
@@ -109,11 +122,11 @@ export class InfinitySurfaceCharge extends Charge {
         const widthCount = 6;
         const heightCount = 6;
 
-        const beginWidth = -this.surfaceChargeGeometry.parameters.width / 2;
-        const beginHeight = -this.surfaceChargeGeometry.parameters.height / 2;
+        const beginWidth = -(this.geometry as THREE.PlaneGeometry).parameters.width / 2;
+        const beginHeight = -(this.geometry as THREE.PlaneGeometry).parameters.height / 2;
 
-        const stepWidth = this.surfaceChargeGeometry.parameters.width / widthCount;
-        const stepHeight = this.surfaceChargeGeometry.parameters.height / heightCount;
+        const stepWidth = (this.geometry as THREE.PlaneGeometry).parameters.width / widthCount;
+        const stepHeight = (this.geometry as THREE.PlaneGeometry).parameters.height / heightCount;
 
         const result: { begin: THREE.Vector3, direction: THREE.Vector3 }[] = [];
 
@@ -142,14 +155,14 @@ export class InfinitySurfaceCharge extends Charge {
      * @note ジオメトリやマテリアルの破棄を行う
      */
     override dispose = () => {
-        this.surfaceChargeGeometry.dispose();
+        this.geometry.dispose();
     }
 
 
     private static plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
     private static minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
     private static neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
-    private surfaceChargeGeometry = new THREE.PlaneGeometry(200, 200);
+
 
     /**
      * 面電荷のマテリアルを取得する
@@ -157,12 +170,14 @@ export class InfinitySurfaceCharge extends Charge {
      * @returns 面電荷のマテリアル
      */
     private static getMaterial = (surfaceDensity: number) => {
+
         if (surfaceDensity > 0)
             return InfinitySurfaceCharge.plusMaterial;
         else if (surfaceDensity < 0)
             return InfinitySurfaceCharge.minusMaterial;
         else
             return InfinitySurfaceCharge.neutralMaterial;
+
     }
 
 }

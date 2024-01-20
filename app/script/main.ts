@@ -9,6 +9,7 @@ import { InfinityLineCharge } from './infinityLineCharge';
 import { InfinitySurfaceCharge } from './infinitySurfaceCharge';
 import { SphereSurfaceCharge } from './sphereSurfaceCharge';
 import { SphereVolumeCharge } from './sphereVolumeCharge';
+import { InfinityCylinderVolumeCharge } from './infinityCylinderVolumeCharge';
 
 const start = () => {
 
@@ -24,19 +25,6 @@ const start = () => {
 
     // 電荷を作成
     {
-
-        const p = new PointCharge(new THREE.Vector3(0, 0, -100), -1);
-        charges.push(p);
-        // charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(0, 0, 0), 1));
-        // charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(0, 0, 0), -1));
-
-        const json = JSON.parse("{\"position\":[0,0,-100],\"charge\":-1}");
-        charges.push(PointCharge.fromJSON(json));
-
-        for (const charge of charges) {
-            scene.add(charge);
-        }
-
     }
 
     // シミュレーション空間
@@ -45,6 +33,7 @@ const start = () => {
 
     const dragger = new Dragger(charges, camera, dom, controls, scene);
 
+    
     // オブジェクトを移動中であるときのフォームの更新
     const onObjectDragging = (charges: Charge) => {
 
@@ -86,6 +75,19 @@ const start = () => {
             const surfaceDensity = document.getElementById('charge_surface_density') as HTMLInputElement;
             surfaceDensity.labels![0]!.style.display = 'block';
             surfaceDensity.value = planeCharge.getSurfaceDensity().toFixed(3);
+        }
+        else if (charges instanceof InfinityCylinderVolumeCharge) {
+            const cylinderVolumeCharge = charges as InfinityCylinderVolumeCharge;
+
+            // 無限円柱体積電荷は電荷密度を変更できる
+            const volumeDensity = document.getElementById('charge_density') as HTMLInputElement;
+            volumeDensity.labels![0]!.style.display = 'block';
+            volumeDensity.value = cylinderVolumeCharge.getVolumeDensity().toFixed(3);
+
+            // 無限円柱体積電荷は半径を変更できる
+            const radius = document.getElementById('charge_radius') as HTMLInputElement;
+            radius.labels![0]!.style.display = 'block';
+            radius.value = cylinderVolumeCharge.getRadius().toFixed(3);
         }
         else if (charges instanceof SphereSurfaceCharge) {
             const sphereSurfaceCharge = charges as SphereSurfaceCharge;
@@ -286,10 +288,21 @@ const start = () => {
                     selected.updateVolumeDensity(Number((e.target as HTMLInputElement).value));
                     field3d.update();
                 }
+                else if (selected instanceof InfinityCylinderVolumeCharge) {
+                    selected.updateVolumeDensity(Number((e.target as HTMLInputElement).value));
+                    field3d.update();
+                }
             });
             document.getElementById('charge_radius')!.addEventListener('input', (e) => {
                 const selected = dragger.getSelected();
                 if (selected instanceof SphereVolumeCharge) {
+                    const value = Number((e.target as HTMLInputElement).value);
+                    if (value > 0) {
+                        selected.updateRadius(value);
+                        field3d.update();
+                    }
+                }
+                else if (selected instanceof InfinityCylinderVolumeCharge) {
                     const value = Number((e.target as HTMLInputElement).value);
                     if (value > 0) {
                         selected.updateRadius(value);
@@ -330,9 +343,15 @@ const start = () => {
 
             //     field3d.update();
             // });
+            
             // 面電荷
             document.getElementById('add_infinity_surface_charge_button')!.addEventListener('click', () => {
                 const newChange = new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1);
+                addCharge(newChange);
+            });
+            // 無限円柱体積電荷
+            document.getElementById('add_infinity_cylinder_volume_charge_button')!.addEventListener('click', () => {
+                const newChange = new InfinityCylinderVolumeCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 2, 1);
                 addCharge(newChange);
             });
             // 球面電荷
@@ -361,11 +380,6 @@ const start = () => {
                 }
             };
             document.getElementById('delete_charge_button')!.addEventListener('click', deleteCharge);
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Delete') {
-                    deleteCharge();
-                }
-            });
 
             // document.getElementById('button_remove_all_charges')!.addEventListener('click', () => {
             //     for (let pointCharge of charges) {

@@ -11,7 +11,6 @@ import { GSS } from './gss';
 export class PointCharge extends Charge {
 
 
-    private mesh: THREE.Mesh;
     private charge: number;
 
 
@@ -21,11 +20,15 @@ export class PointCharge extends Charge {
      * @param charge 電荷量
      */
     constructor(position: THREE.Vector3, charge: number) {
-        super();
-        this.charge = charge;
-        this.mesh = new THREE.Mesh(PointCharge.pointChargeGeometry, PointCharge.getMaterial(this.charge));
+
+        const geometry = PointCharge.pointChargeGeometry;
+        const material = PointCharge.getMaterial(charge);
+        super(geometry, material);
+
         this.position.copy(position);
-        this.add(this.mesh);
+        
+        this.charge = charge;
+
     }
 
 
@@ -34,8 +37,10 @@ export class PointCharge extends Charge {
      * @param charge 電荷量
      */
     updateCharge = (charge: number) => {
+
         this.charge = charge;
-        this.mesh.material = PointCharge.getMaterial(this.charge);
+        this.material = PointCharge.getMaterial(this.charge);
+
     }
 
 
@@ -44,7 +49,9 @@ export class PointCharge extends Charge {
      * @returns 電荷量
      */
     getCharge = () => {
+
         return this.charge;
+
     }
 
 
@@ -53,7 +60,9 @@ export class PointCharge extends Charge {
      * @returns 電荷の正負
      */
     override getChargeType = () => {
+
         return ChargeToChargeType(this.charge);
+
     }
 
 
@@ -63,7 +72,9 @@ export class PointCharge extends Charge {
      * @returns 電荷との距離ベクトル
      */
     override distanceFrom = (position: THREE.Vector3) => {
+
         return position.clone().sub(this.position);
+
     }
 
 
@@ -73,7 +84,9 @@ export class PointCharge extends Charge {
      * @returns 接触しているかどうか
      */
     override isContact = (distanceFrom: THREE.Vector3) => {
+
         return distanceFrom.lengthSq() < 1;
+
     }
 
 
@@ -87,7 +100,7 @@ export class PointCharge extends Charge {
         const diffVector = this.distanceFrom(position);
 
         if (diffVector.lengthSq() < Number.EPSILON) {
-            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (ゼロ割り防止)
+            return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (0除算防止)
         }
 
         // E=kq/r^3
@@ -101,7 +114,9 @@ export class PointCharge extends Charge {
      * @returns 電気力線の始点、方向ベクトルの配列
      */
     override electricForceLinesDirection = () => {
+
         return GSS(25).map((vector) => { return { begin: this.position, direction: vector } });
+        
     }
 
 
@@ -116,10 +131,12 @@ export class PointCharge extends Charge {
      * JSONから電荷を生成する
      */
     static override fromJSON = (json: any) => {
+
         return new PointCharge(
             new THREE.Vector3(json.position[0], json.position[1], json.position[2]),  // json.positionはnumber[]型
             json.charge
         );
+
     }
 
 
@@ -127,10 +144,12 @@ export class PointCharge extends Charge {
      * 電荷をJSONに変換する
      */
     override toJSON = () => {
+
         return {
             position: this.position.toArray(),
             charge: this.charge
         };
+        
     }
 
 
@@ -145,12 +164,14 @@ export class PointCharge extends Charge {
      * @returns マテリアル
     */
     private static getMaterial = (charge: number) => {
+
         if (charge > 0)
             return PointCharge.plusMaterial;
         else if (charge < 0)
             return PointCharge.minusMaterial;
         else
             return PointCharge.neutralMaterial;
+        
     }
 
 
