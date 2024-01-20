@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
@@ -65,7 +65,7 @@ export const CreateTransformControls = (
 
     const transControls = new TransformControls(camera, dom);
 
-    transControls.addEventListener("dragging-changed", (event) => {
+    transControls.addEventListener('dragging-changed', (event) => {
         controls.enablePan = !event.value;
         controls.enableRotate = !event.value;
     });

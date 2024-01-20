@@ -1,47 +1,40 @@
-import * as THREE from "three";
-import { Charge, ChargeToChargeType } from "./charge";
-import { permittivity } from "./constants";
-import { GSS } from "./gss";
+import * as THREE from 'three';
+import { Charge, ChargeToChargeType } from './charge';
+import { permittivity } from './constants';
+import { GSS } from './gss';
 
 
-// 球内に体積電荷が分布している電荷
+/**
+ * 球内に体積電荷が分布している電荷
+ */
 export class SphereVolumeCharge extends Charge {
-    private sphereSurfaceChargeGeometry;
-    mesh: THREE.Mesh;
-    radius: number;
-    volumeDensity: number;
 
-    private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
-    private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
-    private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
 
-    private getMaterialFromChargeType = (chargeType: number) => {
-        if (chargeType > 0)
-            return SphereVolumeCharge.plusMaterial;
-        else if (chargeType < 0)
-            return SphereVolumeCharge.minusMaterial;
-        else
-            return SphereVolumeCharge.neutralMaterial;
-    }
+    private mesh: THREE.Mesh;
+    private radius: number;
+    private volumeDensity: number;
 
-    /// @brief 球体積電荷を構築する
-    /// @param position 球の中心座標
-    /// @param radius 球の半径
-    /// @param volumeDensity 体積電荷密度
+
+    /**
+     * 球体積電荷を構築する
+     * @param position 球の中心座標
+     * @param radius 球の半径
+     * @param volumeDensity 体積電荷密度
+     */
     constructor(position: THREE.Vector3, radius: number, volumeDensity: number) {
         super();
         this.sphereSurfaceChargeGeometry = new THREE.SphereGeometry(radius, 32, 32);
-        this.mesh = new THREE.Mesh(this.sphereSurfaceChargeGeometry, this.getMaterialFromChargeType(volumeDensity));
+        this.mesh = new THREE.Mesh(this.sphereSurfaceChargeGeometry, SphereVolumeCharge.getMaterial(volumeDensity));
         this.position.copy(position);
         this.radius = radius;
         this.volumeDensity = volumeDensity;
     }
 
-    updateVolumeDensity = (volumeDensity: number) => {
-        this.volumeDensity = volumeDensity;
-        this.mesh.material = this.getMaterialFromChargeType(volumeDensity);
-    }
 
+    /**
+     * 球の半径を更新する
+     * @param radius 球の半径
+     */
     updateRadius = (radius: number) => {
         this.radius = radius;
         this.sphereSurfaceChargeGeometry.dispose();
@@ -49,8 +42,68 @@ export class SphereVolumeCharge extends Charge {
         this.mesh.geometry = this.sphereSurfaceChargeGeometry;
     }
 
-    /// @brief 指定座標における、この線電荷からの電界ベクトルを返す
-    /// @param position 観測点の座標
+    /**
+     * 球の半径を取得する
+     * @returns 球の半径
+     */
+    getRadius = () => {
+        return this.radius;
+    }
+
+
+    /**
+     * 体積電荷密度を更新する
+     * @param volumeDensity 体積電荷密度
+     */
+    updateVolumeDensity = (volumeDensity: number) => {
+        this.volumeDensity = volumeDensity;
+        this.mesh.material = SphereVolumeCharge.getMaterial(volumeDensity);
+    }
+
+
+    /**
+     * 体積電荷密度を取得する
+     * @returns 体積電荷密度
+     */
+    getVolumeDensity = () => {
+        return this.volumeDensity;
+    }
+
+    
+    /**
+     * 電荷の正負を取得する
+     * @returns 電荷の正負
+     */
+    override getChargeType = () => {
+        return ChargeToChargeType(this.volumeDensity);
+    }
+    
+
+    /**
+     * 任意の座標における電荷との距離ベクトルを取得する
+     * @param position 任意の座標
+     * @returns 電荷との距離ベクトル
+     */
+    override distanceFrom = (position: THREE.Vector3) => {
+        return position.clone().sub(this.position);
+    }
+
+
+    /**
+     * 距離ベクトルを基に接触判定を行う
+     * @param distanceFrom 電荷との距離ベクトル
+     * @returns 接触しているかどうか
+     */
+    override isContact = (distanceFrom: THREE.Vector3) => {
+        return distanceFrom.lengthSq() < this.radius ** 2;
+    }
+
+
+    /**
+     * 任意の座標における、この電荷からの電界ベクトルを返す
+     * @param position 任意の座標
+     * @returns 電界ベクトル
+     */
     override electricFieldVector = (position: THREE.Vector3) => {
 
         const diffVector = this.distanceFrom(position);
@@ -71,19 +124,11 @@ export class SphereVolumeCharge extends Charge {
 
     }
 
-    /// @brief 任意の座標における電荷との距離ベクトルを返す
-    /// @param position 観測点の座標
-    override distanceFrom = (position: THREE.Vector3) => {
-        return position.clone().sub(this.position);
-    }
 
-    /// @brief 距離ベクトルを基に接触判定を行う
-    /// @param distanceFrom 距離ベクトル
-    override isContact = (distanceFrom: THREE.Vector3) => {
-        return distanceFrom.lengthSq() < this.radius ** 2;
-    }
-
-    /// @brief 電気力線の方向ベクトルの配列を返す
+    /**
+     * 電気力線の始点、方向ベクトルの配列を返す
+     * @returns 電気力線の始点、方向ベクトルの配列
+     */
     override electricForceLinesDirection = () => {
         return GSS(25).map((vector) => {
             return {
@@ -92,15 +137,36 @@ export class SphereVolumeCharge extends Charge {
             }
         });
     }
-
-    /// @brief 電荷の正負を取得する
-    override getChargeType = () => {
-        return ChargeToChargeType(this.volumeDensity);
-    }
     
-    /// @brief 解放
+
+    /**
+     * 解放
+     * @note ジオメトリやマテリアルの破棄を行う
+     */
     override dispose = () => {
         this.sphereSurfaceChargeGeometry.dispose();
     }
+
+
+    private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
+    private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+    private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
+    private sphereSurfaceChargeGeometry;
+
+
+    /**
+     * 電荷の正負に応じたマテリアルを返す
+     * @param chargeType 電荷の正負
+     * @returns マテリアル
+     */
+    private static getMaterial = (chargeType: number) => {
+        if (chargeType > 0)
+            return SphereVolumeCharge.plusMaterial;
+        else if (chargeType < 0)
+            return SphereVolumeCharge.minusMaterial;
+        else
+            return SphereVolumeCharge.neutralMaterial;
+    }
+
 
 }

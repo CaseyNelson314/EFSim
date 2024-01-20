@@ -2,9 +2,13 @@ import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
 import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 
-// 指定座標における電場ベクトルを計算
-// @param charge 電荷の配列
-// @param position 観測点の座標
+
+/**
+ * 任意の座標における全電荷からの電界ベクトルを計算
+ * @param charges 電荷の配列
+ * @param position 任意の座標
+ * @returns 
+ */
 const ElectricFieldVector = (
     charges: Charge[],
     position: THREE.Vector3
@@ -20,13 +24,18 @@ const ElectricFieldVector = (
 
 };
 
-/// 電気力線の連続点を生成
-/// @param originCharge 始点
-/// @param charge 電荷の配列
-/// @param dirVector 方向ベクトル
-/// @param simDistance シミュレーション距離 (原点からの距離)
+
+/**
+ * 電気力線の連続点を生成
+ * @param charge 線電荷が出る電荷
+ * @param charges 電荷の配列
+ * @param beginPoint 始点
+ * @param dirVector 方向ベクトル
+ * @param simDistance シミュレーション距離 (原点からの距離)
+ * @returns 
+ */
 const ElectricForceLinePoints = (
-    originCharge: Charge,
+    charge: Charge,
     charges: Charge[],
     beginPoint: THREE.Vector3,
     dirVector: THREE.Vector3,
@@ -38,15 +47,15 @@ const ElectricForceLinePoints = (
 
     for (let i = 0; i < 2000; ++i) {
 
-        // 任意の座標における電場ベクトルを計算
+        // 任意の座標における電界ベクトルを計算
         const electricFieldVector = ElectricFieldVector(charges, origin);
 
-        // 負電荷の場合も正電荷と同様の力線を描画するため、電場ベクトルを反転させる
-        if (originCharge.getChargeType() === ChargeType.Minus) {
+        // 負電荷の場合も正電荷と同様の力線を描画するため、電界ベクトルを反転させる
+        if (charge.getChargeType() === ChargeType.Minus) {
             electricFieldVector.multiplyScalar(-1);
         }
 
-        // 電場ベクトルの方向に長さ1だけ移動 (これを繰り返すことで電気力線を生成)
+        // 電界ベクトルの方向に長さ1だけ移動 (これを繰り返すことで電気力線を生成)
         origin.add(electricFieldVector.normalize());
         points.push(origin.clone());
 
@@ -54,12 +63,12 @@ const ElectricForceLinePoints = (
         for (const charge of charges) {
 
             // 自分自身との衝突判定は行わない
-            if (charge === originCharge) {
+            if (charge === charge) {
                 continue;
             }
 
             // 電荷同士の正負が同じなら衝突判定を行わない
-            if (originCharge.getChargeType() === charge.getChargeType()) {
+            if (charge.getChargeType() === charge.getChargeType()) {
                 continue;
             }
 
@@ -86,7 +95,9 @@ const ElectricForceLinePoints = (
 };
 
 
-/// 電気力線
+/**
+ * 電気力線
+ */
 class ElectricLines3D extends THREE.Object3D {
 
     private charges: Charge[];

@@ -1,15 +1,19 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
 
-/// 一般化螺旋集合を用いて、球面上に点を一様分布する正規ベクトルの配列を生成する。
-/// @param n 点の数
+/**
+ * 一般化螺旋集合を用いて、球面上に点を一様分布する正規ベクトルの配列を生成する
+ * @param n 点の数 
+ * @returns 正規ベクトルの配列
+ */
 export const GSS = (n: number): THREE.Vector3[] => {
+
 
     if (n < 1) return [];
 
 
     if (n === 1) {
-        return [];
+        return [new THREE.Vector3(0, 1, 0)];
     }
 
 
@@ -40,6 +44,7 @@ export const GSS = (n: number): THREE.Vector3[] => {
         vectors.push(new THREE.Vector3(x, y, z));
     }
 
+
     if (n > 20) {
         // 極の点の補正 点の数が少ないとき、補正すると一様性が損なわれる。
         // https://www.jstage.jst.go.jp/article/geoinformatics/12/1/12_1_3/_pdf/-char/ja
@@ -61,5 +66,7 @@ export const GSS = (n: number): THREE.Vector3[] => {
             .normalize();
     }
 
+
     return vectors;
+    
 }

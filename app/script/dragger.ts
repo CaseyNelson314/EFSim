@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import * as EFSim from "./init";
+import * as EFSim from './init';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Charge } from "./charge.js";
+import { Charge } from './charge.js';
 
 
 // 点電荷をドラッグして移動させるクラス
@@ -30,7 +30,7 @@ export class Dragger {
 
         // ドラッグでオブジェクトを移動するためのコントロール
         this.transControls = EFSim.CreateTransformControls(camera, dom, controls, scene);
-        // this.transControls.mode = "rotate";
+        // this.transControls.mode = 'rotate';
         this.pointCharges = pointCharges;
         this.camera = camera;
         this.dom = dom;
@@ -58,25 +58,26 @@ export class Dragger {
             // 現在のカメラの位置からクリックした位置に向かう光線を作成
             this.ray.setFromCamera(this.pointer, this.camera);
 
-            // 光線との交差判定 (childrenを再帰的に探索する)
-            const meshes = this.pointCharges;
-            const intersects = this.ray.intersectObjects(meshes, true);
-
-            if (intersects.length > 0) {
-
-                const object = intersects[0]!.object;
-
-                // オブジェクトを選択
-                this.selected = object as Charge;
-
-                if (object !== this.transControls.object) {
-                    this.transControls.attach(object);
-                }
+            for (const charge of this.pointCharges) {
                 
-                // オブジェクトが選択されたことを通知
-                for (let listener of this.listeners) {
-                    if (listener.type === 'object-selected') {
-                        listener.listener(object as Charge);
+                // 光線との交差判定 (childrenを再帰的に探索する)
+                const meshes = charge.children;
+                const intersects = this.ray.intersectObjects(meshes, false);
+
+                if (intersects.length > 0) {
+
+                    // オブジェクトを選択
+                    this.selected = charge;
+
+                    if (charge !== this.transControls.object) {
+                        this.transControls.attach(charge);
+                    }
+
+                    // オブジェクトが選択されたことを通知
+                    for (let listener of this.listeners) {
+                        if (listener.type === 'object-selected') {
+                            listener.listener(charge as Charge);
+                        }
                     }
                 }
             }
@@ -129,7 +130,7 @@ export class Dragger {
         }
     }
 
-    setMode = (mode: "translate" | "rotate" | "scale") => {
+    setMode = (mode: 'translate' | 'rotate' | 'scale') => {
         this.transControls.setMode(mode);
     }
 
@@ -137,8 +138,8 @@ export class Dragger {
     addEventListener = (type: string, listener: Function) => {
         this.listeners.push({ type: type, listener: listener });
 
-        if (type === "object-change")
-            this.transControls.addEventListener("objectChange", () => {
+        if (type === 'object-change')
+            this.transControls.addEventListener('objectChange', () => {
                 listener(this.selected);
             });
     }
