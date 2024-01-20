@@ -1,5 +1,5 @@
 .control {
-  background-color: #38393b;
+  background-color: #2b2b2b;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -27,7 +27,7 @@
   justify-content: center;
 }
 button {
-  background-color: #38393b;
+  background-color: #2b2b2b;
   border: none;
   display: flex;
   justify-content: center;
@@ -71,7 +71,7 @@ input[type="number"] {
   padding-right: 10px;
   font-size: 15px;
   color: #e3e3e3;
-  background-color: #38393b;
+  background-color: #2b2b2b;
   border: 2px solid #4f4f4f;
   border-radius: 4px;
 }
