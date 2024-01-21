@@ -31,29 +31,7 @@ export class InfinitySurfaceCharge extends Charge {
         this.surfaceDensity = surfaceDensity;
 
     }
-
-
-    /**
-     * 面密度を更新する
-     * @param surfaceDensity 面密度
-     */
-    updateSurfaceDensity = (surfaceDensity: number) => {
-
-        this.surfaceDensity = surfaceDensity;
-        this.material = InfinitySurfaceCharge.getMaterial(this.surfaceDensity);
-        
-    }
-
-    /**
-     * 面密度を取得する
-     * @returns 面密度
-     */
-    getSurfaceDensity = () => {
-
-        return this.surfaceDensity;
-
-    }
-
+    
 
     /**
      * 電荷の正負を取得する

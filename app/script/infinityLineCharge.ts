@@ -32,30 +32,7 @@ export class InfinityLineCharge extends Charge {
 
     }
 
-
-    /**
-     * 線電荷の長さを更新する
-     * @param lineDensity 線電荷の線密度
-     */
-    updateLineDensity = (lineDensity: number) => {
-
-        this.lineDensity = lineDensity;
-        this.material = InfinityLineCharge.getMaterial(this.lineDensity);
-
-    }
-
-
-    /**
-     * 線電荷の長さを取得する
-     * @returns 線電荷の長さ
-     */
-    getLineDensity = () => {
-
-        return this.lineDensity;
-
-    }
-
-
+    
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負

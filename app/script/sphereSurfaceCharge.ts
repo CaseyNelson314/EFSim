@@ -32,53 +32,7 @@ export class SphereSurfaceCharge extends Charge {
         this.arealDensity = arealDensity;
 
     }
-
-
-    /**
-     * 球の半径を更新する
-     * @returns 球の半径
-     */
-    updateRadius = (radius: number) => {
-
-        this.radius = radius;
-        this.geometry.dispose();
-        this.geometry = new THREE.SphereGeometry(radius, 32, 32);
-        
-    }
-
-
-    /**
-     * 球の半径を取得する
-     * @returns 球の半径
-     */
-    getRadius = () => {
-
-        return this.radius;
-
-    }
-
-
-    /**
-     * 面電荷密度を更新する
-     * @param arealDensity 面電荷密度
-     */
-    updateArealDensity = (arealDensity: number) => {
-
-        this.arealDensity = arealDensity;
-        this.material = SphereSurfaceCharge.getMaterial(arealDensity);
-
-    }
-
-    /**
-     * 面電荷密度を取得する
-     * @returns 面電荷密度
-     */
-    getArealDensity = () => {
-        
-        return this.arealDensity;
-
-    }
-
+    
 
     /**
      * 電荷の正負を取得する

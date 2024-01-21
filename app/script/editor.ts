@@ -218,7 +218,6 @@ export class NumberEditor implements ParameterEditor {
         // this.editorAreaに同じIDがいたらラベルを削除する
         const oldElement = document.getElementById(options.name);
         if (oldElement !== null) {
-            console.log('remove old element');
             const oldLabel = oldElement.parentElement!;
             oldLabel.removeChild(oldElement);
             this.editorArea.removeChild(oldLabel);

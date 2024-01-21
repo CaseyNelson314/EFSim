@@ -31,55 +31,8 @@ export class InfinityCylinderVolumeCharge extends Charge {
         this.radius = radius;
         this.volumeDensity = volumeDensity;
     }
-
-
-    /**
-     * 球の半径を更新する
-     * @returns 球の半径
-     */
-    updateRadius = (radius: number) => {
-
-        this.radius = radius;
-        this.geometry.dispose();
-        this.geometry = new THREE.CylinderGeometry(radius, radius, 400, 20);
-
-    }
-
-
-    /**
-     * 球の半径を取得する
-     * @returns 球の半径
-     */
-    getRadius = () => {
-
-        return this.radius;
-
-    }
-
-
-    /**
-     * 体積電荷密度を更新する
-     * @param volumeDensity 体積電荷密度
-     */
-    updateVolumeDensity = (volumeDensity: number) => {
-
-        this.volumeDensity = volumeDensity;
-        this.material = InfinityCylinderVolumeCharge.getMaterial(volumeDensity);
-
-    }
-
-
-    /**
-     * 体積電荷密度を取得する
-     * @returns 体積電荷密度
-     */
-    getVolumeDensity = () => {
-
-        return this.volumeDensity;
-
-    }
-
-
+    
+    
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負

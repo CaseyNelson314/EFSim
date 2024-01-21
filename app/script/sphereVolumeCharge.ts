@@ -33,55 +33,8 @@ export class SphereVolumeCharge extends Charge {
         this.volumeDensity = volumeDensity;
 
     }
-
-
-    /**
-     * 球の半径を更新する
-     * @param radius 球の半径
-     */
-    updateRadius = (radius: number) => {
-
-        this.radius = radius;
-
-        this.geometry.dispose();
-        this.geometry = new THREE.SphereGeometry(radius, 32, 32);
-
-    }
-
-    /**
-     * 球の半径を取得する
-     * @returns 球の半径
-     */
-    getRadius = () => {
-
-        return this.radius;
-
-    }
-
-
-    /**
-     * 体積電荷密度を更新する
-     * @param volumeDensity 体積電荷密度
-     */
-    updateVolumeDensity = (volumeDensity: number) => {
-
-        this.volumeDensity = volumeDensity;
-        this.material = SphereVolumeCharge.getMaterial(volumeDensity);
-
-    }
-
-
-    /**
-     * 体積電荷密度を取得する
-     * @returns 体積電荷密度
-     */
-    getVolumeDensity = () => {
-
-        return this.volumeDensity;
-
-    }
-
-
+    
+    
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負
