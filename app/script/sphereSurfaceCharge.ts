@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { GSS } from './gss';
+import { Editor, PositionEditor, NumberEditor } from './editor';
 
 /**
  * 球面上に電荷が分布している電荷
@@ -165,6 +166,47 @@ export class SphereSurfaceCharge extends Charge {
     override dispose = () => {
 
         this.geometry.dispose();
+
+    }
+
+
+    /**
+     * パラメーター設定用エディタを生成する
+     */
+    override createEditor = () => {
+
+        const positionEditor = new PositionEditor({
+            position: this.position,
+            onChange: (value: THREE.Vector3) => {
+                this.position.copy(value);
+            }
+        });
+
+        const chargeEditor = new NumberEditor({
+            name: "面密度[C/m²]",
+            value: this.arealDensity,
+            onChange: (value: number) => {
+                this.arealDensity = value;
+                this.material = SphereSurfaceCharge.getMaterial(this.arealDensity);
+            }
+        });
+
+        const radiusEditor = new NumberEditor({
+            name: "半径[m]",
+            value: this.radius,
+            onChange: (value: number) => {
+                this.updateRadius(value);
+            },
+            min: 0.1,
+            step: 0.1,
+            digits: 2
+        });
+
+        return new Editor()
+            .add(positionEditor)
+            .add(chargeEditor)
+            .add(radiusEditor)
+            ;
 
     }
 
