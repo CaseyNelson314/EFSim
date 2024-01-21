@@ -69,12 +69,12 @@ export class Dragger {
 
                 if (this.selected !== this.transControls.object) {
                     this.transControls.attach(this.selected);
-                }
 
-                // オブジェクトが選択されたことを通知
-                for (let listener of this.listeners) {
-                    if (listener.type === 'object-selected') {
-                        listener.listener(this.selected);
+                    // オブジェクトが選択されたことを通知
+                    for (let listener of this.listeners) {
+                        if (listener.type === 'object-selected') {
+                            listener.listener(this.selected);
+                        }
                     }
                 }
             }
@@ -92,16 +92,21 @@ export class Dragger {
         this.dom.addEventListener('pointerup', (event) => {
             this.onUpPosition.x = event.offsetX;
             this.onUpPosition.y = event.offsetY;
-            if (this.onDownPosition.distanceTo(this.onUpPosition) === 0) {
-                this.transControls.detach();
-                this.selected = null;
+            if (this.onDownPosition.distanceTo(this.onUpPosition) < Number.EPSILON) {
 
-                // オブジェクトが選択解除されたことを通知
-                for (let listener of this.listeners) {
-                    if (listener.type === 'object-unselected') {
-                        listener.listener();
+                if (this.selected !== null)
+                {
+                    this.transControls.detach();
+                    this.selected = null;
+    
+                    // オブジェクトが選択解除されたことを通知
+                    for (let listener of this.listeners) {
+                        if (listener.type === 'object-unselected') {
+                            listener.listener();
+                        }
                     }
                 }
+
             }
         });
     }
@@ -124,6 +129,13 @@ export class Dragger {
             this.selected.dispose();
             this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
             this.selected = null;
+    
+            // オブジェクトが選択解除されたことを通知
+            for (let listener of this.listeners) {
+                if (listener.type === 'object-unselected') {
+                    listener.listener();
+                }
+            }
         }
     }
 

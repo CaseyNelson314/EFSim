@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Editor } from './editor';
 
 
 /**
@@ -88,5 +89,12 @@ export abstract class Charge extends THREE.Mesh {
      * 電荷をJSONに変換する
      */
     abstract override toJSON(): any;
+
+
+
+    /**
+     * パラメーター設定用エディタを生成する
+     */
+    abstract createEditor: () => Editor;
 
 };

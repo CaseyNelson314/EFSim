@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
+import { Editor, PositionEditor, NumberEditor, RotationEditor } from './editor';
 
 /**
  * 球面上に電荷が分布している電荷
@@ -189,6 +190,57 @@ export class InfinityCylinderVolumeCharge extends Charge {
     override dispose = () => {
 
         this.geometry.dispose();
+
+    }
+
+
+    /**
+     * パラメーター設定用エディタを生成する
+     */
+    override createEditor = () => {
+
+        const positionEditor = new PositionEditor({
+            position: this.position,
+            onChange: (value: THREE.Vector3) => {
+                this.position.copy(value);
+            }
+        });
+
+        const rotationEditor = new RotationEditor({
+            rotation: this.rotation,
+            onChange: (value: THREE.Euler) => {
+                this.rotation.copy(value);
+            }
+        });
+
+        const chargeEditor = new NumberEditor({
+            name: "体積密度[C/m³]",
+            value: this.volumeDensity,
+            onChange: (value: number) => {
+                this.volumeDensity = value;
+                this.material = InfinityCylinderVolumeCharge.getMaterial(this.volumeDensity);
+            }
+        });
+
+        const radiusEditor = new NumberEditor({
+            name: "半径[m]",
+            value: this.radius,
+            onChange: (value: number) => {
+                this.radius = value;
+                this.geometry.dispose();
+                this.geometry = new THREE.CylinderGeometry(this.radius, this.radius, 400, 20);
+            },
+            min: 0.1,
+            step: 0.1,
+            digits: 2
+        });
+
+        return new Editor()
+            .add(positionEditor)
+            .add(rotationEditor)
+            .add(chargeEditor)
+            .add(radiusEditor)
+            ;
 
     }
 

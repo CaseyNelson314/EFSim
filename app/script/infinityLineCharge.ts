@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
+import { Editor, PositionEditor, NumberEditor, RotationEditor } from './editor';
 
 
 /**
@@ -155,6 +156,43 @@ export class InfinityLineCharge extends Charge {
     override dispose = () => {
 
         this.geometry.dispose();
+
+    }
+
+
+    /**
+     * パラメーター設定用エディタを生成する
+     */
+    override createEditor = () => {
+
+        const positionEditor = new PositionEditor({
+            position: this.position,
+            onChange: (value: THREE.Vector3) => {
+                this.position.copy(value);
+            }
+        });
+
+        const rotationEditor = new RotationEditor({
+            rotation: this.rotation,
+            onChange: (value: THREE.Euler) => {
+                this.rotation.copy(value);
+            }
+        });
+
+        const chargeEditor = new NumberEditor({
+            name: "線密度[C/m]",
+            value: this.lineDensity,
+            onChange: (value: number) => {
+                this.lineDensity = value;
+                this.material = InfinityLineCharge.getMaterial(this.lineDensity);
+            }
+        });
+
+        return new Editor()
+            .add(positionEditor)
+            .add(rotationEditor)
+            .add(chargeEditor)
+            ;
 
     }
 

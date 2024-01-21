@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { kCoulomb } from './constants';
 import { GSS } from './gss';
+import { Editor, PositionEditor, NumberEditor } from './editor';
 
 
 
@@ -26,31 +27,8 @@ export class PointCharge extends Charge {
         super(geometry, material);
 
         this.position.copy(position);
-        
-        this.charge = charge;
-
-    }
-
-
-    /**
-     * 電荷量を更新する
-     * @param charge 電荷量
-     */
-    updateCharge = (charge: number) => {
 
         this.charge = charge;
-        this.material = PointCharge.getMaterial(this.charge);
-
-    }
-
-
-    /**
-     * 電荷量を取得する
-     * @returns 電荷量
-     */
-    getCharge = () => {
-
-        return this.charge;
 
     }
 
@@ -116,7 +94,7 @@ export class PointCharge extends Charge {
     override electricForceLinesDirection = () => {
 
         return GSS(25).map((vector) => { return { begin: this.position, direction: vector } });
-        
+
     }
 
 
@@ -149,7 +127,36 @@ export class PointCharge extends Charge {
             position: this.position.toArray(),
             charge: this.charge
         };
-        
+
+    }
+
+
+    /**
+     * パラメーター設定用エディタを生成する
+     */
+    override createEditor = () => {
+
+        const positionEditor = new PositionEditor({
+            position: this.position,
+            onChange: (value: THREE.Vector3) => {
+                this.position.copy(value);
+            }
+        });
+
+        const chargeEditor = new NumberEditor({
+            name: "電荷量[C]",
+            value: this.charge,
+            onChange: (value: number) => {
+                this.charge = value;
+                this.material = PointCharge.getMaterial(this.charge);
+            }
+        });
+
+        return new Editor()
+            .add(positionEditor)
+            .add(chargeEditor)
+            ;
+
     }
 
 
@@ -171,7 +178,7 @@ export class PointCharge extends Charge {
             return PointCharge.minusMaterial;
         else
             return PointCharge.neutralMaterial;
-        
+
     }
 
 
