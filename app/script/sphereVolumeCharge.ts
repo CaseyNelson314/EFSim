@@ -148,7 +148,9 @@ export class SphereVolumeCharge extends Charge {
             name: "半径[m]",
             value: this.radius,
             onChange: (value: number) => {
-                this.updateRadius(value);
+                this.radius = value;
+                this.geometry.dispose();
+                this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
             },
             min: 0.1,
             step: 0.1,
