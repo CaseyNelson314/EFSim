@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <title>EFSim</title>
   <link rel="icon" href="./assets/kagaku_genshi-J5GJWi2o.png" />
-  <script type="module" crossorigin src="./assets/index-Awi7_QoS.js"></script>
+  <script type="module" crossorigin src="./assets/index-Okz0eSgP.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-9bZ3gxex.css">
 </head>
 
@@ -40,8 +40,8 @@
           <button type="button" id="add_finite_surface_charge_button">
             <img class="control_img" src="./static/finite_surface_charge.png" alt="有限面">
           </button>
-        </div>
-         -->
+        </div> -->
+
         <div class="control_button">
           <p class="title">無限面</p>
           <button type="button" id="add_infinity_surface_charge_button">
@@ -75,7 +75,7 @@
       </div>
 
       <!-- 座標編集領域 -->
-      <div class="parameter_editor">
+      <div class="parameter_editor" id="position_editor_area" style='display:none'>
         <p class="title">座標</p>
         <div class="editor">
           <button type="button" id="position_editor">
@@ -99,7 +99,7 @@
       </div>
 
       <!-- 回転角編集領域 -->
-      <div class="parameter_editor">
+      <div class="parameter_editor" id="rotation_editor_area" style='display:none'>
         <p class="title">回転</p>
         <div class="editor">
           <button type="button" id="rotate_editor">
@@ -124,34 +124,11 @@
       </div>
 
       <!-- その他パラメータ編集領域 -->
-      <div class="parameter_editor">
+      <div class="parameter_editor" id="parameter_editor_area" style='display:none'>
         <p class="title">パラメータ</p>
         <div class="editor">
           <div class="contents" id="detail_editor">
-            <label for="charge_amount" hidden>
-              電荷量[C]
-              <input type="number" id="charge_amount" inputmode="decimal">
-            </label>
-            <label for="charge_line_density" hidden>
-              線密度[C/m]
-              <input type="number" id="charge_line_density" inputmode="decimal" step="0.1">
-            </label>
-            <label for="charge_surface_density" hidden>
-              面密度[C/m²]
-              <input type="number" id="charge_surface_density" inputmode="decimal">
-            </label>
-            <label for="charge_density" hidden>
-              体積密度[C/m³]
-              <input type="number" id="charge_density" inputmode="decimal" step="0.1">
-            </label>
-            <label for="charge_radius" hidden>
-              半径[m]
-              <input type="number" id="charge_radius" inputmode="decimal" min="0">
-            </label>
-            <label for="charge_length" hidden>
-              長さ[m]
-              <input type="number" id="charge_length" inputmode="decimal" min="0">
-            </label>
+            <!-- JSによって自動追加される -->
           </div>
         </div>
       </div>
