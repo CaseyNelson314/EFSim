@@ -26,8 +26,11 @@ const start = () => {
     const charges: Charge[] = [];
 
     // 電荷を作成
-    charges.push(new PointCharge(new THREE.Vector3(-50, 0, -50), 1));
-    charges.push(new PointCharge(new THREE.Vector3(50, 0, 50), -1));
+
+    charges.push(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
+    charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
+    charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
+    charges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
 
     for (const charge of charges) {
         scene.add(charge);
@@ -108,30 +111,30 @@ const start = () => {
             }
         }
     };
-
+    
     // 点電荷追加
     document.getElementById('add_point_charge_button')!.addEventListener('click', () => {
-        addCharge(new PointCharge(new THREE.Vector3(), 1));
+        addCharge(new PointCharge(new THREE.Vector3(), 10));
     });
 
     // 線電荷追加
     document.getElementById('add_infinity_line_charge_button')!.addEventListener('click', () => {
-        addCharge(new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 1));
+        addCharge(new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(), 0.1));
     });
 
     // 無限円柱体表面電荷追加
     document.getElementById('add_infinity_cylinder_surface_charge_button')!.addEventListener('click', () => {
-        addCharge(new InfinityCylinderSurfaceCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 2, 1));
+        addCharge(new InfinityCylinderSurfaceCharge(new THREE.Vector3(), new THREE.Euler(), 5, 0.001));
     });
 
     // 無限円柱体積電荷追加
     document.getElementById('add_infinity_cylinder_volume_charge_button')!.addEventListener('click', () => {
-        addCharge(new InfinityCylinderVolumeCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 2, 1));
+        addCharge(new InfinityCylinderVolumeCharge(new THREE.Vector3(), new THREE.Euler(), 5, 0.001));
     });
 
     // 面電荷追加
     document.getElementById('add_infinity_surface_charge_button')!.addEventListener('click', () => {
-        addCharge(new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1));
+        addCharge(new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 0.001));
     });
 
     // 球面電荷追加

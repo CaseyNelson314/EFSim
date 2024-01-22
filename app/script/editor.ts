@@ -215,14 +215,6 @@ export class NumberEditor implements ParameterEditor {
         this.value = options.value;
         this.onChange = [options.onChange];
 
-        // this.editorAreaに同じIDがいたらラベルを削除する
-        const oldElement = document.getElementById(options.name);
-        if (oldElement !== null) {
-            const oldLabel = oldElement.parentElement!;
-            oldLabel.removeChild(oldElement);
-            this.editorArea.removeChild(oldLabel);
-        }
-
         this.inputLabel = document.createElement('label');
         this.inputLabel.innerHTML = `
             ${options.name}
