@@ -11,6 +11,7 @@ import { InfinitySurfaceCharge } from './infinitySurfaceCharge';
 import { SphereSurfaceCharge } from './sphereSurfaceCharge';
 import { SphereVolumeCharge } from './sphereVolumeCharge';
 import { InfinityCylinderVolumeCharge } from './infinityCylinderVolumeCharge';
+import { InfinityCylinderSurfaceCharge } from './infinityCylinderSurfaceCharge';
 
 const start = () => {
 
@@ -118,14 +119,19 @@ const start = () => {
         addCharge(new InfinityLineCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 1));
     });
 
-    // 面電荷追加
-    document.getElementById('add_infinity_surface_charge_button')!.addEventListener('click', () => {
-        addCharge(new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1));
+    // 無限円柱体表面電荷追加
+    document.getElementById('add_infinity_cylinder_surface_charge_button')!.addEventListener('click', () => {
+        addCharge(new InfinityCylinderSurfaceCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 2, 1));
     });
 
     // 無限円柱体積電荷追加
     document.getElementById('add_infinity_cylinder_volume_charge_button')!.addEventListener('click', () => {
         addCharge(new InfinityCylinderVolumeCharge(new THREE.Vector3(), new THREE.Euler(0, 0, 0), 2, 1));
+    });
+
+    // 面電荷追加
+    document.getElementById('add_infinity_surface_charge_button')!.addEventListener('click', () => {
+        addCharge(new InfinitySurfaceCharge(new THREE.Vector3(), new THREE.Euler(Math.PI / 2, 0, 0), 1));
     });
 
     // 球面電荷追加
