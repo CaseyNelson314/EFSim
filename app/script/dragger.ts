@@ -64,10 +64,23 @@ export class Dragger {
 
             if (intersects.length > 0) {
 
-                // オブジェクトを選択
-                this.selected = intersects[0]!.object as Charge;
+                const object = intersects[0]!.object as Charge;
 
-                if (this.selected !== this.transControls.object) {
+                if (object !== this.transControls.object) {
+                    
+                    // 既に選択されているオブジェクトがあれば選択を解除
+                    if (this.selected !== null) {
+                        this.transControls.detach();
+                        for (let listener of this.listeners) {
+                            if (listener.type === 'object-unselected') {
+                                listener.listener();
+                            }
+                        }
+                    }
+
+                    // オブジェクトを選択
+                    this.selected = object;
+
                     this.transControls.attach(this.selected);
 
                     // オブジェクトが選択されたことを通知
@@ -109,6 +122,7 @@ export class Dragger {
 
             }
         });
+
     }
 
     // 選択されているオブジェクトを取得
