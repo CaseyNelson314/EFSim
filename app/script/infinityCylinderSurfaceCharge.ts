@@ -21,7 +21,7 @@ export class InfinityCylinderSurfaceCharge extends Charge {
      */
     constructor(position: THREE.Vector3, rotation: THREE.Euler, radius: number, surfaceDensity: number) {
 
-        const geometry = new THREE.CylinderGeometry(radius, radius, 400, 20);
+        const geometry = new THREE.CylinderGeometry(radius, radius, 400, 20, 1, true);
         const material = InfinityCylinderSurfaceCharge.getMaterial(surfaceDensity);
         super(geometry, material);
 
@@ -67,8 +67,18 @@ export class InfinityCylinderSurfaceCharge extends Charge {
      * @returns 接触しているかどうか
      */
     override isContact = (distanceFrom: THREE.Vector3) => {
+        
+        const lengthSq = distanceFrom.lengthSq();
 
-        return distanceFrom.lengthSq() < this.radius ** 2;
+        if (lengthSq > this.radius ** 2) {
+            return false;  // 外周より外側
+        }
+        else if (lengthSq < (this.radius - 1) ** 2) {
+            return false;  // 内周より内側
+        }
+        else {
+            return true;   // それ以外
+        }
 
     }
 
@@ -181,7 +191,7 @@ export class InfinityCylinderSurfaceCharge extends Charge {
             onChange: (value: number) => {
                 this.radius = value;
                 this.geometry.dispose();
-                this.geometry = new THREE.CylinderGeometry(this.radius, this.radius, 400, 20);
+                this.geometry = new THREE.CylinderGeometry(this.radius, this.radius, 400, 20, 1, true);
             },
             min: 0.1,
             step: 0.1,
@@ -198,9 +208,9 @@ export class InfinityCylinderSurfaceCharge extends Charge {
     }
 
 
-    private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
-    private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
-    private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
+    private static readonly plusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+    private static readonly minusMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+    private static readonly neutralMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
 
     /**
      * 電荷の正負に応じたマテリアルを返す
