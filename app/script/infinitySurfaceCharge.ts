@@ -131,7 +131,7 @@ export class InfinitySurfaceCharge extends Charge {
 
     /**
      * 解放
-     * @note ジオメトリやマテリアルの破棄を行う
+     * @note ジオメトリの破棄等を行う
      */
     override dispose = () => {
         this.geometry.dispose();

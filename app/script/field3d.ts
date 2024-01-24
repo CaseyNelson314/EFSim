@@ -12,17 +12,11 @@ import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 const ElectricFieldVector = (
     charges: Charge[],
     position: THREE.Vector3
-) => {
+) =>
+    charges.reduce((electricFieldVector, charge) => {
+        return electricFieldVector.add(charge.electricFieldVector(position));
+    }, new THREE.Vector3());
 
-    let electricFieldVector = new THREE.Vector3();
-
-    for (const charge of charges) {
-        electricFieldVector.add(charge.electricFieldVector(position));
-    }
-
-    return electricFieldVector;
-
-};
 
 
 /**
