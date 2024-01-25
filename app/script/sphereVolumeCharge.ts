@@ -89,8 +89,8 @@ export class SphereVolumeCharge extends Charge {
             return diffVector.multiplyScalar(this.volumeDensity * Math.sqrt(diffLengthSq) / (3 * permittivity));
         }
         else {
-            // E=(ρa^3/3ε) / r^2
-            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq));
+            // E=(ρa^3/3ε) / r^3
+            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq ** (3/2)));
         }
 
     }
