@@ -19,21 +19,31 @@
 ガウスの法則より電界の強さを求め、電界ベクトルを求める。
 
 $$
-\sum E dS = \frac{Q}{\varepsilon_0}
+\sum EndS = \frac{\sum Q}{\varepsilon_0}
 $$
 
-### 点電荷
+電荷の種別ごとの電界、電界ベクトル算出式
 
-$$
-電荷から距離rでの電界E(r)はガウスの法則より、 \\
-\begin{aligned}
-  E(r) 4 \pi r &= \frac{Q}{\varepsilon_0}                                    \\
-  E(r)         &= \frac{1}{4 \pi r} \frac{Q}{r^2}                            \\
-  \vec{E(r)}   &= \frac{1}{4 \pi r} \frac{Q}{r^2} \frac{\vec{r}}{r}
-\end{aligned}
-$$
+| 電荷種別     |                                                                     電界(スカラ)                                                                     |                                                                                                               電界(ベクトル)                                                                                                               |
+| ------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| 点電荷       |                                                    $ E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}} $                                                    |                                                                              $ \bm{E}(\bm{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r} $                                                                              |
+| 無限長線電荷 |                                                   $ E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r} $                                                   |                                                                           $ \bm{E}(\bm{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\bm{r}\rvert^{2}} \bm{r} $                                                                            |
+| 無限面電荷   |                                                      $ E(r) = \frac{\sigma}{2 \varepsilon_0} $                                                       |                                                                               $ \bm{E}(\bm{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\bm{r}\rvert} \bm{r}$                                                                                |
+| 球表面電荷   |               $ \begin{cases} E(r) = \frac{\sigma a^{2}}{\varepsilon_0 r^{2}} & (a \leq r) \\ E(r) = 0 & (0 \leq r < a) \end{cases} $                |                 $ \begin{cases} \bm{E}(\bm{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \bm{0} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases} $                 |
+| 球体積電荷   | $ \begin{cases} E(r) = \frac{\rho a^{3}}{3 \varepsilon_0 r^{2}} & (a \leq r) \\ E(r) = \frac{\rho r}{3 \varepsilon_0} & (0 \leq r < a) \end{cases} $ | $ \begin{cases} \bm{E}(\bm{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \frac{\rho}{3 \varepsilon_0} \bm{r} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases} $ 　 |
+| 円筒表面電荷 |                   $ \begin{cases} E(r) = \frac{\sigma a}{\varepsilon_0 r} & (a \leq r) \\ E(r) = 0 & (0 \leq r < a) \end{cases} $                    |                  $ \begin{cases} \bm{E}(\bm{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\bm{r}\rvert^{2}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \bm{0} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases} $                   |
+| 円筒体積電荷 |   $ \begin{cases} E(r) = \frac{\rho a^{2}}{2 \varepsilon_0 r} & (a \leq r) \\ E(r) = \frac{\rho r}{2 \varepsilon_0} & (0 \leq r < a) \end{cases} $   |  $ \begin{cases} \bm{E}(\bm{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\bm{r}\rvert^{2}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \frac{\rho}{2 \varepsilon_0} \bm{r} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases} $   |
 
-### 無限長線電荷
+|        値         |         意味         |        単位        |
+| :---------------: | :------------------: | :----------------: |
+| $ \varepsilon_0 $ |    真空中の誘電率    |  $ \mathrm{F/m} $  |
+|       $ q $       |        電荷量        |   $ \mathrm{C} $   |
+|    $ \lambda $    |      線電荷密度      |  $ \mathrm{C/m} $  |
+|    $ \sigma $     |      面電荷密度      | $ \mathrm{C/m^2} $ |
+|     $ \rho $      |     体積電荷密度     | $ \mathrm{C/m^3} $ |
+|       $ r $       |     電荷との距離     |   $ \mathrm{m} $   |
+|    $ \bm{r} $     | 電荷との距離ベクトル |  $ (\mathrm{m}) $  |
+|       $ a $       |         半径         |   $ \mathrm{m} $   |
 
 ## 開発者用
 
