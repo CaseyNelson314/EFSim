@@ -1,4 +1,4 @@
-# EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml/badge.svg)](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml)
+d# EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml/badge.svg)](https://github.com/CaseyNelson314/EFSim/actions/workflows/deploy.yml)
 
 ![image](https://github.com/CaseyNelson314/EFSim/assets/91818705/d9f6cd13-0ae5-4ea5-91fb-b2342f9f348f)
 
@@ -22,28 +22,96 @@ $$
 \sum EndS = \frac{\sum Q}{\varepsilon_0}
 $$
 
-電荷の種別ごとの電界、電界ベクトル算出式
+- 点電荷
 
-| 電荷種別     |                                                                    電界(スカラ)                                                                    |                                                                                                             電界(ベクトル)                                                                                                              |
-| ------------ | :------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| 点電荷       |                                                    $E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}}$                                                    |                                                                             $\bm{E}(\bm{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r}$                                                                              |
-| 無限長線電荷 |                                                   $E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r}$                                                   |                                                                           $\bm{E}(\bm{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\bm{r}\rvert^{2}} \bm{r}$                                                                           |
-| 無限面電荷   |                                                      $E(r) = \frac{\sigma}{2 \varepsilon_0}$                                                       |                                                                               $\bm{E}(\bm{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\bm{r}\rvert} \bm{r}$                                                                               |
-| 球表面電荷   |               $\begin{cases} E(r) = \frac{\sigma a^{2}}{\varepsilon_0 r^{2}} & (a \leq r) \\ E(r) = 0 & (0 \leq r < a) \end{cases}$                |                $\begin{cases} \bm{E}(\bm{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \bm{0} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases}$                 |
-| 球体積電荷   | $\begin{cases} E(r) = \frac{\rho a^{3}}{3 \varepsilon_0 r^{2}} & (a \leq r) \\ E(r) = \frac{\rho r}{3 \varepsilon_0} & (0 \leq r < a) \end{cases}$ | $\begin{cases} \bm{E}(\bm{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\bm{r}\rvert^{3}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \frac{\rho}{3 \varepsilon_0} \bm{r} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases}$　 |
-| 円筒表面電荷 |                   $\begin{cases} E(r) = \frac{\sigma a}{\varepsilon_0 r} & (a \leq r) \\ E(r) = 0 & (0 \leq r < a) \end{cases}$                    |                  $\begin{cases} \bm{E}(\bm{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\bm{r}\rvert^{2}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \bm{0} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases}$                  |
-| 円筒体積電荷 |   $\begin{cases} E(r) = \frac{\rho a^{2}}{2 \varepsilon_0 r} & (a \leq r) \\ E(r) = \frac{\rho r}{2 \varepsilon_0} & (0 \leq r < a) \end{cases}$   |  $\begin{cases} \bm{E}(\bm{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\bm{r}\rvert^{2}} \bm{r} & (a \leq \lvert\bm{r}\rvert) \\ \bm{E}(\bm{r}) = \frac{\rho}{2 \varepsilon_0} \bm{r} & (0 \leq \lvert\bm{r}\rvert < a) \end{cases}$  |
+  $$
+  E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}}
+  \qquad
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r}
+  $$
 
-|       値        |         意味         |       単位       |
-| :-------------: | :------------------: | :--------------: |
-| $\varepsilon_0$ |    真空中の誘電率    |  $\mathrm{F/m}$  |
-|       $q$       |        電荷量        |   $\mathrm{C}$   |
-|    $\lambda$    |      線電荷密度      |  $\mathrm{C/m}$  |
-|    $\sigma$     |      面電荷密度      | $\mathrm{C/m^2}$ |
-|     $\rho$      |     体積電荷密度     | $\mathrm{C/m^3}$ |
-|       $r$       |     電荷との距離     |   $\mathrm{m}$   |
-|    $\bm{r}$     | 電荷との距離ベクトル |  $(\mathrm{m})$  |
-|       $a$       |         半径         |   $\mathrm{m}$   |
+- 無限長線電荷
+
+  $$
+  E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r}
+  \qquad
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r}
+  $$
+
+- 無限面電荷
+
+  $$
+  E(r) = \frac{\sigma}{2 \varepsilon_0}
+  \qquad
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert} \boldsymbol{r}
+  $$
+
+- 球表面電荷
+
+  $$
+  \begin{cases}
+    E(r) = \frac{\sigma a^{2}}{\varepsilon_0 r^{2}} & (a \leq r) \\
+    E(r) = 0 & (0 \leq r < a)
+  \end{cases}
+  \qquad
+  \begin{cases}
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+    \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \end{cases}
+  $$
+
+- 球体積電荷
+
+  $$
+  \begin{cases}
+    E(r) = \frac{\rho a^{3}}{3 \varepsilon_0 r^{2}} & (a \leq r) \\
+    E(r) = \frac{\rho r}{3 \varepsilon_0} & (0 \leq r < a)
+  \end{cases}
+  \qquad
+  \begin{cases}
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{3 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \end{cases}
+  $$
+
+- 円筒表面電荷
+
+  $$
+  \begin{cases}
+    E(r) = \frac{\sigma a}{\varepsilon_0 r} & (a \leq r) \\
+    E(r) = 0 & (0 \leq r < a)
+  \end{cases}
+  \qquad
+  \begin{cases}
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+    \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \end{cases}
+  $$
+
+- 円筒体積電荷
+
+  $$
+  \begin{cases}
+    E(r) = \frac{\rho a^{2}}{2 \varepsilon_0 r} & (a \leq r) \\
+    E(r) = \frac{\rho r}{2 \varepsilon_0} & (0 \leq r < a)
+  \end{cases}
+  \qquad
+  \begin{cases}
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{2 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \end{cases}
+  $$
+
+|        値        |         意味         |       単位       |
+| :--------------: | :------------------: | :--------------: |
+| $\varepsilon_0$  |    真空中の誘電率    |  $\mathrm{F/m}$  |
+|       $q$        |        電荷量        |   $\mathrm{C}$   |
+|    $\lambda$     |      線電荷密度      |  $\mathrm{C/m}$  |
+|     $\sigma$     |      面電荷密度      | $\mathrm{C/m^2}$ |
+|      $\rho$      |     体積電荷密度     | $\mathrm{C/m^3}$ |
+|       $r$        |     電荷との距離     |   $\mathrm{m}$   |
+| $\boldsymbol{r}$ | 電荷との距離ベクトル |  $(\mathrm{m})$  |
+|       $a$        |         半径         |   $\mathrm{m}$   |
 
 ## 開発者用
 
