@@ -16,7 +16,7 @@ d# EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions
 
 ## 電界ベクトル式算出
 
-ガウスの法則より電界の強さを求め、電界ベクトルを求める。
+ガウスの法則より電界強度、電界ベクトルを求める。
 
 $$
 \sum EndS = \frac{\sum Q}{\varepsilon_0}
@@ -102,16 +102,18 @@ $$
 \end{cases}
 $$
 
-|        値        |         意味         |       単位       |
-| :--------------: | :------------------: | :--------------: |
-| $\varepsilon_0$  |    真空中の誘電率    |  $\mathrm{F/m}$  |
-|       $q$        |        電荷量        |   $\mathrm{C}$   |
-|    $\lambda$     |      線電荷密度      |  $\mathrm{C/m}$  |
-|     $\sigma$     |      面電荷密度      | $\mathrm{C/m^2}$ |
-|      $\rho$      |     体積電荷密度     | $\mathrm{C/m^3}$ |
-|       $r$        |     電荷との距離     |   $\mathrm{m}$   |
-| $\boldsymbol{r}$ | 電荷との距離ベクトル |  $(\mathrm{m})$  |
-|       $a$        |         半径         |   $\mathrm{m}$   |
+- 定数、変数表
+
+  |        値        |         意味         |       単位       |
+  | :--------------: | :------------------: | :--------------: |
+  | $\varepsilon_0$  |    真空中の誘電率    |  $\mathrm{F/m}$  |
+  |       $q$        |        電荷量        |   $\mathrm{C}$   |
+  |    $\lambda$     |      線電荷密度      |  $\mathrm{C/m}$  |
+  |     $\sigma$     |      面電荷密度      | $\mathrm{C/m^2}$ |
+  |      $\rho$      |     体積電荷密度     | $\mathrm{C/m^3}$ |
+  |       $r$        |     電荷との距離     |   $\mathrm{m}$   |
+  | $\boldsymbol{r}$ | 電荷との距離ベクトル |  $(\mathrm{m})$  |
+  |       $a$        |         半径         |   $\mathrm{m}$   |
 
 ## 開発者用
 
