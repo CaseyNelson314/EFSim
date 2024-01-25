@@ -24,83 +24,83 @@ $$
 
 - 点電荷
 
-  $$
-  E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}}
-  \qquad
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r}
-  $$
+$$
+E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}}
+\qquad
+\boldsymbol{E}(\boldsymbol{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r}
+$$
 
 - 無限長線電荷
 
-  $$
-  E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r}
-  \qquad
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r}
-  $$
+$$
+E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r}
+\qquad
+\boldsymbol{E}(\boldsymbol{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r}
+$$
 
 - 無限面電荷
 
-  $$
-  E(r) = \frac{\sigma}{2 \varepsilon_0}
-  \qquad
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert} \boldsymbol{r}
-  $$
+$$
+E(r) = \frac{\sigma}{2 \varepsilon_0}
+\qquad
+\boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert} \boldsymbol{r}
+$$
 
 - 球表面電荷
 
-  $$
-  \begin{cases}
-    E(r) = \frac{\sigma a^{2}}{\varepsilon_0 r^{2}} & (a \leq r) \\
-    E(r) = 0 & (0 \leq r < a)
-  \end{cases}
-  \qquad
-  \begin{cases}
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-    \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
-  \end{cases}
-  $$
+$$
+\begin{cases}
+  E(r) = \frac{\sigma a^{2}}{\varepsilon_0 r^{2}} & (a \leq r) \\
+  E(r) = 0 & (0 \leq r < a)
+\end{cases}
+\qquad
+\begin{cases}
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+  \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+\end{cases}
+$$
 
 - 球体積電荷
 
-  $$
-  \begin{cases}
-    E(r) = \frac{\rho a^{3}}{3 \varepsilon_0 r^{2}} & (a \leq r) \\
-    E(r) = \frac{\rho r}{3 \varepsilon_0} & (0 \leq r < a)
-  \end{cases}
-  \qquad
-  \begin{cases}
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{3 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
-  \end{cases}
-  $$
+$$
+\begin{cases}
+  E(r) = \frac{\rho a^{3}}{3 \varepsilon_0 r^{2}} & (a \leq r) \\
+  E(r) = \frac{\rho r}{3 \varepsilon_0} & (0 \leq r < a)
+\end{cases}
+\qquad
+\begin{cases}
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{3 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+\end{cases}
+$$
 
 - 円筒表面電荷
 
-  $$
-  \begin{cases}
-    E(r) = \frac{\sigma a}{\varepsilon_0 r} & (a \leq r) \\
-    E(r) = 0 & (0 \leq r < a)
-  \end{cases}
-  \qquad
-  \begin{cases}
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-    \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
-  \end{cases}
-  $$
+$$
+\begin{cases}
+  E(r) = \frac{\sigma a}{\varepsilon_0 r} & (a \leq r) \\
+  E(r) = 0 & (0 \leq r < a)
+\end{cases}
+\qquad
+\begin{cases}
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+  \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+\end{cases}
+$$
 
 - 円筒体積電荷
 
-  $$
-  \begin{cases}
-    E(r) = \frac{\rho a^{2}}{2 \varepsilon_0 r} & (a \leq r) \\
-    E(r) = \frac{\rho r}{2 \varepsilon_0} & (0 \leq r < a)
-  \end{cases}
-  \qquad
-  \begin{cases}
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-    \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{2 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
-  \end{cases}
-  $$
+$$
+\begin{cases}
+  E(r) = \frac{\rho a^{2}}{2 \varepsilon_0 r} & (a \leq r) \\
+  E(r) = \frac{\rho r}{2 \varepsilon_0} & (0 \leq r < a)
+\end{cases}
+\qquad
+\begin{cases}
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
+  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{2 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+\end{cases}
+$$
 
 |        値        |         意味         |       単位       |
 | :--------------: | :------------------: | :--------------: |
