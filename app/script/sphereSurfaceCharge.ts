@@ -88,9 +88,9 @@ export class SphereSurfaceCharge extends Charge {
             return new THREE.Vector3();  // 観測点が球の内部にある場合
         }
         else {
-            // E=(σa^2)/(εr^2)
+            // E=(σa^2)/(εr^3)
             return diffVector.multiplyScalar(
-                (this.arealDensity * this.radius ** 2) / (permittivity * diffLengthSq)
+                (this.arealDensity * this.radius ** 2) / (permittivity * diffLengthSq ** (3/2))
             );
         }
 
@@ -115,7 +115,7 @@ export class SphereSurfaceCharge extends Charge {
     
     /**
      * 解放
-     * @note ジオメトリやマテリアルの破棄を行う
+     * @note ジオメトリの破棄等を行う
      */
     override dispose = () => {
 

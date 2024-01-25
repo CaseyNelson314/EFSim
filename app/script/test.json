@@ -10,24 +10,35 @@
     "scene": [
         {
             "name": "双極子",
-            "pointCharges": [
+            "charges": [
                 {
+                    "name": "pointCharge",
                     "position": [0, 0, 0],
                     "charge": 1
                 },
                 {
+                    "name": "pointCharge",
                     "position": [0, 1, 0],
                     "charge": -1
                 }
             ]
         },
         {
-            "name": "線電荷",
-            "lineCharges": [
+            "name": "線双極子",
+            "charges": [
                 {
+                    "name": "lineCharge",
                     "position": [0, 0, 0],
+                    "rotation": [0, 1, 0],
                     "charge": 1,
-                    "direction": [0, 1, 0]
+                    "length": 1
+                },
+                {
+                    "name": "lineCharge",
+                    "position": [10, 0, 0],
+                    "rotation": [0, 1, 0],
+                    "charge": -1,
+                    "length": 1
                 }
             ]
         }

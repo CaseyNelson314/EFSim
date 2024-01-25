@@ -74,7 +74,7 @@ export abstract class Charge extends THREE.Mesh {
 
     /**
      * 解放
-     * @note ジオメトリやマテリアルの破棄を行う
+     * @note ジオメトリの破棄等を行う
      */
     abstract dispose: () => void;
 
