@@ -58,13 +58,14 @@ export class SphereSurfaceCharge extends Charge {
 
 
     /**
-     * 距離ベクトルを基に接触判定を行う
-     * @param distanceFrom 電荷との距離ベクトル
+     * 任意の座標が電荷に接触しているかどうかを判定する
+     * @param position 任意の座標
+     * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (position: THREE.Vector3, threshold: number) => {
 
-        return distanceFrom.lengthSq() < this.radius ** 2;
+        return position.distanceToSquared(this.position) < (this.radius + threshold) ** 2;
 
     }
     
@@ -120,6 +121,38 @@ export class SphereSurfaceCharge extends Charge {
     override dispose = () => {
 
         this.geometry.dispose();
+
+    }
+
+
+    /**
+     * JSONから電荷を生成する
+     */
+    static override fromJSON = (json: any) => {
+        
+        return new SphereSurfaceCharge(
+            new THREE.Vector3(json.position.x, json.position.y, json.position.z),
+            json.radius,
+            json.arealDensity
+        );        
+        
+    }
+
+
+    /**
+     * 電荷をJSONに変換する
+     */
+    override toJSON = () => {
+
+        return {
+            position: {
+                x: this.position.x,
+                y: this.position.y,
+                z: this.position.z
+            },
+            radius: this.radius,
+            arealDensity: this.arealDensity
+        };
 
     }
 

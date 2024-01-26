@@ -12,11 +12,15 @@ import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
 const ElectricFieldVector = (
     charges: Charge[],
     position: THREE.Vector3
-) =>
-    charges.reduce((electricFieldVector, charge) => {
-        return electricFieldVector.add(charge.electricFieldVector(position));
-    }, new THREE.Vector3());
+) => {
+    const electricFieldVector = new THREE.Vector3();
 
+    for (const charge of charges) {
+        electricFieldVector.add(charge.electricFieldVector(position));
+    }
+
+    return electricFieldVector;
+}
 
 
 /**
@@ -37,7 +41,7 @@ const ElectricForceLinePoints = (
 ) => {
 
     const points = [beginPoint.clone()];
-    const origin = points[0]!.clone().add(dirVector);
+    const origin = beginPoint.clone().add(dirVector);
 
     for (let i = 0; i < 2000; ++i) {
 
@@ -72,7 +76,7 @@ const ElectricForceLinePoints = (
             }
 
             // 他電荷との衝突判定
-            if (charge.isContact(charge.distanceFrom(origin))) {
+            if (charge.isContact(origin, 1.5)) {
                 return points;
             }
 

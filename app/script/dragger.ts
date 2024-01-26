@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as EFSim from './init';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { Charge } from './charge.js';
@@ -7,18 +6,17 @@ import { Charge } from './charge.js';
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
-    transControls: TransformControls;
-    pointCharges: Charge[];
-    camera: THREE.PerspectiveCamera;
-    dom: HTMLElement;
-    controls: OrbitControls;
-    scene: THREE.Scene;
-    ray: THREE.Raycaster;
-    pointer: THREE.Vector2;
-    listeners: { type: string, listener: Function }[];
-    selected: Charge | null;
-    onDownPosition: THREE.Vector2;
-    onUpPosition: THREE.Vector2;
+    private transControls: TransformControls;
+    private pointCharges: Charge[];
+    private camera: THREE.PerspectiveCamera;
+    private dom: HTMLElement;
+    private scene: THREE.Scene;
+    private ray: THREE.Raycaster;
+    private pointer: THREE.Vector2;
+    private listeners: { type: string, listener: Function }[];
+    private selected: Charge | null;
+    private onDownPosition: THREE.Vector2;
+    private onUpPosition: THREE.Vector2;
 
     constructor(
         pointCharges: Charge[],
@@ -28,13 +26,19 @@ export class Dragger {
         scene: THREE.Scene
     ) {
 
-        // ドラッグでオブジェクトを移動するためのコントロール
-        this.transControls = EFSim.CreateTransformControls(camera, dom, controls, scene);
+        this.transControls = new TransformControls(camera, dom);
+
+        this.transControls.addEventListener('dragging-changed', (event) => {
+            controls.enablePan = !event.value;
+            controls.enableRotate = !event.value;
+        });
+
+        scene.add(this.transControls);
+
         // this.transControls.mode = 'rotate';
         this.pointCharges = pointCharges;
         this.camera = camera;
         this.dom = dom;
-        this.controls = controls;
         this.scene = scene;
 
         this.ray = new THREE.Raycaster();
@@ -47,10 +51,7 @@ export class Dragger {
         this.onDownPosition = new THREE.Vector2();
         this.onUpPosition = new THREE.Vector2();
 
-        this.setEvent();
-    }
 
-    setEvent = () => {
         const onClick = (event: MouseEvent) => {
             this.pointer.x = (event.offsetX / this.dom.offsetWidth) * 2 - 1;
             this.pointer.y = -(event.offsetY / this.dom.offsetHeight) * 2 + 1;
@@ -67,7 +68,7 @@ export class Dragger {
                 const object = intersects[0]!.object as Charge;
 
                 if (object !== this.transControls.object) {
-                    
+
                     // 既に選択されているオブジェクトがあれば選択を解除
                     if (this.selected !== null) {
                         this.transControls.detach();
@@ -107,11 +108,10 @@ export class Dragger {
             this.onUpPosition.y = event.offsetY;
             if (this.onDownPosition.distanceTo(this.onUpPosition) < Number.EPSILON) {
 
-                if (this.selected !== null)
-                {
+                if (this.selected !== null) {
                     this.transControls.detach();
                     this.selected = null;
-    
+
                     // オブジェクトが選択解除されたことを通知
                     for (let listener of this.listeners) {
                         if (listener.type === 'object-unselected') {
@@ -143,7 +143,7 @@ export class Dragger {
             this.selected.dispose();
             this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
             this.selected = null;
-    
+
             // オブジェクトが選択解除されたことを通知
             for (let listener of this.listeners) {
                 if (listener.type === 'object-unselected') {

@@ -31,8 +31,8 @@ export class InfinityCylinderSurfaceCharge extends Charge {
         this.radius = radius;
         this.surfaceDensity = surfaceDensity;
     }
-    
-    
+
+
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負
@@ -62,18 +62,19 @@ export class InfinityCylinderSurfaceCharge extends Charge {
 
 
     /**
-     * 距離ベクトルを基に接触判定を行う
-     * @param distanceFrom 電荷との距離ベクトル
+     * 任意の座標が電荷に接触しているかどうかを判定する
+     * @param position 任意の座標
+     * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (distanceFrom: THREE.Vector3) => {
-        
-        const lengthSq = distanceFrom.lengthSq();
+    override isContact = (position: THREE.Vector3, threshold: number) => {
+
+        const lengthSq = this.distanceFrom(position).lengthSq();
 
         if (lengthSq > this.radius ** 2) {
             return false;  // 外周より外側
         }
-        else if (lengthSq < (this.radius - 1) ** 2) {
+        else if (lengthSq < (this.radius - threshold) ** 2) {
             return false;  // 内周より内側
         }
         else {
@@ -81,7 +82,6 @@ export class InfinityCylinderSurfaceCharge extends Charge {
         }
 
     }
-
 
     /**
      * 任意の座標における、この電荷からの電界ベクトルを返す
@@ -153,6 +153,44 @@ export class InfinityCylinderSurfaceCharge extends Charge {
     override dispose = () => {
 
         this.geometry.dispose();
+
+    }
+
+
+    /**
+     * JSONから電荷を生成する
+     */
+    static override fromJSON = (json: any) => {
+
+        return new InfinityCylinderSurfaceCharge(
+            new THREE.Vector3(json.position.x, json.position.y, json.position.z),
+            new THREE.Euler(json.rotation.x, json.rotation.y, json.rotation.z),
+            json.radius,
+            json.surfaceDensity
+        );
+
+    }
+
+
+    /**
+     * 電荷をJSONに変換する
+     */
+    override toJSON = () => {
+
+        return {
+            position: {
+                x: this.position.x,
+                y: this.position.y,
+                z: this.position.z
+            },
+            rotation: {
+                x: this.rotation.x,
+                y: this.rotation.y,
+                z: this.rotation.z
+            },
+            radius: this.radius,
+            surfaceDensity: this.surfaceDensity
+        };
 
     }
 

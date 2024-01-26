@@ -57,13 +57,14 @@ export class PointCharge extends Charge {
 
 
     /**
-     * 距離ベクトルを基に接触判定を行う
-     * @param distanceFrom 電荷との距離ベクトル
+     * 任意の座標が電荷に接触しているかどうかを判定する
+     * @param position 任意の座標
+     * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (position: THREE.Vector3, threshold: number) => {
 
-        return distanceFrom.lengthSq() < 1;
+        return this.position.distanceToSquared(position) < threshold ** 2;
 
     }
 
@@ -106,12 +107,21 @@ export class PointCharge extends Charge {
 
 
     /**
+     * JSON フォーマット
+     * {
+     *     position: [number, number, number],
+     *     charge: number
+     * }
+     */
+
+
+    /**
      * JSONから電荷を生成する
      */
     static override fromJSON = (json: any) => {
 
         return new PointCharge(
-            new THREE.Vector3(json.position[0], json.position[1], json.position[2]),  // json.positionはnumber[]型
+            new THREE.Vector3(json.position.x, json.position.y, json.position.z),
             json.charge
         );
 
@@ -124,7 +134,11 @@ export class PointCharge extends Charge {
     override toJSON = () => {
 
         return {
-            position: this.position.toArray(),
+            position: {
+                x: this.position.x,
+                y: this.position.y,
+                z: this.position.z
+            },
             charge: this.charge
         };
 

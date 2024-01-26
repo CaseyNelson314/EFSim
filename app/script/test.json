@@ -1,46 +1,53 @@
-// 電荷の保存形式をきめているところ
-
 {
-    "settings": {
-        "autoRotate": true,
-        "grid": true,
-        "electricField": true,
-        "lineWidth": 1
-    },
-    "scene": [
+
+    "charges": [
         {
-            "name": "双極子",
-            "charges": [
-                {
-                    "name": "pointCharge",
-                    "position": [0, 0, 0],
-                    "charge": 1
-                },
-                {
-                    "name": "pointCharge",
-                    "position": [0, 1, 0],
-                    "charge": -1
-                }
-            ]
+            "name": "PointCharge",
+            "position": [
+                0,
+                0,
+                -100
+            ],
+            "charge": 10
         },
         {
-            "name": "線双極子",
-            "charges": [
-                {
-                    "name": "lineCharge",
-                    "position": [0, 0, 0],
-                    "rotation": [0, 1, 0],
-                    "charge": 1,
-                    "length": 1
-                },
-                {
-                    "name": "lineCharge",
-                    "position": [10, 0, 0],
-                    "rotation": [0, 1, 0],
-                    "charge": -1,
-                    "length": 1
-                }
-            ]
+            "name": "InfinitySurfaceCharge",
+            "position": [
+                0,
+                0,
+                -25
+            ],
+            "rotation": [
+                0,
+                0,  
+                0,
+                "XYZ"
+            ],
+            "surfaceDensity": -0.001
+        },
+        {
+            "name": "InfinitySurfaceCharge",
+            "position": [
+                0,
+                0,
+                25
+            ],
+            "rotation": [
+                0,
+                0,
+                0,
+                "XYZ"
+            ],
+            "surfaceDensity": 0.001
+        },
+        {
+            "name": "PointCharge",
+            "position": [
+                0,
+                0,
+                100
+            ],
+            "charge": -10
         }
     ]
 }

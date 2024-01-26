@@ -50,11 +50,12 @@ export abstract class Charge extends THREE.Mesh {
 
 
     /**
-     * 距離ベクトルを基に接触判定を行う
-     * @param distanceFrom 電荷との距離ベクトル
+     * 任意の座標が電荷に接触しているかどうかを判定する
+     * @param position 任意の座標
+     * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    abstract isContact: (distanceFrom: THREE.Vector3) => boolean;
+    abstract isContact: (position: THREE.Vector3, threshold: number) => boolean;
 
 
     /**
@@ -82,14 +83,13 @@ export abstract class Charge extends THREE.Mesh {
     /**
      * JSONから電荷を生成する
      */
-    static fromJSON: (json: any) => void;
+    static fromJSON: (json: any) => Charge;
 
 
     /**
      * 電荷をJSONに変換する
      */
     abstract override toJSON(): any;
-
 
 
     /**

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import * as EFSim from './init';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { Editor } from './editor';
 import { Dragger } from './dragger';
 import { Field3D } from './field3d';
@@ -12,28 +13,79 @@ import { SphereSurfaceCharge } from './sphereSurfaceCharge';
 import { SphereVolumeCharge } from './sphereVolumeCharge';
 import { InfinityCylinderVolumeCharge } from './infinityCylinderVolumeCharge';
 import { InfinityCylinderSurfaceCharge } from './infinityCylinderSurfaceCharge';
+import { Store } from './store';
 
 const start = () => {
 
+
+    // 描画領域
     const dom = document.getElementById('canvas')!;
-    const scene = EFSim.CreateScene();
-    const renderer = EFSim.CreateRenderer(dom);
-    const camera = EFSim.CreateCamera(dom);
-    const controls = EFSim.CreateControls(camera, dom);
-    EFSim.ResisterResizeObserver(dom, renderer, camera);
+
+
+    // シーン作成
+    const scene = new THREE.Scene();
+
+
+    // レンダラー作成
+    const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+    renderer.setSize(dom.offsetWidth, dom.offsetHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    dom.appendChild(renderer.domElement);
+
+
+    // カメラ作成
+    const aspect = dom.offsetWidth / dom.offsetHeight;
+    const camera = new THREE.PerspectiveCamera(60, aspect);
+    camera.position.set(150, 150, 150);
+
+
+    // マウスコントロール作成
+    const controls = new OrbitControls(camera, dom);
+    controls.autoRotate = true;    // 自動回転
+    controls.autoRotateSpeed = 1;  // 自動回転の速度
+    controls.enableDamping = true; // 視点の移動を滑らかにする
+    controls.dampingFactor = 0.2;  // 滑らか度合い
+
+
+    // リサイズ処理
+    {
+        const resizeObserver = new ResizeObserver((entries) => {
+            if (entries.length === 0) {
+                return;
+            }
+            const { width, height } = entries[0]!.contentRect;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+        resizeObserver.observe(dom);
+    }
+
+
+    // 文字列(JSON)から電荷を構築できるように登録
+    {
+        Store.RegisterChargeGenerator("PointCharge", PointCharge.fromJSON);
+        Store.RegisterChargeGenerator("InfinityLineCharge", InfinityLineCharge.fromJSON);
+        Store.RegisterChargeGenerator("InfinitySurfaceCharge", InfinitySurfaceCharge.fromJSON);
+        Store.RegisterChargeGenerator("SphereSurfaceCharge", SphereSurfaceCharge.fromJSON);
+        Store.RegisterChargeGenerator("SphereVolumeCharge", SphereVolumeCharge.fromJSON);
+        Store.RegisterChargeGenerator("InfinityCylinderVolumeCharge", InfinityCylinderVolumeCharge.fromJSON);
+        Store.RegisterChargeGenerator("InfinityCylinderSurfaceCharge", InfinityCylinderSurfaceCharge.fromJSON);
+    }
 
     // 点電荷たち
     const charges: Charge[] = [];
 
     // 電荷を作成
-
-    charges.push(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
-    charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
-    charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
-    charges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
-
-    for (const charge of charges) {
-        scene.add(charge);
+    {
+        charges.push(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
+        charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
+        charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
+        charges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
+        scene.add(...charges);
     }
 
     // シミュレーション空間
@@ -84,8 +136,8 @@ const start = () => {
     dragger.addEventListener('object-unselected', () => {
         parameterEditor.disable();
     });
-    
-    
+
+
     const addCharge = (newCharge: Charge) => {
         scene.add(newCharge);
         charges.push(newCharge);
@@ -111,7 +163,7 @@ const start = () => {
             }
         }
     };
-    
+
     // 点電荷追加
     document.getElementById('add_point_charge_button')!.addEventListener('click', () => {
         addCharge(new PointCharge(new THREE.Vector3(), 10));
@@ -149,7 +201,7 @@ const start = () => {
 
     // 電荷削除
     document.getElementById('delete_charge_button')!.addEventListener('click', deleteCharge);
-    
+
 
 
     // 床の表示/非表示

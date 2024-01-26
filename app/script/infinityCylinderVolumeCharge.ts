@@ -31,8 +31,8 @@ export class InfinityCylinderVolumeCharge extends Charge {
         this.radius = radius;
         this.volumeDensity = volumeDensity;
     }
-    
-    
+
+
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負
@@ -62,13 +62,14 @@ export class InfinityCylinderVolumeCharge extends Charge {
 
 
     /**
-     * 距離ベクトルを基に接触判定を行う
-     * @param distanceFrom 電荷との距離ベクトル
+     * 任意の座標が電荷に接触しているかどうかを判定する
+     * @param position 任意の座標
+     * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (distanceFrom: THREE.Vector3) => {
+    override isContact = (position: THREE.Vector3, threshold: number) => {
 
-        return distanceFrom.lengthSq() < this.radius ** 2;
+        return this.distanceFrom(position).lengthSq() < threshold ** 2;
 
     }
 
@@ -146,6 +147,43 @@ export class InfinityCylinderVolumeCharge extends Charge {
 
     }
 
+
+    /**
+     * JSONから電荷を生成する
+     */
+    static override fromJSON = (json: any) => {
+
+        return new InfinityCylinderVolumeCharge(
+            new THREE.Vector3(json.position.x, json.position.y, json.position.z),
+            new THREE.Euler(json.rotation.x, json.rotation.y, json.rotation.z),
+            json.radius,
+            json.volumeDensity
+        );
+
+    }
+
+
+    /**
+     * 電荷をJSONに変換する
+     */
+    override toJSON = () => {
+
+        return {
+            position: {
+                x: this.position.x,
+                y: this.position.y,
+                z: this.position.z
+            },
+            rotation: {
+                x: this.rotation.x,
+                y: this.rotation.y,
+                z: this.rotation.z
+            },
+            radius: this.radius,
+            volumeDensity: this.volumeDensity
+        };
+
+    }
 
     /**
      * パラメーター設定用エディタを生成する
