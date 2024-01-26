@@ -14,7 +14,7 @@ d# EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions
 
 空間内で電荷を選択することで、パラメータ編集モードに切り替わり、電荷の位置、回転角、電荷量、電荷密度などのパラメーターを編集できます。(編集できるパラメータは電荷の種類によって異なります)
 
-## 電界ベクトル式算出
+## 電界ベクトル
 
 - 点電荷
 
@@ -223,7 +223,7 @@ for (const charge of charges) {
 
 1. app/script/ ディレクトリに適当な名前の TypeScript ファイルを作成
 
-2. 電荷クラスを追加
+1. 電荷クラスを追加
 
    追加する電荷クラスを作成し、`Charge` クラスを継承する。
 
