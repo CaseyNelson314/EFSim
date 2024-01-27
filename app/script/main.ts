@@ -120,7 +120,7 @@ const start = () => {
     }
 
     // 電荷が移動中
-    dragger.addEventListener('object-change', throttle(50, () => {
+    dragger.addEventListener('object-change', throttle(100, () => {
         electricForceLine.update();
     }));
     dragger.addEventListener('object-change', throttle(50, () => {
