@@ -7,14 +7,15 @@ import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
  */
 class ElectricLines3D extends THREE.Object3D {
 
-    private charges: Charge[];
+    private field: ElectricField;
     private lineMaterial: MeshLineMaterial;
     private coneGeometry: THREE.ConeGeometry;
     private coneMaterial: THREE.MeshBasicMaterial;
 
-    constructor(charges: Charge[]) {
+    constructor(field: ElectricField) {
         super();
-        this.charges = charges;
+
+        this.field = field;
 
         this.lineMaterial = new MeshLineMaterial({ color: 0xffffff, lineWidth: 1 });
         this.coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
@@ -24,7 +25,7 @@ class ElectricLines3D extends THREE.Object3D {
     }
 
     createELines() {
-        for (const charge of this.charges) {
+        for (const charge of this.field.charges) {
 
             if (charge.getChargeType() === ChargeType.Neutral) continue;
 
@@ -33,7 +34,8 @@ class ElectricLines3D extends THREE.Object3D {
             for (const point of points) {
 
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = ElectricForceLinePoints(charge, this.charges, point.begin, point.direction, 500);
+                const points = this.field.electricForceLinePoints(charge, point.begin, point.direction, 500);
+
                 if (points.length < 2) {
                     // 2点以上ないと線分を生成できない
                     continue;
@@ -82,28 +84,36 @@ class ElectricLines3D extends THREE.Object3D {
     }
 }
 
-/// 電界
-export class Field3D extends THREE.Object3D {
 
-    private charges: Charge[];
-    private electricLines3d: THREE.Object3D;
 
+/**
+ * 電界
+ */
+class ElectricField {
+
+
+    /**
+     * 電荷の配列
+     */
+    charges: Charge[];
+
+
+    /**
+     * コンストラクタ
+     * @param charges 電荷の配列
+     */
     constructor(charges: Charge[]) {
-        super();
-
         this.charges = charges;
-        this.electricLines3d = new ElectricLines3D(charges);
     }
-
 
 
     /**
      * 任意の座標における全電荷からの電界ベクトルを計算
-     * @param charges 電荷の配列
      * @param position 任意の座標
      * @returns 
      */
     electricFieldVector = (position: THREE.Vector3) => {
+
         const electricFieldVector = new THREE.Vector3();
 
         for (const charge of this.charges) {
@@ -111,17 +121,17 @@ export class Field3D extends THREE.Object3D {
         }
 
         return electricFieldVector;
+
     }
 
 
     /**
-     * 電気力線の連続点を生成
+     * 特定の電荷からでる電気力線の連続点を生成
      * @param originCharge 線電荷が出る電荷
-     * @param charges 電荷の配列
-     * @param beginPoint 始点
-     * @param dirVector 方向ベクトル
+     * @param beginPoint 始点座標
+     * @param dirVector 方向ベクトル (単位ベクトル)
      * @param simDistance シミュレーション距離 (原点からの距離)
-     * @returns 
+     * @returns 電気力線の連続点
      */
     electricForceLinePoints = (
         originCharge: Charge,
@@ -130,12 +140,15 @@ export class Field3D extends THREE.Object3D {
         simDistance: number
     ) => {
 
+        // 電気力線の連続点
         const points = [beginPoint.clone()];
+
+        // 始点から方向ベクトルの方向に1だけ移動した座標を新たな始点とする
         const origin = beginPoint.clone().add(dirVector);
 
+        // 始点を電界ベクトルを基に移動させる
         for (let i = 0; i < 2000; ++i) {
 
-            // 任意の座標における電界ベクトルを計算
             const electricFieldVector = this.electricFieldVector(origin);
 
             // 負電荷の場合も正電荷と同様の力線を描画するため、電界ベクトルを反転させる
@@ -184,14 +197,43 @@ export class Field3D extends THREE.Object3D {
 
 
 
-    /// フィールドの更新
+}
+
+/// 電界
+export class Field3D extends THREE.Object3D {
+
+
+    private field: ElectricField;
+    private electricLines3d: THREE.Object3D;
+
+
+    /**
+     * コンストラクタ
+     * @param charges 電荷の配列
+     */
+    constructor(charges: Charge[]) {
+        super();
+        this.field = new ElectricField(charges);
+        this.electricLines3d = new ElectricLines3D(this.field);
+    }
+
+
+    /**
+     * フィールドの更新
+     */
     update = () => {
         if (this.children.find((child) => child === this.electricLines3d) != null)
             this.electricLines3d?.update();
     }
 
-    /// 電気力線の表示切替
+
+    /**
+     * 電気力線の表示/非表示を切り替える
+     * @param visible 表示するかどうか
+     */
     enableElectricLines = (visible: boolean) => {
         this.electricLines3d.visible = visible;
     };
+
+
 }

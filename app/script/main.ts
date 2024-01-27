@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { Editor } from './editor';
 import { Dragger } from './dragger';
 import { Field3D } from './field3d';
@@ -76,6 +75,7 @@ const start = () => {
         Store.RegisterChargeGenerator("InfinityCylinderSurfaceCharge", InfinityCylinderSurfaceCharge.fromJSON);
     }
 
+    
     // 点電荷たち
     const charges: Charge[] = [];
 
@@ -231,6 +231,7 @@ const start = () => {
         });
     }
 
+
     // 電気力線 表示/非表示
     {
         const checkbox = document.getElementById('checkbox_electric_lines') as HTMLInputElement;
@@ -239,6 +240,7 @@ const start = () => {
             field3d.enableElectricLines((e.target as HTMLInputElement).checked);
         });
     }
+
 
     const main = () => {
 
