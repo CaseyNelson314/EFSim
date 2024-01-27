@@ -123,7 +123,7 @@ const start = () => {
     dragger.addEventListener('object-change', throttle(50, () => {
         electricForceLine.update();
     }));
-    dragger.addEventListener('object-change', throttle(300, () => {
+    dragger.addEventListener('object-change', throttle(50, () => {
         // パラメーター編集エディタの更新
         parameterEditor.update();
     }));
