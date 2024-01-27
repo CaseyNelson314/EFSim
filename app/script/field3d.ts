@@ -11,7 +11,6 @@ export class ElectricLines3D extends THREE.Object3D {
     private field: ElectricField;
     private lineMaterial = new MeshLineMaterial({ color: new THREE.Color(0xffffff), lineWidth: 1 })
     private coneMaterial = new THREE.MeshBasicMaterial({ color: 0xbbbbbb });
-    private coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
 
     constructor(field: ElectricField) {
         super();
@@ -22,6 +21,7 @@ export class ElectricLines3D extends THREE.Object3D {
     createELines() {
 
         const lines: MeshLineGeometry[] = [];
+        const cones: THREE.ConeGeometry[] = [];
 
         for (const charge of this.field.charges) {
 
@@ -60,19 +60,24 @@ export class ElectricLines3D extends THREE.Object3D {
                         diff.multiplyScalar(-1);
                     }
 
-                    const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
-                    cone.position.copy(origin);
-                    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.normalize());
-                    this.add(cone);
+                    const coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
+                    coneGeometry.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.normalize()));
+                    coneGeometry.translate(origin.x, origin.y, origin.z);
+                    cones.push(coneGeometry);
 
                 }
             }
         }
 
-        // 電気力線を結合することで描画負荷を軽減 (draw call軽減)
+        // ジオメトリを結合し、描画負荷を軽減 (draw call削減)
         const lineGeometry = BufferGeometryUtils.mergeGeometries(lines);
         const line = new THREE.Mesh(lineGeometry, this.lineMaterial);
         this.add(line);
+
+        const coneGeometry = BufferGeometryUtils.mergeGeometries(cones);
+        const cone = new THREE.Mesh(coneGeometry, this.coneMaterial);
+        this.add(cone);
+
     }
 
     update() {
