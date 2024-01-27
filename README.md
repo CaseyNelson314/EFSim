@@ -14,14 +14,14 @@ d# EFSim [![GitHub Pages Deploy](https://github.com/CaseyNelson314/EFSim/actions
 
 空間内で電荷を選択することで、パラメータ編集モードに切り替わり、電荷の位置、回転角、電荷量、電荷密度などのパラメーターを編集できます。(編集できるパラメータは電荷の種類によって異なります)
 
-## 電界ベクトル
+## 電界強度式 電界ベクトル式
 
 - 点電荷
 
 $$
 E(r) = \frac{Q}{4 \pi \varepsilon_0 r^{2}}
 \qquad
-\boldsymbol{E}(\boldsymbol{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r}
+\vec{E}(\vec{r}) = \frac{Q}{4 \pi \varepsilon_0 \lvert\vec{r}\rvert^{3}} \vec{r}
 $$
 
 - 無限長線電荷
@@ -29,7 +29,7 @@ $$
 $$
 E(r) = \frac{\lambda}{2 \pi \varepsilon_0 r}
 \qquad
-\boldsymbol{E}(\boldsymbol{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r}
+\vec{E}(\vec{r}) = \frac{\lambda}{2 \pi \varepsilon_0\lvert\vec{r}\rvert^{2}} \vec{r}
 $$
 
 - 無限面電荷
@@ -37,7 +37,7 @@ $$
 $$
 E(r) = \frac{\sigma}{2 \varepsilon_0}
 \qquad
-\boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert} \boldsymbol{r}
+\vec{E}(\vec{r}) = \frac{\sigma}{2 \varepsilon_0 \lvert\vec{r}\rvert} \vec{r}
 $$
 
 - 球表面電荷
@@ -49,8 +49,8 @@ $$
 \end{cases}
 \qquad
 \begin{cases}
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-  \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \vec{E}(\vec{r}) = \frac{\sigma a^{2}}{\varepsilon_0 \lvert\vec{r}\rvert^{3}} \vec{r} & (a \leq \lvert\vec{r}\rvert) \\
+  \vec{E}(\vec{r}) = \vec{0} & (0 \leq \lvert\vec{r}\rvert < a)
 \end{cases}
 $$
 
@@ -63,8 +63,8 @@ $$
 \end{cases}
 \qquad
 \begin{cases}
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{3}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{3 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \vec{E}(\vec{r}) = \frac{\rho a^{3}}{3 \varepsilon_0 \lvert\vec{r}\rvert^{3}} \vec{r} & (a \leq \lvert\vec{r}\rvert) \\
+  \vec{E}(\vec{r}) = \frac{\rho}{3 \varepsilon_0} \vec{r} & (0 \leq \lvert\vec{r}\rvert < a)
 \end{cases}
 $$
 
@@ -77,8 +77,8 @@ $$
 \end{cases}
 \qquad
 \begin{cases}
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-  \boldsymbol{E}(\boldsymbol{r}) = \boldsymbol{0} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \vec{E}(\vec{r}) = \frac{ \sigma a}{\varepsilon_0 \lvert\vec{r}\rvert^{2}} \vec{r} & (a \leq \lvert\vec{r}\rvert) \\
+  \vec{E}(\vec{r}) = \vec{0} & (0 \leq \lvert\vec{r}\rvert < a)
 \end{cases}
 $$
 
@@ -91,25 +91,25 @@ $$
 \end{cases}
 \qquad
 \begin{cases}
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\boldsymbol{r}\rvert^{2}} \boldsymbol{r} & (a \leq \lvert\boldsymbol{r}\rvert) \\
-  \boldsymbol{E}(\boldsymbol{r}) = \frac{\rho}{2 \varepsilon_0} \boldsymbol{r} & (0 \leq \lvert\boldsymbol{r}\rvert < a)
+  \vec{E}(\vec{r}) = \frac{\rho a^{2}}{2 \varepsilon_0 \lvert\vec{r}\rvert^{2}} \vec{r} & (a \leq \lvert\vec{r}\rvert) \\
+  \vec{E}(\vec{r}) = \frac{\rho}{2 \varepsilon_0} \vec{r} & (0 \leq \lvert\vec{r}\rvert < a)
 \end{cases}
 $$
 
 - 式中の記号詳細
 
-  |                値                |         意味         |       単位       |
-  | :------------------------------: | :------------------: | :--------------: |
-  |              $E(r)$              |       電界強度       |  $\mathrm{V/m}$  |
-  | $\boldsymbol{E}(\boldsymbol{r})$ |     電界ベクトル     | $(\mathrm{V/m})$ |
-  |         $\varepsilon_0$          |    真空中の誘電率    |  $\mathrm{F/m}$  |
-  |               $q$                |        電荷量        |   $\mathrm{C}$   |
-  |            $\lambda$             |      線電荷密度      |  $\mathrm{C/m}$  |
-  |             $\sigma$             |      面電荷密度      | $\mathrm{C/m^2}$ |
-  |              $\rho$              |     体積電荷密度     | $\mathrm{C/m^3}$ |
-  |               $r$                |     電荷との距離     |   $\mathrm{m}$   |
-  |         $\boldsymbol{r}$         | 電荷との距離ベクトル |  $(\mathrm{m})$  |
-  |               $a$                |         半径         |   $\mathrm{m}$   |
+  |       値        |         意味         |       単位       |
+  | :-------------: | :------------------: | :--------------: |
+  |       $E$       |       電界強度       |  $\mathrm{V/m}$  |
+  |    $\vec{E}$    |     電界ベクトル     | $(\mathrm{V/m})$ |
+  |       $r$       |     電荷との距離     |   $\mathrm{m}$   |
+  |    $\vec{r}$    | 電荷との距離ベクトル |  $(\mathrm{m})$  |
+  | $\varepsilon_0$ |    真空中の誘電率    |  $\mathrm{F/m}$  |
+  |       $q$       |        電荷量        |   $\mathrm{C}$   |
+  |    $\lambda$    |      線電荷密度      |  $\mathrm{C/m}$  |
+  |    $\sigma$     |      面電荷密度      | $\mathrm{C/m^2}$ |
+  |     $\rho$      |     体積電荷密度     | $\mathrm{C/m^3}$ |
+  |       $a$       |         半径         |   $\mathrm{m}$   |
 
 ## 開発者用
 
@@ -157,13 +157,13 @@ app/
 
 1. 電気力線の出る適当な方向を決め、その方向に力線を長さ 1 だけ進める。
 
-2. 進めた先の座標における電界ベクトルを求め、その方向に長さ 1 の力線を長さ 1 だけ進める。
+2. 進めた先の座標における電界ベクトルを求め、その方向に力線を長さ 1 だけ進める。
 
 3. 2.を他の電荷に当たる、長さ制限になるまで繰り返し 1 本の電気力線を生成。
 
-4. 1.で決めた方向を調整することで複数の電気力線を生成。
+4. 1.で決める方向を調整することで複数の電気力線を生成。
 
-   <img src="https://github.com/CaseyNelson314/EFSim/assets/91818705/cacb0a49-baac-4bb9-b539-2aa33e4fdd07" height=300>
+   <img src="https://github.com/CaseyNelson314/EFSim/assets/91818705/cacb0a49-baac-4bb9-b539-2aa33e4fdd07" width=500>
 
 ### クラス相関
 
