@@ -1,30 +1,28 @@
 import * as THREE from 'three';
 import { Charge, ChargeType } from './charge';
 import { MeshLineGeometry, MeshLineMaterial } from '@lume/three-meshline'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 /**
  * 電気力線
  */
-class ElectricLines3D extends THREE.Object3D {
+export class ElectricLines3D extends THREE.Object3D {
 
     private field: ElectricField;
-    private lineMaterial: MeshLineMaterial;
-    private coneGeometry: THREE.ConeGeometry;
-    private coneMaterial: THREE.MeshBasicMaterial;
+    private lineMaterial = new MeshLineMaterial({ color: new THREE.Color(0xffffff), lineWidth: 1 })
+    private coneMaterial = new THREE.MeshBasicMaterial({ color: 0xbbbbbb });
+    private coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
 
     constructor(field: ElectricField) {
         super();
-
         this.field = field;
-
-        this.lineMaterial = new MeshLineMaterial({ color: 0xffffff, lineWidth: 1 });
-        this.coneGeometry = new THREE.ConeGeometry(1.5, 4, 10);
-        this.coneMaterial = new THREE.MeshBasicMaterial({ color: 0xbbbbbb });
-
         this.createELines();
     }
 
     createELines() {
+
+        const lines: MeshLineGeometry[] = [];
+
         for (const charge of this.field.charges) {
 
             if (charge.getChargeType() === ChargeType.Neutral) continue;
@@ -36,20 +34,21 @@ class ElectricLines3D extends THREE.Object3D {
                 // 電気力線の連続点から線分ジオメトリを生成
                 const points = this.field.electricForceLinePoints(charge, point.begin, point.direction, 500);
 
+                // 力線を生成
                 if (points.length < 2) {
                     // 2点以上ないと線分を生成できない
                     continue;
                 }
-                const geometry = new MeshLineGeometry();
-                geometry.setPoints(points);
-                const line = new THREE.Mesh(geometry, this.lineMaterial);
-                this.add(line);
+                const lineGeometry = new MeshLineGeometry();
+                lineGeometry.setPoints(points);
+                lines.push(lineGeometry);
 
+
+                // 矢印を生成
                 if (points.length < 20) {
                     // 3点以上ないと矢印を生成できない
                     continue;
                 }
-                // 電気力線上に一定間隔で矢印を生成
                 const step = points.length / 3;
                 for (let i = step; i + 1 < points.length; i += step) {
 
@@ -57,22 +56,29 @@ class ElectricLines3D extends THREE.Object3D {
                     const diff = new THREE.Vector3();
                     diff.subVectors(points[Math.floor(i + 1)]!, origin);
 
-                    const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
-                    cone.position.copy(origin);
-
                     if (charge.getChargeType() === ChargeType.Minus) {
                         diff.multiplyScalar(-1);
                     }
 
+                    const cone = new THREE.Mesh(this.coneGeometry, this.coneMaterial);
+                    cone.position.copy(origin);
                     cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.normalize());
                     this.add(cone);
 
                 }
             }
         }
+
+        // 電気力線を結合することで描画負荷を軽減 (draw call軽減)
+        const lineGeometry = BufferGeometryUtils.mergeGeometries(lines);
+        const line = new THREE.Mesh(lineGeometry, this.lineMaterial);
+        this.add(line);
     }
 
     update() {
+        // const start = performance.now();
+
+
         // ジオメトリをすべて破棄
         for (const child of this.children) {
             if (child instanceof THREE.Mesh) {
@@ -81,6 +87,10 @@ class ElectricLines3D extends THREE.Object3D {
         }
         this.children = [];
         this.createELines();
+
+
+        // const end = performance.now();
+        // console.log(`update: ${end - start}ms`);
     }
 }
 
@@ -89,7 +99,7 @@ class ElectricLines3D extends THREE.Object3D {
 /**
  * 電界
  */
-class ElectricField {
+export class ElectricField {
 
 
     /**
@@ -195,45 +205,6 @@ class ElectricField {
 
     };
 
-
-
-}
-
-/// 電界
-export class Field3D extends THREE.Object3D {
-
-
-    private field: ElectricField;
-    private electricLines3d: THREE.Object3D;
-
-
-    /**
-     * コンストラクタ
-     * @param charges 電荷の配列
-     */
-    constructor(charges: Charge[]) {
-        super();
-        this.field = new ElectricField(charges);
-        this.electricLines3d = new ElectricLines3D(this.field);
-    }
-
-
-    /**
-     * フィールドの更新
-     */
-    update = () => {
-        if (this.children.find((child) => child === this.electricLines3d) != null)
-            this.electricLines3d?.update();
-    }
-
-
-    /**
-     * 電気力線の表示/非表示を切り替える
-     * @param visible 表示するかどうか
-     */
-    enableElectricLines = (visible: boolean) => {
-        this.electricLines3d.visible = visible;
-    };
 
 
 }

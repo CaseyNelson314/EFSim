@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Editor } from './editor';
 import { Dragger } from './dragger';
-import { Field3D } from './field3d';
+import { ElectricField, ElectricLines3D } from './field3d';
 import { throttle } from 'throttle-debounce';
 import { Charge } from './charge';
 import { PointCharge } from './pointCharge';
@@ -75,7 +75,7 @@ const start = () => {
         Store.RegisterChargeGenerator("InfinityCylinderSurfaceCharge", InfinityCylinderSurfaceCharge.fromJSON);
     }
 
-    
+
     // 点電荷たち
     const charges: Charge[] = [];
 
@@ -89,8 +89,8 @@ const start = () => {
     }
 
     // シミュレーション空間
-    const field3d = new Field3D(charges);
-    scene.add(field3d);
+    const electricForceLine = new ElectricLines3D(new ElectricField(charges));
+    scene.add(electricForceLine);
 
     // 電荷をドラッグして移動させるやつ
     const dragger = new Dragger(charges, camera, dom, controls, scene);
@@ -103,7 +103,7 @@ const start = () => {
         parameterEditor = charge.createEditor();
 
         parameterEditor.addEventListener('input', throttle(100, () => {
-            field3d.update();
+            electricForceLine.update();
         }));
         dragger.setMode('translate');
         parameterEditor.addEventListener('position-editor', () => {
@@ -116,16 +116,17 @@ const start = () => {
 
         parameterEditor.enable();
 
-        field3d.update();
+        electricForceLine.update();
     }
 
     // 電荷が移動中
-    dragger.addEventListener('object-change', throttle(100, () => {
-        field3d.update();
+    dragger.addEventListener('object-change', throttle(50, () => {
+        electricForceLine.update();
     }));
-    dragger.addEventListener('object-change', () => {
+    dragger.addEventListener('object-change', throttle(300, () => {
+        // パラメーター編集エディタの更新
         parameterEditor.update();
-    });
+    }));
 
     // 電荷が選択された
     dragger.addEventListener('object-selected', (charge: Charge) => {
@@ -144,13 +145,13 @@ const start = () => {
         dragger.attach(newCharge);
         parameterEditor.disable();
         onSelected(newCharge);
-        field3d.update();
+        electricForceLine.update();
     }
 
     const deleteCharge = () => {
         if (dragger.getSelected()) {
             dragger.removeSelected();
-            field3d.update();
+            electricForceLine.update();
 
             if (charges.length > 0) {
                 // 電荷が残っている場合別の電化に再アタッチする
@@ -235,9 +236,9 @@ const start = () => {
     // 電気力線 表示/非表示
     {
         const checkbox = document.getElementById('checkbox_electric_lines') as HTMLInputElement;
-        field3d.enableElectricLines(checkbox.checked); // 初期値
+        electricForceLine.visible = checkbox.checked; // 初期値
         checkbox.addEventListener('change', (e) => {
-            field3d.enableElectricLines((e.target as HTMLInputElement).checked);
+            electricForceLine.visible = (e.target as HTMLInputElement).checked;
         });
     }
 
