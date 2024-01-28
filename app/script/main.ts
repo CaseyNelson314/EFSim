@@ -76,24 +76,21 @@ const start = () => {
     }
 
 
-    // 点電荷たち
-    const charges: Charge[] = [];
+    // 電界 (シミュレーション空間)
+    const electricField = new ElectricField();
 
-    // 電荷を作成
-    {
-        charges.push(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
-        charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
-        charges.push(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
-        charges.push(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
-        scene.add(...charges);
-    }
+    electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
+    electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
+    electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
+    electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
+    scene.add(electricField);
 
-    // シミュレーション空間
-    const electricForceLine = new ElectricLines3D(new ElectricField(charges));
+    // 電気力線
+    const electricForceLine = new ElectricLines3D(electricField);
     scene.add(electricForceLine);
 
     // 電荷をドラッグして移動させるやつ
-    const dragger = new Dragger(charges, camera, dom, controls, scene);
+    const dragger = new Dragger(electricField.children, camera, dom, controls, scene);
 
     // パラメーター設定用エディタ
     let parameterEditor = new Editor();
@@ -113,10 +110,7 @@ const start = () => {
             dragger.setMode('rotate');
         });
 
-
         parameterEditor.enable();
-
-        electricForceLine.update();
     }
 
     // 電荷が移動中
@@ -140,28 +134,32 @@ const start = () => {
 
 
     const addCharge = (newCharge: Charge) => {
-        scene.add(newCharge);
-        charges.push(newCharge);
-        dragger.attach(newCharge);
         parameterEditor.disable();
+        electricField.addCharge(newCharge);
+        dragger.attach(newCharge);
         onSelected(newCharge);
+        parameterEditor.update();
         electricForceLine.update();
     }
 
     const deleteCharge = () => {
         if (dragger.getSelected()) {
-            dragger.removeSelected();
-            electricForceLine.update();
 
-            if (charges.length > 0) {
+            electricField.removeCharge(dragger.getSelected()! as Charge);
+
+            parameterEditor.disable();
+            if (electricField.getChargeCount() > 0) {
                 // 電荷が残っている場合別の電化に再アタッチする
-                dragger.attach(charges[0]!);
-                onSelected(charges[0]!);
+                dragger.attach(electricField.children[0]!);
+                onSelected(electricField.children[0]! as Charge);
             }
             else {
                 // 何も無くなった
-                parameterEditor.disable();
+                dragger.detach();
             }
+
+            electricForceLine.update();
+
         }
     };
 

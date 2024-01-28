@@ -25,7 +25,10 @@ export class ElectricLines3D extends THREE.Object3D {
 
         for (const charge of this.field.charges) {
 
-            if (charge.getChargeType() === ChargeType.Neutral) continue;
+            // 中性電荷は力線を生成しない
+            if (charge.getChargeType() === ChargeType.Neutral) {
+                continue;
+            }
 
             const points = charge.electricForceLinesDirection();
 
@@ -70,13 +73,17 @@ export class ElectricLines3D extends THREE.Object3D {
         }
 
         // ジオメトリを結合し、描画負荷を軽減 (draw call削減)
-        const lineGeometry = BufferGeometryUtils.mergeGeometries(lines);
-        const line = new THREE.Mesh(lineGeometry, this.lineMaterial);
-        this.add(line);
+        if (lines.length !== 0) {
+            const lineGeometry = BufferGeometryUtils.mergeGeometries(lines);
+            const line = new THREE.Mesh(lineGeometry, this.lineMaterial);
+            this.add(line);
+        }
 
-        const coneGeometry = BufferGeometryUtils.mergeGeometries(cones);
-        const cone = new THREE.Mesh(coneGeometry, this.coneMaterial);
-        this.add(cone);
+        if (cones.length !== 0) {
+            const coneGeometry = BufferGeometryUtils.mergeGeometries(cones);
+            const cone = new THREE.Mesh(coneGeometry, this.coneMaterial);
+            this.add(cone);
+        }
 
     }
 
@@ -92,10 +99,6 @@ export class ElectricLines3D extends THREE.Object3D {
         }
         this.children = [];
         this.createELines();
-
-
-        // const end = performance.now();
-        // console.log(`update: ${end - start}ms`);
     }
 }
 
@@ -104,22 +107,63 @@ export class ElectricLines3D extends THREE.Object3D {
 /**
  * 電界
  */
-export class ElectricField {
+export class ElectricField extends THREE.Object3D {
 
 
-    /**
-     * 電荷の配列
-     */
-    charges: Charge[];
+    private charges: Charge[];
 
 
     /**
      * コンストラクタ
      * @param charges 電荷の配列
      */
-    constructor(charges: Charge[]) {
+    constructor(charges: Charge[] = []) {
+        super();
         this.charges = charges;
     }
+
+
+    /**
+     * 電荷を追加
+     * @param charge 電荷
+     */
+    addCharge(charge: Charge) {
+
+        this.charges.push(charge);
+        this.add(charge);
+
+    }
+
+
+    /**
+     * 電荷の個数を取得
+     * @returns 電荷の個数
+     */
+    getChargeCount() {
+
+        return this.charges.length;
+
+    }
+
+
+    /**
+     * 電荷を削除
+     * @param charge 電荷
+     * @returns 削除に成功したかどうか
+     */
+    removeCharge(charge: Charge) {
+
+        const index = this.charges.indexOf(charge);
+        if (index !== -1) {
+            this.charges.splice(index, 1);
+            this.remove(charge);
+            return true;
+        }
+
+        return false;
+
+    }
+
 
 
     /**
