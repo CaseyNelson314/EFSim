@@ -1,25 +1,26 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Charge } from './charge.js';
 
 
 // 点電荷をドラッグして移動させるクラス
 export class Dragger {
+    
     private transControls: TransformControls;
-    private pointCharges: Charge[];
+    private pointCharges: THREE.Object3D[];
     private camera: THREE.PerspectiveCamera;
     private dom: HTMLElement;
     private scene: THREE.Scene;
     private ray: THREE.Raycaster;
     private pointer: THREE.Vector2;
     private listeners: { type: string, listener: Function }[];
-    private selected: Charge | null;
+    private selected: THREE.Object3D | null;
+
     private onDownPosition: THREE.Vector2;
     private onUpPosition: THREE.Vector2;
 
     constructor(
-        pointCharges: Charge[],
+        pointCharges: THREE.Object3D[],
         camera: THREE.PerspectiveCamera,
         dom: HTMLElement,
         controls: OrbitControls,
@@ -65,7 +66,7 @@ export class Dragger {
 
             if (intersects.length > 0) {
 
-                const object = intersects[0]!.object as Charge;
+                const object = intersects[0]!.object as THREE.Object3D;
 
                 if (object !== this.transControls.object) {
 
@@ -131,27 +132,18 @@ export class Dragger {
         return this.selected;
     }
 
-    attach = (object: Charge) => {
+    attach = (object: THREE.Object3D) => {
         this.transControls.attach(object);
         this.selected = object;
     }
 
-    removeSelected = () => {
-        if (this.selected !== null) {
-            this.transControls.detach();
-            this.scene.remove(this.selected);
-            this.selected.dispose();
-            this.pointCharges.splice(this.pointCharges.indexOf(this.selected), 1);
-            this.selected = null;
+    detach = () => {
 
-            // オブジェクトが選択解除されたことを通知
-            for (let listener of this.listeners) {
-                if (listener.type === 'object-unselected') {
-                    listener.listener();
-                }
-            }
-        }
+        this.transControls.detach();
+        this.selected = null;
+
     }
+    
 
     setMode = (mode: 'translate' | 'rotate' | 'scale') => {
         this.transControls.setMode(mode);
