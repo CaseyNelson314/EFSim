@@ -30,14 +30,36 @@ abstract class ParameterEditor {
 
 }
 
+
+/**
+ * 座標エディタのパラメーター
+ */
 interface PositionEditorOption {
+
+    /**
+     * 電荷の位置
+     */
     position: THREE.Vector3;
+
+    /**
+     * 位置が変更されたときのイベントハンドラー
+     */
     onChange: (position: THREE.Vector3) => void;
+
 }
 
+
+/**
+ * 座標エディタ
+ * @note 座標を編集できるHTML要素を表示する
+ */
 export class PositionEditor implements ParameterEditor {
 
 
+    /**
+     * コンストラクター
+     * @param options
+     */
     constructor(options: PositionEditorOption) {
 
         this.position = options.position;
@@ -79,7 +101,7 @@ export class PositionEditor implements ParameterEditor {
         }
 
         if (type === 'position-editor') {
-            this.editorArea.addEventListener('click',  () => {
+            this.editorArea.addEventListener('click', () => {
                 listener();
             });
         }
@@ -90,6 +112,10 @@ export class PositionEditor implements ParameterEditor {
     private position: THREE.Vector3
     private onChange: ((position: THREE.Vector3) => void)[];
 
+
+    /**
+     * HTML要素の値が変更されたときに呼び出される
+     */
     private onChangePosition = () => {
 
         const x = Number(this.xInput.value);
@@ -113,14 +139,37 @@ export class PositionEditor implements ParameterEditor {
 }
 
 
+
+/**
+ * 回転角エディタのパラメーター
+ */
 interface RotationEditorOption {
+
+    /**
+     * 回転角
+     */
     rotation: THREE.Euler;
+
+    /**
+     * 回転角が変更されたときのイベントハンドラー
+     */
     onChange: (rotation: THREE.Euler) => void;
+
 }
 
+
+/**
+ * 回転角エディタ
+ * @note 回転角を編集できるHTML要素を表示する
+ * @note 角度は度数法で表示されるが、内部的にはラジアンで扱う
+ */
 export class RotationEditor implements ParameterEditor {
 
 
+    /**
+     * コンストラクター
+     * @param options
+     */
     constructor(options: RotationEditorOption) {
 
         this.rotation = options.rotation;
@@ -175,6 +224,9 @@ export class RotationEditor implements ParameterEditor {
     private onChange: ((rotation: THREE.Euler) => void)[];
 
 
+    /**
+     * HTML要素の値が変更されたときに呼び出される
+     */
     private onChangeRotation = () => {
 
         const x = THREE.MathUtils.degToRad(Number(this.xInput.value));
@@ -196,18 +248,62 @@ export class RotationEditor implements ParameterEditor {
 
 }
 
+
+/**
+ * 数値エディタのパラメーター
+ */
 interface NumberEditorOption {
+
+    /**
+     * パラメーター名
+     */
     name: string;
+
+    /**
+     * 表示される値
+     * @note エディタ側が値を変更することはない
+     */
     value: number;
+
+    /**
+     * 値が変更されたときのイベントハンドラー
+     */
     onChange: (value: number) => void;
+
+    /**
+     * 値の変更量
+     */
     step?: number;
+
+    /**
+     * 最小値
+     */
     min?: number;
+
+    /**
+     * 最大値
+     */
     max?: number;
+
+    /**
+     * 小数点以下の桁数
+     */
     digits?: number;
+
 }
 
+
+/**
+ * 数値エディタ
+ * @note 数値を編集できるHTML要素を表示する
+ */
 export class NumberEditor implements ParameterEditor {
 
+
+    /**
+     * コンストラクター
+     * @param options
+     */
     constructor(options: NumberEditorOption) {
 
         this.options = options;
@@ -282,6 +378,9 @@ export class NumberEditor implements ParameterEditor {
     private onChange: ((value: number) => void)[];
 
 
+    /**
+     * HTML要素の値が変更されたときに呼び出される
+     */
     private onChangeNumber = () => {
 
         let value = Number(this.input.value);
@@ -310,23 +409,38 @@ export class NumberEditor implements ParameterEditor {
 
 
 
-export class Editor {
+/**
+ * パラメーター設定用エディタ
+ * @note パラメーターを編集できるHTML要素を表示する
+ */
+export class Editor implements ParameterEditor {
 
     private parameters: ParameterEditor[] = [];
 
 
+    /**
+     * エディタを追加する
+     * @param editor エディタ
+     */
     add = (editor: ParameterEditor) => {
         this.parameters.push(editor);
         return this;
     }
 
 
+    /**
+     * エディタを表示する
+     */
     enable = () => {
         for (const parameter of this.parameters) {
             parameter.enable();
         }
     }
 
+
+    /**
+     * エディタを非表示にする
+     */
     disable = () => {
         for (const parameter of this.parameters) {
             parameter.disable();
@@ -344,6 +458,9 @@ export class Editor {
     }
 
 
+    /**
+     * 電荷が変更(移動など)されたときに呼び出す
+     */
     addEventListener = (type: 'input' | 'position-editor' | 'rotation-editor', listener: () => void) => {
         for (const parameter of this.parameters) {
             parameter.addEventListener(type, listener);
