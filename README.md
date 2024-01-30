@@ -2,7 +2,7 @@
 
 三次元電界シミュレータ <https://caseynelson314.github.io/EFSim/>
 
-![image](https://github.com/CaseyNelson314/EFSim/assets/91818705/d9f6cd13-0ae5-4ea5-91fb-b2342f9f348f)
+![image](https://github.com/CaseyNelson314/EFSim/assets/91818705/82e27f07-901b-4723-8832-4d2d52e75845)
 
 ## 使用方法
 
