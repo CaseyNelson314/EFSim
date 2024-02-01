@@ -21,11 +21,11 @@ const start = () => {
     const dom = document.getElementById('canvas')!;
 
 
-    // シーン作成
+    // シーン
     const scene = new THREE.Scene();
 
 
-    // レンダラー作成
+    // レンダラー
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true
@@ -35,13 +35,13 @@ const start = () => {
     dom.appendChild(renderer.domElement);
 
 
-    // カメラ作成
+    // カメラ
     const aspect = dom.offsetWidth / dom.offsetHeight;
     const camera = new THREE.PerspectiveCamera(60, aspect);
     camera.position.set(150, 150, 150);
 
 
-    // マウスコントロール作成
+    // マウスコントロール
     const controls = new OrbitControls(camera, dom);
     controls.autoRotate = true;    // 自動回転
     controls.autoRotateSpeed = 1;  // 自動回転の速度
@@ -52,9 +52,6 @@ const start = () => {
     // リサイズ処理
     {
         const resizeObserver = new ResizeObserver((entries) => {
-            if (entries.length === 0) {
-                return;
-            }
             const { width, height } = entries[0]!.contentRect;
             renderer.setSize(width, height);
             camera.aspect = width / height;
@@ -64,26 +61,15 @@ const start = () => {
     }
 
 
-    // 文字列(JSON)から電荷を構築できるように登録
-    {
-        Store.RegisterChargeGenerator("PointCharge", PointCharge.fromJSON);
-        Store.RegisterChargeGenerator("InfinityLineCharge", InfinityLineCharge.fromJSON);
-        Store.RegisterChargeGenerator("InfinitySurfaceCharge", InfinitySurfaceCharge.fromJSON);
-        Store.RegisterChargeGenerator("SphereSurfaceCharge", SphereSurfaceCharge.fromJSON);
-        Store.RegisterChargeGenerator("SphereVolumeCharge", SphereVolumeCharge.fromJSON);
-        Store.RegisterChargeGenerator("InfinityCylinderVolumeCharge", InfinityCylinderVolumeCharge.fromJSON);
-        Store.RegisterChargeGenerator("InfinityCylinderSurfaceCharge", InfinityCylinderSurfaceCharge.fromJSON);
-    }
-
-
     // 電界 (シミュレーション空間)
     const electricField = new ElectricField();
+    scene.add(electricField);
 
+    // デモとして電荷を追加
     electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
     electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
     electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
     electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
-    scene.add(electricField);
 
     // 電気力線
     const electricForceLine = new ElectricLines3D(electricField);
@@ -97,6 +83,8 @@ const start = () => {
 
 
     const onSelected = (charge: Charge) => {
+        parameterEditor.disable();
+
         parameterEditor = charge.createEditor();
 
         parameterEditor.addEventListener('input', throttle(100, () => {
@@ -112,6 +100,7 @@ const start = () => {
 
         parameterEditor.enable();
     }
+
 
     // 電荷が移動中
     dragger.addEventListener('object-change', throttle(100, () => {
@@ -134,7 +123,6 @@ const start = () => {
 
 
     const addCharge = (newCharge: Charge) => {
-        parameterEditor.disable();
         electricField.addCharge(newCharge);
         dragger.attach(newCharge);
         onSelected(newCharge);
@@ -150,8 +138,9 @@ const start = () => {
             parameterEditor.disable();
             if (electricField.getChargeCount() > 0) {
                 // 電荷が残っている場合別の電化に再アタッチする
-                dragger.attach(electricField.children[0]!);
-                onSelected(electricField.children[0]! as Charge);
+                const next = electricField.children[0]!;
+                dragger.attach(next);
+                onSelected(next as Charge);
             }
             else {
                 // 何も無くなった

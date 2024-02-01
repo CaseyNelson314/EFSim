@@ -3,6 +3,7 @@ import { Charge, ChargeToChargeType } from './charge';
 import { kCoulomb } from './constants';
 import { GSS } from './gss';
 import { Editor, PositionEditor, NumberEditor } from './editor';
+import { Store } from './store';
 
 
 
@@ -49,7 +50,7 @@ export class PointCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    override distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3) => {
 
         return position.clone().sub(this.position);
 
@@ -197,3 +198,5 @@ export class PointCharge extends Charge {
 
 
 }
+
+Store.RegisterChargeGenerator("PointCharge", PointCharge.fromJSON);

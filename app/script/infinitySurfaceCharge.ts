@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { Editor, PositionEditor, NumberEditor, RotationEditor } from './editor';
+import { Store } from './store';
 
 
 /**
@@ -49,7 +50,7 @@ export class InfinitySurfaceCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    override distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3) => {
 
         // 計算を行いやすいよう、面電荷がz=0に位置するように観測点の座標を変換する
         const positionTransformed = position.clone().sub(this.position);         // 面電荷の中心を原点に移動
@@ -234,3 +235,6 @@ export class InfinitySurfaceCharge extends Charge {
     }
 
 }
+
+Store.RegisterChargeGenerator("InfinitySurfaceCharge", InfinitySurfaceCharge.fromJSON);
+        

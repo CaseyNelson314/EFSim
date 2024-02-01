@@ -3,6 +3,8 @@ import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { GSS } from './gss';
 import { Editor, PositionEditor, NumberEditor } from './editor';
+import { Store } from './store';
+
 
 /**
  * 球面上に電荷が分布している電荷
@@ -32,7 +34,7 @@ export class SphereSurfaceCharge extends Charge {
         this.arealDensity = arealDensity;
 
     }
-    
+
 
     /**
      * 電荷の正負を取得する
@@ -50,7 +52,7 @@ export class SphereSurfaceCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    override distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3) => {
 
         return position.clone().sub(this.position);
 
@@ -68,7 +70,7 @@ export class SphereSurfaceCharge extends Charge {
         return position.distanceToSquared(this.position) < (this.radius + threshold) ** 2;
 
     }
-    
+
 
     /**
      * 任意の座標における、この電荷からの電界ベクトルを返す
@@ -91,7 +93,7 @@ export class SphereSurfaceCharge extends Charge {
         else {
             // E=(σa^2)/(εr^3)
             return diffVector.multiplyScalar(
-                (this.arealDensity * this.radius ** 2) / (permittivity * diffLengthSq ** (3/2))
+                (this.arealDensity * this.radius ** 2) / (permittivity * diffLengthSq ** (3 / 2))
             );
         }
 
@@ -113,7 +115,7 @@ export class SphereSurfaceCharge extends Charge {
 
     }
 
-    
+
     /**
      * 解放
      * @note ジオメトリの破棄等を行う
@@ -129,13 +131,13 @@ export class SphereSurfaceCharge extends Charge {
      * JSONから電荷を生成する
      */
     static override fromJSON = (json: any) => {
-        
+
         return new SphereSurfaceCharge(
             new THREE.Vector3(json.position.x, json.position.y, json.position.z),
             json.radius,
             json.arealDensity
-        );        
-        
+        );
+
     }
 
 
@@ -218,3 +220,5 @@ export class SphereSurfaceCharge extends Charge {
     }
 
 }
+
+Store.RegisterChargeGenerator("SphereSurfaceCharge", SphereSurfaceCharge.fromJSON);

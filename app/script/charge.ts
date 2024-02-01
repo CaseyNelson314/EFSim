@@ -42,14 +42,6 @@ export abstract class Charge extends THREE.Mesh {
 
 
     /**
-     * 任意の座標における電荷との距離ベクトルを取得する
-     * @param position 任意の座標
-     * @returns 電荷との距離ベクトル
-     */
-    abstract distanceFrom: (position: THREE.Vector3) => THREE.Vector3;
-
-
-    /**
      * 任意の座標が電荷に接触しているかどうかを判定する
      * @param position 任意の座標
      * @param threshold 閾値

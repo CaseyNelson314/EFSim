@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { Editor, PositionEditor, NumberEditor, RotationEditor } from './editor';
+import { Store } from './store';
+
 
 /**
  * 球面上に電荷が分布している電荷
@@ -30,6 +32,7 @@ export class InfinityCylinderVolumeCharge extends Charge {
 
         this.radius = radius;
         this.volumeDensity = volumeDensity;
+
     }
 
 
@@ -49,7 +52,7 @@ export class InfinityCylinderVolumeCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    override distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3) => {
 
         // 計算を行いやすいよう、線電荷がx=z=0に位置するように観測点の座標を変換する
         const positionTransformed = position.clone().sub(this.position);              // 線電荷の中心を原点に移動
@@ -255,3 +258,5 @@ export class InfinityCylinderVolumeCharge extends Charge {
     }
 
 }
+
+Store.RegisterChargeGenerator("InfinityCylinderVolumeCharge", InfinityCylinderVolumeCharge.fromJSON);

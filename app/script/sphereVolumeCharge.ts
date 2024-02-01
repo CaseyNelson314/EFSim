@@ -3,6 +3,7 @@ import { Charge, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { GSS } from './gss';
 import { Editor, PositionEditor, NumberEditor } from './editor';
+import { Store } from './store';
 
 
 /**
@@ -33,8 +34,8 @@ export class SphereVolumeCharge extends Charge {
         this.volumeDensity = volumeDensity;
 
     }
-    
-    
+
+
     /**
      * 電荷の正負を取得する
      * @returns 電荷の正負
@@ -51,7 +52,7 @@ export class SphereVolumeCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    override distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3) => {
 
         return position.clone().sub(this.position);
 
@@ -91,7 +92,7 @@ export class SphereVolumeCharge extends Charge {
         }
         else {
             // E=(ρa^3/3ε) / r^3
-            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq ** (3/2)));
+            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq ** (3 / 2)));
         }
 
     }
@@ -128,13 +129,13 @@ export class SphereVolumeCharge extends Charge {
      * JSONから電荷を生成する
      */
     static override fromJSON = (json: any) => {
-        
+
         return new SphereVolumeCharge(
             new THREE.Vector3(json.position.x, json.position.y, json.position.z),
             json.radius,
             json.volumeDensity
         );
-        
+
     }
 
 
@@ -142,7 +143,7 @@ export class SphereVolumeCharge extends Charge {
      * 電荷をJSONに変換する
      */
     override toJSON = () => {
-        
+
         return {
             position: {
                 x: this.position.x,
@@ -222,3 +223,5 @@ export class SphereVolumeCharge extends Charge {
 
 
 }
+
+Store.RegisterChargeGenerator("SphereVolumeCharge", SphereVolumeCharge.fromJSON);
