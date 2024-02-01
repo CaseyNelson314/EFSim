@@ -80,19 +80,19 @@ export class SphereVolumeCharge extends Charge {
     override electricFieldVector = (position: THREE.Vector3) => {
 
         const diffVector = this.distanceFrom(position);
-        const diffLengthSq = diffVector.lengthSq();
+        const diffLength = diffVector.length();
 
-        if (diffLengthSq < Number.EPSILON) {
+        if (diffLength < Number.EPSILON) {
             return new THREE.Vector3();  // 観測点が点電荷と重なっている場合 (0除算防止)
         }
 
-        if (diffLengthSq < this.radius ** 2) {
+        if (diffLength < this.radius) {
             // E=ρr / 3ε
-            return diffVector.multiplyScalar(this.volumeDensity * Math.sqrt(diffLengthSq) / (3 * permittivity));
+            return diffVector.multiplyScalar(this.volumeDensity * diffLength / (3 * permittivity));
         }
         else {
             // E=(ρa^3/3ε) / r^3
-            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLengthSq ** (3 / 2)));
+            return diffVector.multiplyScalar((this.volumeDensity * this.radius ** 3) / (3 * permittivity * diffLength ** 3));
         }
 
     }
@@ -106,7 +106,7 @@ export class SphereVolumeCharge extends Charge {
 
         return GSS(25).map((vector) => {
             return {
-                begin: this.position.clone().add(vector.clone().multiplyScalar(this.radius)),  // 始点は球の外周上
+                begin: this.position,  // 始点は球の中心
                 direction: vector
             }
         });
