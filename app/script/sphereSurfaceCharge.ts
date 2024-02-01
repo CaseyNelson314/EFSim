@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Charge, ChargeToChargeType } from './charge';
+import { Charge, ChargeType, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { GSS } from './gss';
 import { Editor, PositionEditor, NumberEditor } from './editor';
@@ -40,7 +40,7 @@ export class SphereSurfaceCharge extends Charge {
      * 電荷の正負を取得する
      * @returns 電荷の正負
      */
-    override getChargeType = () => {
+    override getChargeType = (): ChargeType => {
 
         return ChargeToChargeType(this.arealDensity);
 
@@ -52,7 +52,7 @@ export class SphereSurfaceCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    private distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3): THREE.Vector3 => {
 
         return position.clone().sub(this.position);
 
@@ -65,7 +65,7 @@ export class SphereSurfaceCharge extends Charge {
      * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (position: THREE.Vector3, threshold: number) => {
+    override isContact = (position: THREE.Vector3, threshold: number): boolean => {
 
         return position.distanceToSquared(this.position) < (this.radius + threshold) ** 2;
 
@@ -77,7 +77,7 @@ export class SphereSurfaceCharge extends Charge {
      * @param position 任意の座標
      * @returns 電界ベクトル
      */
-    override electricFieldVector = (position: THREE.Vector3) => {
+    override electricFieldVector = (position: THREE.Vector3): THREE.Vector3 => {
 
         const diffVector = this.distanceFrom(position);
         const diffLengthSq = diffVector.lengthSq();
@@ -104,7 +104,7 @@ export class SphereSurfaceCharge extends Charge {
      * 電気力線の始点、方向ベクトルの配列を返す
      * @returns 電気力線の始点、方向ベクトルの配列
      */
-    override electricForceLinesDirection = () => {
+    override electricForceLinesDirection = (): { begin: THREE.Vector3, direction: THREE.Vector3 }[] => {
 
         return GSS(25).map((vector) => {
             return {
@@ -130,7 +130,7 @@ export class SphereSurfaceCharge extends Charge {
     /**
      * JSONから電荷を生成する
      */
-    static override fromJSON = (json: any) => {
+    static override fromJSON = (json: any): Charge => {
 
         return new SphereSurfaceCharge(
             new THREE.Vector3(json.position.x, json.position.y, json.position.z),
@@ -162,7 +162,7 @@ export class SphereSurfaceCharge extends Charge {
     /**
      * パラメーター設定用エディタを生成する
      */
-    override createEditor = () => {
+    override createEditor = (): Editor => {
 
         const positionEditor = new PositionEditor({
             position: this.position,

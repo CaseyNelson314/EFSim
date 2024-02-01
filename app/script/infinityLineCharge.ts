@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Charge, ChargeToChargeType } from './charge';
+import { Charge, ChargeType, ChargeToChargeType } from './charge';
 import { permittivity } from './constants';
 import { Editor, PositionEditor, NumberEditor, RotationEditor } from './editor';
 import { Store } from './store';
@@ -38,7 +38,7 @@ export class InfinityLineCharge extends Charge {
      * 電荷の正負を取得する
      * @returns 電荷の正負
      */
-    override getChargeType = () => {
+    override getChargeType = (): ChargeType => {
 
         return ChargeToChargeType(this.lineDensity);
 
@@ -50,7 +50,7 @@ export class InfinityLineCharge extends Charge {
      * @param position 任意の座標
      * @returns 電荷との距離ベクトル
      */
-    private distanceFrom = (position: THREE.Vector3) => {
+    private distanceFrom = (position: THREE.Vector3): THREE.Vector3 => {
 
         // 計算を行いやすいよう、線電荷がx=z=0に位置するように観測点の座標を変換する
         const positionTransformed = position.clone().sub(this.position);              // 線電荷の中心を原点に移動
@@ -68,7 +68,7 @@ export class InfinityLineCharge extends Charge {
      * @param threshold 閾値
      * @returns 接触しているかどうか
      */
-    override isContact = (position: THREE.Vector3, threshold: number) => {
+    override isContact = (position: THREE.Vector3, threshold: number): boolean => {
 
         return this.distanceFrom(position).lengthSq() < threshold ** 2;
 
@@ -80,7 +80,7 @@ export class InfinityLineCharge extends Charge {
      * @param position 任意の座標
      * @returns 電界ベクトル
      */
-    override electricFieldVector = (position: THREE.Vector3) => {
+    override electricFieldVector = (position: THREE.Vector3): THREE.Vector3 => {
 
         const distance = this.distanceFrom(position);
 
@@ -97,7 +97,7 @@ export class InfinityLineCharge extends Charge {
      * 電気力線の始点、方向ベクトルの配列を返す
      * @returns 電気力線の始点、方向ベクトルの配列
      */
-    override electricForceLinesDirection = () => {
+    override electricForceLinesDirection = (): { begin: THREE.Vector3, direction: THREE.Vector3 }[] => {
 
         const heightCount = 6;
         const thetaCount = 10;
@@ -142,7 +142,7 @@ export class InfinityLineCharge extends Charge {
     /**
      * JSONから電荷を生成する
      */
-    static override fromJSON = (json: any) => {
+    static override fromJSON = (json: any): Charge => {
 
         return new InfinityLineCharge(
             new THREE.Vector3(json.position.x, json.position.y, json.position.z),
@@ -178,7 +178,7 @@ export class InfinityLineCharge extends Charge {
     /**
      * パラメーター設定用エディタを生成する
      */
-    override createEditor = () => {
+    override createEditor = (): Editor => {
 
         const positionEditor = new PositionEditor({
             position: this.position,
