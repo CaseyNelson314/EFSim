@@ -12,7 +12,6 @@ import { SphereSurfaceCharge } from './sphereSurfaceCharge';
 import { SphereVolumeCharge } from './sphereVolumeCharge';
 import { InfinityCylinderVolumeCharge } from './infinityCylinderVolumeCharge';
 import { InfinityCylinderSurfaceCharge } from './infinityCylinderSurfaceCharge';
-import { NewPointCharge } from './newPointCharge';
 import { Store } from './store';
 
 const start = () => {
@@ -156,11 +155,6 @@ const start = () => {
     // 点電荷追加
     document.getElementById('add_point_charge_button')!.addEventListener('click', () => {
         addCharge(new PointCharge(new THREE.Vector3(), 10));
-    });
-
-    // 新しい点電荷追加
-    document.getElementById('add_new_point_charge_button')!.addEventListener('click', () => {
-        addCharge(new NewPointCharge(new THREE.Vector3(), 10));
     });
 
     // 線電荷追加
