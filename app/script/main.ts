@@ -38,7 +38,7 @@ const start = () => {
     // カメラ
     const aspect = dom.offsetWidth / dom.offsetHeight;
     const camera = new THREE.PerspectiveCamera(60, aspect);
-    camera.position.set(150, 150, 150);
+    camera.position.set(250, 250, 250);
 
 
     // マウスコントロール
@@ -64,12 +64,6 @@ const start = () => {
     // 電界 (シミュレーション空間)
     const electricField = new ElectricField();
     scene.add(electricField);
-
-    // デモとして電荷を追加
-    electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, -100), 10));
-    electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, -25), new THREE.Euler(), -0.001));
-    electricField.addCharge(new InfinitySurfaceCharge(new THREE.Vector3(0, 0, 25), new THREE.Euler(), 0.001));
-    electricField.addCharge(new PointCharge(new THREE.Vector3(0, 0, 100), -10));
 
     // 電気力線
     const electricForceLine = new ElectricLines3D(electricField);
@@ -101,7 +95,6 @@ const start = () => {
         parameterEditor.enable();
     }
 
-
     // 電荷が移動中
     dragger.addEventListener('object-change', throttle(100, () => {
         electricForceLine.update();
@@ -129,6 +122,13 @@ const start = () => {
         parameterEditor.update();
         electricForceLine.update();
     }
+
+
+    // デモとして電荷を追加
+    addCharge(new PointCharge(new THREE.Vector3(0, 0, -150), -10));
+    addCharge(new PointCharge(new THREE.Vector3(0, 0, 150), -10));
+    addCharge(new PointCharge(new THREE.Vector3(0, 0, 0), 10));
+
 
     const deleteCharge = () => {
         if (dragger.getSelected()) {
