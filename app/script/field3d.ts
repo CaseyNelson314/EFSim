@@ -35,7 +35,7 @@ export class ElectricLines3D extends THREE.Object3D {
             for (const point of points) {
 
                 // 電気力線の連続点から線分ジオメトリを生成
-                const points = this.field.electricForceLinePoints(charge, point.begin, point.direction, 500);
+                const points = this.field.electricForceLinePoints(charge, point.begin, point.direction, 1000);
 
                 // 力線を生成
                 if (points.length < 2) {
@@ -183,7 +183,7 @@ export class ElectricField extends THREE.Object3D {
 
     }
 
-
+    
     /**
      * 特定の電荷からでる電気力線の連続点を生成
      * @param originCharge 線電荷が出る電荷
@@ -216,7 +216,7 @@ export class ElectricField extends THREE.Object3D {
             }
 
             // 電界ベクトルの方向に長さ1だけ移動 (これを繰り返すことで電気力線を生成)
-            origin.add(electricFieldVector.normalize());
+            origin.add(electricFieldVector.normalize().multiplyScalar(2));
             points.push(origin.clone());
 
             // 力線が他の電荷と接触したら終了
@@ -238,7 +238,7 @@ export class ElectricField extends THREE.Object3D {
                 }
 
                 // 他電荷との衝突判定
-                if (charge.isContact(origin, 1.5)) {
+                if (charge.isContact(origin, 2)) {
                     return points;
                 }
 
